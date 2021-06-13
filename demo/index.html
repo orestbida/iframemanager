@@ -1,0 +1,85 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Test youtube videos cookie blocker</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <meta name="description" content="A page's description, usually one or two sentences."/>
+        <style>
+            body{
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 1em;
+                font-family: sans-serif;
+                line-height: 1.2;
+            }
+
+            *{
+                padding: 0;
+                margin: 0;
+            }
+        </style>
+        <link rel="stylesheet" href="../src/iframemanager.css">
+		<link rel="stylesheet" href="./assets/fonts.css">
+    </head>
+ <body>
+    <div id="_app">
+        <h1>This is a test page</h1>
+        <br>
+		<p>Demo with youtube & dailymotion config.</p>
+        <br>
+        <br>
+		
+		<h2>Simple example</h2>
+		<br>
+		<div
+            data-service="youtube" 
+            data-id="fJ9rUzIMcZQ">
+        </div>
+		
+		<br>
+		<br>
+		<h2>Example with autoscale width (fill width of parent container)</h2>
+		<br>
+		<div
+            data-service="youtube" 
+            data-id="fJ9rUzIMcZQ" 
+			data-autoscale>
+        </div>
+		<br>
+		<br>
+		<h2>Example with custom thumbnail + params (video starts muted at 21s)</h2>
+		<br>
+        <div 
+            data-service="youtube" 
+            data-id="861gfPVmgdc"
+			data-params="start=21&mute=1"
+			data-thumbnail="https://i.pinimg.com/originals/0a/4d/cb/0a4dcb92fa2d3c601b58d72720d6bec4.jpg"
+            data-thumbnailpreload
+            data-autoscale >
+        </div>
+		<br>
+		<br>
+		<h2>Daily motion video</h2>
+		<br>
+        <div 
+            data-service="dailymotion" 
+            data-id="x81n4gf"
+            data-autoscale >
+        </div>
+
+        <br>
+		<br>
+		<h2>Twitch channel embed</h2>
+		<br>
+		<div 
+        data-service="twitch" 
+        data-id="channel=bdougieYO"
+        data-title="Twitch channel stream"
+        data-autoscale></div>
+    </div>
+    <script src="../dist/iframemanager.js" defer></script>
+    <script src="app.js" defer></script>
+ </body>
+</html>
