@@ -50,7 +50,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
 - Can be integrated with any cookie consent solution
 
 ## Installation
-1. #### Download the [latest release]() or use via CDN:
+1. #### Download the [latest release](https://github.com/orestbida/iframemanager/releases/latest) or use via CDN:
 
     ```bash
     https://cdn.jsdelivr.net/gh/orestbida/iframemanager@v1.0/dist/iframemanager.js
@@ -323,39 +323,39 @@ Both `acceptService` and `rejectService` work the same way:
         currLang: 'en',
         services : {
             dailymotion : {
-				embedUrl: 'https://www.dailymotion.com/embed/video/{data-id}',
-				
-				// Use dailymotion api to obtain thumbnail
-				thumbnailUrl: function(id, callback){
-				
-					var url = "https://api.dailymotion.com/video/" + id + "?fields=thumbnail_large_url";
-					var xhttp = new XMLHttpRequest();
-					
-					xhttp.onreadystatechange = function() {
-						if (this.readyState == 4 && this.status == 200) {
-							var src = JSON.parse(this.response).thumbnail_large_url;
-							callback(src);
-						}
-					};
+                embedUrl: 'https://www.dailymotion.com/embed/video/{data-id}',
+                
+                // Use dailymotion api to obtain thumbnail
+                thumbnailUrl: function(id, callback){
+                
+                    var url = "https://api.dailymotion.com/video/" + id + "?fields=thumbnail_large_url";
+                    var xhttp = new XMLHttpRequest();
+                    
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                            var src = JSON.parse(this.response).thumbnail_large_url;
+                            callback(src);
+                        }
+                    };
 
-					xhttp.open("GET", url, true);
-					xhttp.send();
-				},
-				iframe : {
-					allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
-				},
-				cookie : {						
-					name : 'cc_dailymotion'
-				},
-				languages : {
-					'en' : {
-						notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.dailymotion.com/legal/privacy?localization=en" title="Terms and conditions" target="_blank">terms and conditions</a> of dailymotion.com.',
-						loadBtn: 'Load video',
-						loadAllBtn: 'Don\'t ask again'
-						
-					}
-				}
-			}
+                    xhttp.open("GET", url, true);
+                    xhttp.send();
+                },
+                iframe : {
+                    allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
+                },
+                cookie : {						
+                    name : 'cc_dailymotion'
+                },
+                languages : {
+                    'en' : {
+                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.dailymotion.com/legal/privacy?localization=en" title="Terms and conditions" target="_blank">terms and conditions</a> of dailymotion.com.',
+                        loadBtn: 'Load video',
+                        loadAllBtn: 'Don\'t ask again'
+                        
+                    }
+                }
+            }
         }
     });
     ```
