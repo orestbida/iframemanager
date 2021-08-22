@@ -31,10 +31,10 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
 - [**Installation**](#installation)
 - [**Configuration options & API**](#configuration-options)
 - [**Configuration examples**](#configuration-examples)
-    - How to embed youtube video
-    - How to embed dailymotion video
-    - How to embed vimeo video
-    - How to embed twitch channel/chat
+    - [How to embed youtube video](#configuration-examples)
+    - [How to embed dailymotion video](#configuration-examples)
+    - [How to embed vimeo video](#configuration-examples)
+    - [How to embed twitch channel/chat](#configuration-examples)
 - [**License**](#license)
 
 ## Features
@@ -211,7 +211,7 @@ All available options for the config. object:
                 params : 'mute=1&start=21'      // iframe's url query parameters
 
                 // function run for each iframe configured with current service
-                onload : function(data_id, callback){
+                onload : function(data_id, setThumbnail){
                     console.log("loaded iframe with data-id=" + data_id);
                 }
             },
@@ -247,12 +247,12 @@ Note: `thumbnailUrl` can be static string, dynamic string or a function:
 - `function` :
     ```javascript
     ...
-    thumbnailUrl : function(data_id, callback){
+    thumbnailUrl : function(data_id, setThumbnail){
         // fetch thumbnail url here based on data_id of the current element ...
         var url = 'fetched_url';
 
-        // pass obtained url to the callback function
-        callback(url);
+        // pass obtained url to the setThumbnail function
+        setThumbnail(url);
     },
     ...
     ```
@@ -318,7 +318,7 @@ Both `acceptService` and `rejectService` work the same way:
     <p>
 
     ```javascript
-    // Example with youtube embed
+    // Example with dailymotion embed
     manager.run({
         currLang: 'en',
         services : {
@@ -326,7 +326,7 @@ Both `acceptService` and `rejectService` work the same way:
                 embedUrl: 'https://www.dailymotion.com/embed/video/{data-id}',
                 
                 // Use dailymotion api to obtain thumbnail
-                thumbnailUrl: function(id, callback){
+                thumbnailUrl: function(id, setThumbnail){
                 
                     var url = "https://api.dailymotion.com/video/" + id + "?fields=thumbnail_large_url";
                     var xhttp = new XMLHttpRequest();
@@ -334,7 +334,7 @@ Both `acceptService` and `rejectService` work the same way:
                     xhttp.onreadystatechange = function() {
                         if (this.readyState == 4 && this.status == 200) {
                             var src = JSON.parse(this.response).thumbnail_large_url;
-                            callback(src);
+                            setThumbnail(src);
                         }
                     };
 
@@ -352,7 +352,6 @@ Both `acceptService` and `rejectService` work the same way:
                         notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.dailymotion.com/legal/privacy?localization=en" title="Terms and conditions" target="_blank">terms and conditions</a> of dailymotion.com.',
                         loadBtn: 'Load video',
                         loadAllBtn: 'Don\'t ask again'
-                        
                     }
                 }
             }
@@ -361,7 +360,82 @@ Both `acceptService` and `rejectService` work the same way:
     ```
     </p>
     </details>
+-   <details><summary>How to embed vimeo videos</summary>
+    <p>
 
+    ```javascript
+    // Example with vimeo embed
+    manager.run({
+        currLang: 'en',
+        services : {
+            vimeo : {
+                embedUrl: 'https://player.vimeo.com/video/{data-id}',
+
+                thumbnailUrl: function(id, setThumbnail){
+                
+                    var url = "https://vimeo.com/api/v2/video/" + id + ".json";
+                    var xhttp = new XMLHttpRequest();
+                    
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                            var src = JSON.parse(this.response)[0].thumbnail_large;
+                            setThumbnail(src);
+                        }
+                    };
+
+                    xhttp.open("GET", url, true);
+                    xhttp.send();
+                },
+                iframe : {
+                    allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
+                },
+                cookie : {						
+                    name : 'cc_vimeo'
+                },
+                languages : {
+                    'en' : {
+                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://vimeo.com/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of vimeo.com.',
+                        loadBtn: 'Load video',
+                        loadAllBtn: 'Don\'t ask again'
+                    }
+                }
+            }
+        }
+    });
+    ```
+    </p>
+    </details>
+-   <details><summary>How to embed twitch videos/streams/chats</summary>
+    <p>
+
+    ```javascript
+    // Example with simple twitch stream/channel
+    // IMPORTANT: replace "yourWebsite.com" with your own website
+    manager.run({
+        currLang: 'en',
+        services : {
+            twitch : {
+                embedUrl: 'https://player.twitch.tv/?{data-id}&parent=localhost&parent=yourWebsite.com',
+                iframe : {
+                    allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
+                },
+                cookie : {						
+                    name : 'cc_twitch'
+                },
+                languages : {
+                    'en' : {
+                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.twitch.tv/p/en/legal/terms-of-service/" title="Terms and conditions" target="_blank">terms and conditions</a> of twitch.com.',
+                        loadBtn: 'Load stream',
+                        loadAllBtn: 'Don\'t ask again'
+                    }
+                }
+            }
+        }
+    });
+    ```
+    </p>
+    </details>
+- More "presets" for other service to come ...
 
 ## License
 Distributed under the MIT License. See [LICENSE](https://github.com/orestbida/iframemanager/blob/master/LICENSE) for more information.
