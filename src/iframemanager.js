@@ -10,18 +10,19 @@
         iframes : {},
         preconnects : [],
         preloads: [],
-        iframeObserver : null,
+        stopObserver : false,
         currLang : null,
         services : null,
         serviceNames : null,
-        
+         
         _getVideoProp : function(_div){
             return {
-                _id: _div.dataset.id,
-                _title: _div.dataset.title,
+                _id: _div.dataset['id'],
+                _title: _div.dataset['title'],
                 thumbnail: _div.dataset['thumbnail'],
                 params: _div.dataset['params'],
                 thumbnailPreload: _div.hasAttribute('data-thumbnailpreload'),
+                autoscale:  _div.hasAttribute('data-autoscale'),
                 div: _div,
                 backgroundDiv: null,
                 hasIframe: false,
@@ -69,6 +70,7 @@
          * @param {String} service_name 
          */
         acceptService : function(service_name){
+            this.stopObserver = false;
             if(service_name === 'all'){
                 var length = this.serviceNames.length;
                 for(var i=0; i<length; i++){
@@ -97,7 +99,7 @@
          */
          rejectService : function(service_name){
             if(service_name === 'all'){
-                this.iframeObserver = null;
+                this.stopObserver = true;
                 var length = this.serviceNames.length;
                 for(var i=0; i<length; i++){
                     var service_name = this.serviceNames[i];
@@ -113,7 +115,49 @@
                 if(module._getCookie(service['cookie']['name'])){
                     module._eraseCookie(service['cookie']);
                 }
+                
                 module._showAllNotices(service_name, service);
+            }
+        },
+
+        loadScript : function(src, callback, attrs){
+
+            var function_defined = typeof callback === 'function';
+
+            // Load script only if not alredy loaded
+            if(!document.querySelector('script[src="' + src + '"]')){
+                
+                var script = this._createNode('script');
+                
+                // if an array is provided => add custom attributes
+                if(attrs && attrs.length > 0){
+                    for(var i=0; i<attrs.length; ++i){
+                        attrs[i] && script.setAttribute(attrs[i]['name'], attrs[i]['value']);
+                    }
+                }
+                
+                // if callback function defined => run callback onload
+                if(function_defined){
+                    if(script.readyState) {  // only required for IE <9
+                        script.onreadystatechange = function() {
+                            if ( script.readyState === "loaded" || script.readyState === "complete" ) {
+                                script.onreadystatechange = null;
+                                callback();
+                            }
+                        };
+                    }else{  //Others
+                        script.onload = callback;
+                    }
+                }
+
+                script.src = src;
+                
+                /**
+                 * Append script to head
+                 */
+                document.getElementsByTagName('head')[0].appendChild(script);
+            }else{
+                function_defined && callback();
             }
         },
 
@@ -168,6 +212,36 @@
             // Create iframe only if doesn't alredy have one
             if(video.hasIframe) return;
 
+            if(typeof service['onAccept'] === 'function'){
+                
+                
+
+                // Let the onAccept method create the iframe
+                service['onAccept'](video.div, function(iframe){
+                    //console.log("iframe_created!", iframe);
+                    video.iframe = iframe;
+                    video.hasIframe = true;
+                    video.div.classList.add('c-h-b');
+
+                    console.log("www", video);
+
+                    if(video.autoscale){
+                        console.log("eeee")
+                        var t;
+                        video.div.style.minHeight = iframe.style.height;
+                        window.addEventListener('resize', function(){
+                            clearTimeout(t);
+                            t = setTimeout(function(){
+                                video.div.style.minHeight = iframe.style.height;
+                            }, 200);
+                        }, {passive: true});
+                    }
+
+                });
+
+                return;
+            }
+
             video.iframe = this._createNode('iframe');
             var iframeParams = video.params || (service['iframe'] && service['iframe']['params']);
             
@@ -218,10 +292,8 @@
          * @param {Object} video 
          */
         _hideNotice : function(video){
-            if(video.showNotice){
-                video.div.classList.add('c-h-n');
-                video.showNotice = false;
-            }
+            video.div.classList.add('c-h-n');
+            video.showNotice = false;
         },
 
         /**
@@ -229,10 +301,8 @@
          * @param {Object} video 
          */
         _showNotice : function(video){
-            if(!video.showNotice){
-                video.div.classList.remove('c-h-n', 'c-h-b');
-                video.showNotice = true;
-            }
+            video.div.classList.remove('c-h-n', 'c-h-b');
+            video.showNotice = true;
         },
 
         /**
@@ -309,8 +379,8 @@
             
             // if valid protocol
             if(
-                protocol == 'http' || 
-                protocol == 'https'
+                protocol === 'http' || 
+                protocol === 'https'
             ){
                 var domain = (url[1] && url[1].split("/")[0]) || false;
                 
@@ -351,6 +421,40 @@
             return document.createElement(type);
         },
 
+
+        observe : function(target, callback){
+
+            console.log("observing", target);
+
+
+
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if(mutation.type === 'childList'){
+                        setTimeout(function(){
+                            callback(target.querySelector('iframe'));
+                        }, 300);
+                        
+                        // later, you can stop observing
+                        observer.disconnect();
+                        return;
+                    }
+                });
+            });
+        
+            // configuration of the observer:
+            var config = { attributes: false, childList: true, subtree: false }
+
+            if(target.querySelector('iframe')){
+                setTimeout(function(){
+                    callback(target.querySelector('iframe'));
+                }, 300);
+            }else{
+                // pass in the target node, as well as the observer options
+                observer.observe(target, config);
+            }
+        },
+
         /**
          * Create all notices relative to the specified service
          * @param {String} service_name 
@@ -370,7 +474,6 @@
                     var video = iframes[i];
 
                     if(!video.hasNotice){
-
                         var loadBtnText = service['languages'][module.currLang]['loadBtn'];
                         var noticeText = service['languages'][module.currLang]['notice'];
                         var loadAllBtnText = service['languages'][module.currLang]['loadAllBtn'];
@@ -401,7 +504,6 @@
                         if(typeof video.thumbnail !== 'string' || video.thumbnail !== ""){
                             ytVideoBackground.className = 'c-bg';
                         }
-                     
 
                         var iframeTitle = video._title;
                         var fragment_2 = document.createDocumentFragment();
@@ -420,7 +522,6 @@
                         notice && notice_text.insertAdjacentHTML('beforeend', noticeText || "");
                         span.appendChild(notice_text);
 
-                      
                         notice_text_container.className = 'c-t-cn';
                         span.className = 'c-n-t';
                         innerDiv.className = 'c-n-c';
@@ -481,11 +582,12 @@
             var n_iframes = videos.length;
 
             if ("IntersectionObserver" in window) {
-                this.iframeObserver = new IntersectionObserver(function(entries) {
+                var observer = new IntersectionObserver(function(entries) {
+                    if(module.stopObserver){ 
+                        observer.disconnect();
+                        return;
+                    }
                     for(var i=0; i<entries.length; ++i){
-                        if(module.iframeObserver === null){
-                            return;
-                        }
                         if(entries[i].isIntersecting){
                             (function(_index){    
                                 setTimeout(function(){
@@ -493,7 +595,7 @@
                                     module._createIframe(videos[index], service);
                                     module._hideNotice(videos[index]);
                                 }, _index*50);
-                                module.iframeObserver.unobserve(entries[_index].target);
+                                observer.unobserve(entries[_index].target);
                             })(i);
                         }
                     }
@@ -501,7 +603,7 @@
    
                 for(var i=0; i<n_iframes; i++){
                     if(!videos[i].hasIframe){
-                        this.iframeObserver.observe(videos[i].div);
+                        observer.observe(videos[i].div);
                     }
                 }
             }else{
@@ -530,12 +632,15 @@
             for(var i=0; i<n_iframes; i++){
                 (function(index){
                     // if doesn't have iframe => create it
-                    if(!videos[i].showNotice){
-                        if(videos[i].hasIframe){
+                    if(videos[i].hasIframe){
+                        if(typeof service['onReject'] === 'function'){
+                            service['onReject'](videos[i].iframe);
+                            videos[i].hasIframe = false;
+                        }else{
                             module._removeIframe(videos[i]);
                         }
-                        module._showNotice(videos[index]);
                     }
+                    module._showNotice(videos[index]);
                 })(i);
             }
         },

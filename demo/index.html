@@ -13,6 +13,7 @@
                 padding: 1em;
                 font-family: sans-serif;
                 line-height: 1.2;
+                background-color: black;
             }
 
             *{
@@ -30,11 +31,16 @@
 		<p>Demo with youtube & dailymotion config.</p>
         <br>
         <br>
+
+        <button id="accept-all">Accept all</button>
+        <button id="reject-all">Reject all</button>
+        <br>
 		
 		<h2>Simple example</h2>
 		<br>
 		<div
-            data-service="youtube" 
+            data-service="youtube"
+            data-ratio="9:16"
             data-id="fJ9rUzIMcZQ">
         </div>
 		
@@ -48,6 +54,30 @@
 			data-autoscale>
         </div>
 		<br>
+
+        <div 
+            data-service="twitter"
+            data-id="1404125474981298177"
+            data-customservice
+            style="height: 518px;">
+        </div>
+
+        <div 
+            data-service="twitter"
+            data-id="1429246345668304898"
+            data-customservice
+            style="height: 285px;">
+        </div>
+
+        <div 
+            data-service="twitter"
+            data-id="1429246423015563275"
+            data-customservice
+            style="height: 554px;">
+        </div>
+
+        <br>
+        <br>
 		<br>
 		<h2>Example with custom thumbnail + params (video starts muted at 21s)</h2>
 		<br>
@@ -69,17 +99,33 @@
             data-autoscale >
         </div>
 
+        <div 
+        data-service="facebook"
+        data-id="20531316728/posts/10154009990506729/"
+        data-title="facebook shit"
+        data-customservice
+        data-autoscale
+        style="height: 310px; max-width: 552px;"
+    ></div>
+
+
         <br>
 		<br>
 		<h2>Twitch channel embed</h2>
 		<br>
 		<div 
-        data-service="twitch" 
+        data-service="twitch"
         data-id="channel=bdougieYO"
         data-title="Twitch channel stream"
         data-autoscale></div>
-    </div>
-    <script src="../dist/iframemanager.js" defer></script>
+        <br>
+        <br>
+
+        <br>
+        <h1>Ciao</h1>
+       
+
+    <script src="../src/iframemanager.js" defer></script>
     <script src="app.js" defer></script>
  </body>
 </html>

@@ -298,3 +298,88 @@ div[data-service] .c-n-t a {
 div[data-service] .c-n-t a:hover{
 	border-color: transparent;
 }
+
+div[data-service][data-ratio="1:1"]::before{
+	padding-top: 100%;
+}
+
+div[data-service][data-ratio="2:1"]::before{
+	padding-top: 50%;
+}
+
+div[data-service][data-ratio="3:2"]::before{
+	padding-top: 66.666666%;
+}
+
+div[data-service][data-ratio="4:3"]::before{
+	padding-top: 75%;
+}
+
+div[data-service][data-ratio="16:9"]::before{
+	padding-top: 56.25%;
+}
+
+div[data-service][data-ratio="16:10"]::before{
+	padding-top: 62.5%;
+}
+
+div[data-service][data-ratio="20:9"]::before{
+	padding-top: 45%;
+}
+
+div[data-service][data-ratio="21:9"]::before{
+	padding-top: 42.857142%;
+}
+
+/** Vertical aspect ratios **/
+div[data-service][data-ratio="9:16"]::before{
+	padding-top: 177.777777%;
+}
+
+div[data-service][data-ratio="9:20"]::before{
+	padding-top: 222.222222%;
+}
+
+div[data-customservice]::before {
+	display: none;
+}
+
+div[data-customservice].c-h-b{
+	background: transparent;
+}
+
+div[data-customservice].c-h-b .c-ld{
+	opacity: 0;
+	visibility: hidden;
+}
+
+div[data-customservice] iframe{
+	background: none;
+}
+
+div[data-customservice] > div{
+	margin: 0!important;
+}
+
+div[data-customservice]{
+	vertical-align: top;
+	min-width: 296px;
+	transition: background-color .3s ease;
+	transition-delay: .3s;
+}
+
+
+div[data-service="twitter"] .c-n-c .c-l-b{
+	background-color: #1DA1F2;
+}
+
+div[data-service="twitter"] .c-n-c .c-l-b::before{
+	border: none;
+	height: 15px;
+	width: 15px;
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAATZJREFUOE+lk78rRWEcxj/PJhmUMhhkkMEgGyZSlCR27qRYFItRXWVQJsVm8A8w3GSQUpTcYlCUzXAzKPEnPHp1zunc0znXkW+9y/s+30/P98cr/hkqk2+7E1gA2oG6pIeQZ3v6B2B7T9JmHsz2LHAA9KXeq8AUsCTbE8AVcAGsS3pJg2zXgLkM/Bm4BL7SgKB5B3aBm5RNF5RZlbQdl3AHjGSET8AtsFIAGJVUDw76gS0gwCplmhppuiR9xg7OgZk/JDck9QZ9DJgEdoCxkpCapPk0YBA4jJJ7gIFfQOOSrhNAtAvLwFEJB/uSNmJd0ybaDk5CGWvAcA7sMeyEpEYTwHY3EJqyCCT0DOAUWJX0kb4PYwzzD3tQFCfAsaSzPEFSgu0OYCg6bcAb8CrpvlVfSv3GVoBvLzlh7eQqydQAAAAASUVORK5CYII=')
+}
+
+div[data-service="facebook"] span{
+	width: auto!important;
+}

@@ -186,6 +186,7 @@ All available options for  the `<div>` element:
 - `data-id` :           [String, Required] unique id of the resource (example: video id)
 - `data-params` :       [String] iframe query parameters
 - `data-thumbnail` :    [String] path to custom thumbnail
+- `data-ratio` :        [String] aspect ratio ([supported aspect ratios](#aspect-ratios))
 - `data-autoscale` :    specify for **responsive iframe** (fill parent width + scale proportionally)
 
 <br>
