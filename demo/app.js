@@ -80,9 +80,12 @@
 				onAccept: function(div, callback){
 				   
 					manager.loadScript('https://platform.twitter.com/widgets.js', function(){
+						
 						twttr.widgets.createTweet(div.dataset.id, div).then(function(tweet){
+							console.log("tweet", tweet);
 							callback(tweet.firstChild);
 						});
+						
 					});
 				},
 	
@@ -105,6 +108,25 @@
 				
 			},
 
+			"facebook-post" : {
+				embedUrl : 'https://www.facebook.com/plugins/post.php?{data-id}',
+
+				iframe : {
+					allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share;',
+					params: '',// optional
+				},
+				cookie : {						
+					name : 'cc_facebook_post'
+				},
+				languages : {
+					'en' : {
+						notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="#link_twitch" title="Terms and conditions" target="_blank">terms and conditions</a> of twitch.com.',
+						loadBtn: 'Load video',
+						loadAllBtn: 'Don\'t ask again'
+					}
+				}
+			},
+
 			facebook : {
 				embedUrl : "https://www.facebook.com/",
 
@@ -113,6 +135,7 @@
 					var fbVideo = document.createElement('div');
 					fbVideo.className = "fb-post";
 					fbVideo.setAttribute('data-href', this.embedUrl + div.dataset.id);
+					fbVideo.setAttribute('data-width', 'auto');
 					div.appendChild(fbVideo);
 					
 					manager.loadScript('https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v11.0', function(){
