@@ -212,9 +212,9 @@
             // Create iframe only if doesn't alredy have one
             if(video.hasIframe) return;
 
+            video.hasIframe = true;
+
             if(typeof service['onAccept'] === 'function'){
-                
-                
 
                 // Let the onAccept method create the iframe
                 service['onAccept'](video.div, function(iframe){
@@ -274,7 +274,6 @@
                 service['iframe'] && typeof service['iframe']['onload'] === 'function' && service['iframe']['onload'](video._id, this);
             }
 
-            video.hasIframe = true;
             video.div.appendChild(video.iframe);          
         },
 
@@ -423,11 +422,6 @@
 
 
         observe : function(target, callback){
-
-            console.log("observing", target);
-
-
-
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if(mutation.type === 'childList'){
