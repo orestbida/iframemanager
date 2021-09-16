@@ -65,6 +65,7 @@ div[data-service]{
 	min-width: 300px;
 	font-family: inherit;
 	position: relative;
+	font-size: initial;
 	background-color: #0b1016;
 }
 
@@ -224,7 +225,8 @@ div[data-service] .c-n-c .c-l-b::before{
 	content: '';
     display: block;
     position: absolute;
-    top: 12px;
+	top: 50%;
+    transform: translateY(-50%);
     left: 1.1em;
     z-index: 2;
     height: 0;
