@@ -48,6 +48,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
   - lazyloads thumbnails
   - lazyloads iframes
 - Can be integrated with any cookie consent solution
+- Allows external links to services without JS enabled or without giving consent
 
 ## Installation
 1. #### Download the [latest release](https://github.com/orestbida/iframemanager/releases/latest) or use via CDN:
@@ -98,6 +99,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
                     currLang: 'en',
                     services : {
                         youtube : {
+                            name: 'YouTube',
                             embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
                             thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg',
                             iframe : {
@@ -110,7 +112,8 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
                                 en : {
                                     notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of youtube.com.',
                                     loadBtn: 'Load video',
-                                    loadAllBtn: 'Don\'t ask again'
+                                    loadAllBtn: 'Don\'t ask again',
+                                    openBtn: 'Watch on YouTube'
                                 }
                             }
                         }
@@ -139,6 +142,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
                     currLang: 'en',
                     services : {
                         youtube : {
+                            name: 'YouTube',
                             embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
                             thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg',
                             iframe : {
@@ -151,7 +155,8 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
                                 en : {
                                     notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of youtube.com.',
                                     loadBtn: 'Load video',
-                                    loadAllBtn: 'Don\'t ask again'
+                                    loadAllBtn: 'Don\'t ask again',
+                                    openBtn: 'Watch on YouTube'
                                 }
                             }
                         }
@@ -171,14 +176,18 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
     ```
 
 ## Configuration options
-All available options for  the `<div>` element:
+All available options for  the `<div>` element (you can use any element):
 ```html
 <div
     data-service="<service-name>"	
     data-id="<resource-id>"
     data-params="<iframe-query-parameters>"
     data-thumbnail="<path-to-image>" 
+    data-open-url="<public-url>"
+    data-ratio="<y:x>"
+    data-style="<css-style>"
     data-autoscale>
+        This is inline HTML which will be removed when JS is allowed. You can use this space to link the public URL, for example <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener">like this</a>. Your website will then be more accessible, plus you will get an automatic open link so you don't need to fill `data-open-url`.
 </div>
 ```
 
@@ -186,7 +195,9 @@ All available options for  the `<div>` element:
 - `data-id` :           [String, Required] unique id of the resource (example: video id)
 - `data-params` :       [String] iframe query parameters
 - `data-thumbnail` :    [String] path to custom thumbnail
+- `data-open-url` :     [String] link to the non-embed URL (example: `https://www.youtube.com/watch?v=dQw4w9WgXcQ`)
 - `data-ratio` :        [String] aspect ratio ([supported aspect ratios](#aspect-ratios))
+- `data-style` :        [String] CSS to be applied when JavaScript is enabled
 - `data-autoscale` :    specify for **responsive iframe** (fill parent width + scale proportionally)
 
 <br>
@@ -200,7 +211,7 @@ All available options for the config. object:
 
     services : {
         myservice : {
-
+            name: 'My Service',
             embedUrl: 'https://myservice_embed_url>/{data-id}',
 
             // set valid url for automatic thumbnails   [OPTIONAL]
@@ -229,7 +240,8 @@ All available options for the config. object:
                 en : {
                     notice: 'Html <b>notice</b> message',
                     loadBtn: 'Load video',          // Load only current iframe
-                    loadAllBtn: 'Don\'t ask again'  // Load all iframes configured with this service + set cookie		
+                    loadAllBtn: 'Don\'t ask again', // Load all iframes configured with this service + set cookie
+                    openBtn: 'Watch on YouTube'     // Text for the direct link before giving consent, defaults to "Open <service-name>"
                 }
             }
         },
@@ -294,7 +306,9 @@ Both `acceptService` and `rejectService` work the same way:
         currLang: 'en',
         services : {
             youtube : {
+                name: 'YouTube',
                 embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
+                openUrl: 'https://www.youtube.com/watch?v={data-id}',
                 thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg',
                 iframe : {
                     allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
@@ -306,7 +320,8 @@ Both `acceptService` and `rejectService` work the same way:
                     en : {
                         notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of youtube.com.',
                         loadBtn: 'Load video',
-                        loadAllBtn: 'Don\'t ask again'
+                        loadAllBtn: 'Don\'t ask again',
+                        openBtn: 'Watch on YouTube'
                     }
                 }
             }
@@ -324,6 +339,7 @@ Both `acceptService` and `rejectService` work the same way:
         currLang: 'en',
         services : {
             dailymotion : {
+                name: 'DailyMotion',
                 embedUrl: 'https://www.dailymotion.com/embed/video/{data-id}',
                 
                 // Use dailymotion api to obtain thumbnail
@@ -407,6 +423,9 @@ Both `acceptService` and `rejectService` work the same way:
     </p>
     </details>
 -   <details><summary>How to embed twitch videos/streams/chats</summary>
+
+    Set the data-id to `channel=<twitch_channel_here>` (channel/video/collection).
+
     <p>
 
     ```javascript
@@ -427,7 +446,8 @@ Both `acceptService` and `rejectService` work the same way:
                     'en' : {
                         notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.twitch.tv/p/en/legal/terms-of-service/" title="Terms and conditions" target="_blank">terms and conditions</a> of twitch.com.',
                         loadBtn: 'Load stream',
-                        loadAllBtn: 'Don\'t ask again'
+                        loadAllBtn: 'Don\'t ask again',
+                        openBtn: 'Watch on Twitch'
                     }
                 }
             }

@@ -23,6 +23,8 @@
                 params: _div.dataset['params'],
                 thumbnailPreload: _div.hasAttribute('data-thumbnailpreload'),
                 autoscale:  _div.hasAttribute('data-autoscale'),
+                openUrl: _div.dataset['openUrl'],
+                style: _div.dataset['style'],
                 div: _div,
                 backgroundDiv: null,
                 hasIframe: false,
@@ -203,6 +205,34 @@
         },
 
         /**
+         * Get a fully parsed URL with data-id
+         * 
+         * @param {string} base_url
+         * @param {Object} video
+         * @param {Object} service 
+         * @param {boolean} with_params
+         * @returns 
+         */
+        _parseURL: function(base_url, video, service, with_params = true) {
+            var src = base_url.replace('{data-id}', video._id);
+
+            if (with_params) {
+                // Add parameters to src
+
+                var iframeParams = video.params || (service['iframe'] && service['iframe']['params']);
+                if(iframeParams) {
+                    if (iframeParams.substring(0, 3) === "ap:"){
+                        src += iframeParams.substring(3);
+                    } else {
+                        src += "?" + iframeParams
+                    }
+                }
+            }
+
+            return src;
+        },
+
+        /**
          * Create iframe and append it into the specified div
          * @param {Object} video 
          * @param {Object} service 
@@ -223,10 +253,10 @@
                     video.hasIframe = true;
                     video.div.classList.add('c-h-b');
 
-                    console.log("www", video);
+                    // console.log("www", video);
 
                     if(video.autoscale){
-                        console.log("eeee")
+                        // console.log("eeee")
                         var t;
                         video.div.style.minHeight = iframe.style.height;
                         window.addEventListener('resize', function(){
@@ -243,10 +273,8 @@
             }
 
             video.iframe = this._createNode('iframe');
-            var iframeParams = video.params || (service['iframe'] && service['iframe']['params']);
-            
             // Replace data-id with valid resource id
-            var src = service['embedUrl'].replace('{data-id}', video._id);
+            var src = this._parseURL(service.embedUrl, video, service);
 
             video.iframe['loading'] = 'lazy';
             video._title && (video.iframe.title = video._title);
@@ -254,15 +282,6 @@
             // Add allow attribute to iframe
             if(service['iframe'] && service['iframe']['allow']){
                 video.iframe.allow = service['iframe']['allow'];
-            }
-
-            // Add parameters to src
-            if(iframeParams){
-                if (iframeParams.substring(0, 3) === "ap:"){
-                    src += iframeParams.substring(3);
-                }else{
-                    src += "?" + iframeParams
-                }
             }
 
             video.iframe.src = encodeURI(src);
@@ -468,9 +487,14 @@
                     var video = iframes[i];
 
                     if(!video.hasNotice){
+                        if (video.style !== undefined){
+                            video.div.style = video.div.style + "; " + video.style;
+                        }
+
                         var loadBtnText = service['languages'][module.currLang]['loadBtn'];
                         var noticeText = service['languages'][module.currLang]['notice'];
                         var loadAllBtnText = service['languages'][module.currLang]['loadAllBtn'];
+                        var openBtnText = service['languages'][module.currLang]['openBtn'];
 
                         var fragment = document.createDocumentFragment();
                         var notice = module._createNode('div');
@@ -478,6 +502,7 @@
                         var innerDiv = module._createNode('p');
                         var load_button = module._createNode('button');
                         var load_all_button = module._createNode('button');
+                        var open_site_button = module._createNode('a');
             
                         var notice_text = module._createNode('span');
                         var ytVideoBackground = module._createNode('div');
@@ -486,8 +511,6 @@
                         var notice_text_container = module._createNode('div');
                         var buttons = module._createNode('div');
                         
-                        load_button.type = load_all_button.type = 'button';
-                        notice_text.className = 'cc-text';
                         load_button.type = load_all_button.type = 'button';
                         notice_text.className = 'cc-text';
                         
@@ -509,8 +532,40 @@
                             fragment_2.appendChild(title_span);
                         }
                         
-                        load_button.textContent = loadBtnText;
-                        load_all_button.textContent = loadAllBtnText;
+                        load_button.textContent = (loadBtnText === undefined) ? 'Load video' : loadBtnText;
+                        load_all_button.textContent = (loadAllBtnText === undefined) ? "Don't ask again" : loadAllBtnText;
+
+                        if (video.openUrl !== undefined) {
+                            // data-open-url found, use that
+                            open_site_button.href = video.openUrl;
+                        } else if (service.openUrl !== undefined) {
+                            // openUrl is defined for the service, use that
+                            open_site_button.href = module._parseURL(service.openUrl, video, service, false);
+                        } else if (video.div.href !== undefined) {
+                            // There's a href attribute, use that
+                            open_site_button.href = video.div.href;
+                        } else if (video.div.querySelector('[href]') !== null) {
+                            // Found a href attribute in children, use that
+                            open_site_button.href = video.div.querySelector('[href]').href;
+                        } else {
+                            // Link directly to the embed
+                            open_site_button.href = module._parseURL(service.embedUrl, video, service);
+                        }
+
+                        open_site_button.target = '_blank';
+                        open_site_button.rel = 'noopener';
+
+                        var open_site_service_name = service.name;
+                        if (open_site_service_name === undefined) {
+                            // Capitalize the service name
+                            open_site_service_name = service_name.replace(/\w\S*/g, function(w) {
+                                return w.replace(/^\w/, function(c) {
+                                    return c.toUpperCase();
+                                });
+                            });
+                        }
+                        openBtnText = (openBtnText === undefined) ? 'Open {name}' : openBtnText;
+                        open_site_button.textContent = openBtnText.replace('{name}', open_site_service_name);
 
                         notice_text.appendChild(fragment_2);
                         notice && notice_text.insertAdjacentHTML('beforeend', noticeText || "");
@@ -524,10 +579,12 @@
                         buttons.className =  'c-n-a';
                         load_button.className = 'c-l-b';
                         load_all_button.className = 'c-la-b';
+                        open_site_button.className = 'c-os-b';
 
                         buttons.appendChild(load_button);
                         buttons.appendChild(load_all_button);
-           
+                        buttons.appendChild(open_site_button);
+         
                         notice_text_container.appendChild(span);
                         notice_text_container.appendChild(buttons);
             
@@ -555,6 +612,8 @@
 
                         hidden && video.div.classList.add('c-h-n');
 
+                        video.div.innerHTML = '';
+                        video.div.dataset.js = true;
                         // Avoid reflow with fragment (only 1 appendChild)
                         video.div.appendChild(fragment);
                         video.hasNotice = true;
@@ -716,7 +775,7 @@
                 /**
                  * iframes/divs in the dom that have data-service value as current service name
                  */
-                var found_iframes = document.querySelectorAll('div[data-service="' + service_name + '"]');
+                var found_iframes = document.querySelectorAll('[data-service="' + service_name + '"]');
                 
                 /**
                  * number of iframes with current service

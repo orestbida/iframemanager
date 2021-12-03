@@ -41,6 +41,9 @@
             data-service="youtube"
             data-ratio="9:16"
             data-id="fJ9rUzIMcZQ">
+            <a href="https://www.youtube.com/watch?v=fJ9rUzIMcZQ" target="_blank" rel="noopener">
+                Watch on YouTube
+            </a>
         </div>
 		
 		<br>
@@ -50,7 +53,10 @@
 		<div
             data-service="youtube" 
             data-id="fJ9rUzIMcZQ" 
-			data-autoscale>
+            data-autoscale>
+            <a href="https://www.youtube.com/watch?v=fJ9rUzIMcZQ" target="_blank" rel="noopener">
+                Watch on YouTube
+            </a>
         </div>
 		<br>
 
@@ -58,35 +64,48 @@
             data-service="twitter"
             data-id="1404125474981298177"
             data-customwidget
-            style="height: 518px;">
+            data-style="height: 518px;">
+            This is inline HTML which will be removed when JS is allowed.
+            You can use this space to link the public URL, for example
+            <a href="https://twitter.com/orestbida/status/1404125474981298177" target="_blank" rel="noopener">like this</a>.
+            Your website will then be more accessible, plus you will get an automatic open link so you don't need to fill `data-open-url`.
         </div>
 
         <div 
             data-service="twitter"
             data-id="1429246345668304898"
             data-customwidget
-            style="height: 285px;">
+            data-style="height: 285px;">
+            <a href="https://twitter.com/sza/status/1429246345668304898" target="_blank" rel="noopener">
+                Read on Twitter
+            </a>
         </div>
 
         <div 
             data-service="twitter"
             data-id="1429246345668304898"
             data-customwidget
-            style="height: 285px;">
+            data-style="height: 285px;">
+            <a href="https://twitter.com/orestbida/status/1404125474981298177" target="_blank" rel="noopener">
+                Read on Twitter
+            </a>
         </div>
 
         <br>
         <br>
 		<br>
-		<h2>Example with custom thumbnail + params (video starts muted at 21s)</h2>
+		<h2>Example with custom thumbnail + params (video starts muted at 21s with autoplay)</h2>
 		<br>
         <div 
             data-service="youtube" 
             data-id="861gfPVmgdc"
-			data-params="start=21&mute=1"
+			data-params="start=21&mute=1&autoplay=1"
 			data-thumbnail="https://i.pinimg.com/originals/0a/4d/cb/0a4dcb92fa2d3c601b58d72720d6bec4.jpg"
             data-thumbnailpreload
             data-autoscale >
+            <a href="https://www.youtube.com/watch?v=861gfPVmgdc?t=21" target="_blank" rel="noopener">
+                Watch on YouTube
+            </a>
         </div>
 		<br>
 		<br>
@@ -95,7 +114,11 @@
         <div 
             data-service="dailymotion" 
             data-id="x81n4gf"
+            data-open-url="https://example.com/"
             data-autoscale >
+            <a href="https://www.dailymotion.com/video/x81n4gf" target="_blank" rel="noopener">
+                Watch on DailyMotion
+            </a>
         </div>
 
         <br>
@@ -104,19 +127,25 @@
             data-service="facebook"
             data-id="20531316728/posts/10154009990506729/"
             data-title="facebook shit"
-            style="height: 310px; max-width: 350px; width: 100%;"
+            data-style="height: 310px; max-width: 350px; width: 100%;"
             data-customwidget
-            data-autoscale
-        ></div>
+            data-autoscale>
+            <a href="https://www.facebook.com/20531316728/posts/10154009990506729/" target="_blank" rel="noopener">
+                Read on Facebook
+            </a>
+        </div>
         
         <div 
             data-service="facebook-post"
             data-id="href=https://www.facebook.com/nokia/photos/a.338008237396/10157974130297397/&show_text=true&width=500"
             data-title="nokia post"
-            style="height: 453px; max-width: 500px;"
+            data-style="height: 453px; max-width: 500px;"
             data-customwidget
-            data-autoscale
-        ></div>
+            data-autoscale>
+            <a href="https://www.facebook.com/nokia/photos/a.338008237396/10157974130297397/" target="_blank" rel="noopener">
+                Read on Facebook
+            </a>
+        </div>
         <!--
         <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A//www.facebook.com/nokia/photos/a.338008237396/10157974130297397/&show_text=true&width=500" width="500" height="453" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
 
@@ -132,7 +161,12 @@
         data-service="twitch"
         data-id="channel=bdougieYO"
         data-title="Twitch channel stream"
-        data-autoscale></div>
+        data-autoscale>
+            <p>
+                This is text which will be shown without JS. Always try to directly link the video/stream here.
+                <br>Also notice that there's no data-open-url or anything so it just links to the embed.
+            </p>
+        </div>
         <br>
         <br>
 

@@ -9,7 +9,9 @@
 		// autoLang: true,
 		services : {
 			youtube : {
+				name: 'YouTube',
 				embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
+				openUrl: 'https://www.youtube.com/watch?v={data-id}',
 				
 				iframe : {
 					allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
@@ -21,12 +23,15 @@
 					'en' : {
 						notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of youtube.com.',
 						loadBtn: 'Load video',
-						loadAllBtn: 'Don\'t ask again'
+						loadAllBtn: 'Don\'t ask again',
+						openBtn: 'Watch on YouTube'
 					}
 				}
 			},
 			dailymotion : {
+				name: 'DailyMotion',
 				embedUrl: 'https://www.dailymotion.com/embed/video/{data-id}',
+				openUrl: 'https://www.dailymotion.com/video/{data-id}',
 				
 				// Use dailymotion api to obtain thumbnail
 				thumbnailUrl: function(id, setThumbnail){
@@ -109,6 +114,7 @@
 			},
 
 			"facebook-post" : {
+				name: 'Facebook',
 				embedUrl : 'https://www.facebook.com/plugins/post.php?{data-id}',
 
 				iframe : {
@@ -129,6 +135,7 @@
 
 			facebook : {
 				embedUrl : "https://www.facebook.com/",
+				openUrl: "https://www.facebook.com/{data-id}",
 
 				onAccept: function(div, callback){
 
@@ -139,8 +146,8 @@
 					div.appendChild(fbVideo);
 					
 					manager.loadScript('https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v11.0', function(){
-						var c = document.querySelector(`[data-id="${div.dataset.id}"`).lastChild;
-						FB.XFBML.parse(document.querySelector(`[data-id="${div.dataset.id}"`));
+						var c = document.querySelector(`[data-id="${div.dataset.id}"]`).lastChild;
+						FB.XFBML.parse(document.querySelector(`[data-id="${div.dataset.id}"]`));
 						
 						manager.observe(fbVideo, function(iframe){
 							console.log("wwwaaaa", iframe);
