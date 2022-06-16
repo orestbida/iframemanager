@@ -21,6 +21,7 @@
                 _title: _div.dataset.title,
                 thumbnail: _div.dataset['thumbnail'],
                 params: _div.dataset['params'],
+                attributes: _div.dataset['attributes'],
                 thumbnailPreload: _div.hasAttribute('data-thumbnailpreload'),
                 div: _div,
                 backgroundDiv: null,
@@ -164,12 +165,12 @@
          * @param {Object} service 
          */
         _createIframe: function(video, service) {
-
             // Create iframe only if doesn't alredy have one
             if(video.hasIframe) return;
 
             video.iframe = this._createNode('iframe');
             var iframeParams = video.params || (service['iframe'] && service['iframe']['params']);
+            var iframeAttributes = video.attributes || (service['iframe'] && service['iframe']['attributes']);
             
             // Replace data-id with valid resource id
             var src = service['embedUrl'].replace('{data-id}', video._id);
@@ -192,6 +193,22 @@
             }
 
             video.iframe.src = encodeURI(src);
+
+            // load iframe attributes
+            if(iframeAttributes){
+                if (typeof(iframeAttributes) === 'string') {
+                    try {
+                        iframeAttributes = JSON.parse(iframeAttributes);
+                    } catch (e) {
+                        iframeAttributes = {};
+                    }
+                }
+                if (typeof(iframeAttributes) === 'object') {
+                    Object.keys(iframeAttributes).forEach(key => {
+                        video.iframe[key] = iframeAttributes[key];
+                    });
+                }
+            }
 
             // When iframe is loaded => hide background image
             video.iframe.onload = function(){
@@ -358,7 +375,6 @@
          * @param {Boolean} hidden 
          */
         _createAllNotices : function(service_name, service, hidden){
-
             // get number of iframes of current service
             var iframes = this.iframes[service_name];
             var n_iframes = iframes.length;
