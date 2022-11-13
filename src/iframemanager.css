@@ -52,7 +52,7 @@ div[data-service].c-h-n .c-ld{
 	visibility: visible;
 	transform: translateY(0);
 }
-  
+
 @keyframes spin {
 	0% { transform: rotate(0deg); }
 	100% { transform: rotate(360deg); }
@@ -67,6 +67,7 @@ div[data-service]{
 	position: relative;
 	font-size: initial;
 	background-color: #0b1016;
+	overflow: hidden;
 }
 
 div[data-service] button,
@@ -95,7 +96,7 @@ div[data-service] .c-nt{
 	max-width: 100%;
 	height: 100%;
 	width: 100%;
-	transition: opacity .3s ease, visibility .3s ease; 
+	transition: opacity .3s ease, visibility .3s ease;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -370,7 +371,7 @@ div[data-customwidget]{
 	transition-delay: .3s;
 }
 
-div[data-service="twitter"] .c-n-c .c-l-b{
+/* div[data-service="twitter"] .c-n-c .c-l-b{
 	background-color: #1DA1F2;
 }
 
@@ -383,4 +384,4 @@ div[data-service="twitter"] .c-n-c .c-l-b::before{
 
 .fb_iframe_widget_fluid span{
 	width: 100%!important;
-}
+} */
