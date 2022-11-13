@@ -16,17 +16,17 @@
      * @property {boolean} _autoscale
      * @property {HTMLDivElement} _div
      * @property {HTMLIFrameElement} _iframe
-     * @property {string} _backgroundDiv
+     * @property {HTMLDivElement} _backgroundDiv
      * @property {boolean} _hasIframe
      * @property {boolean} _hasNotice
      * @property {boolean} _showNotice
-     * 
+     * @property {Object.<string, string>} _iframeAttributes
      */
 
     /**
      * @typedef {HTMLIFrameElement} IframeProp
      */
-    
+
     /**
      * @typedef {Object} CookieStructure
      * @property {string} name
@@ -34,14 +34,14 @@
      * @property {string} domain
      * @property {string} sameSite
      */
-    
+
     /**
      * @typedef {Object} Language
      * @property {string} notice
      * @property {string} loadBtn
      * @property {string} loadAllBtn
      */
-    
+
     /**
      * @typedef {Object} Service
      * @property {string} embedUrl
@@ -82,15 +82,32 @@
          */
         serviceNames = [],
 
-        doc = document;
+        doc = document,
+
+        /**
+         * Prevent direct use of the following
+         * props. in the `iframe` element to avoid
+         * potential issues
+         */
+        disallowedProps = ['onload', 'onerror', 'src'];
 
     /**
-     * @param {HTMLDivElement} div 
+     * @param {HTMLDivElement} div
      * @returns {IframeObj}
      */
     function getVideoProp(div){
 
         var dataset = div.dataset;
+        var attrs = {};
+
+        /**
+         * Get all "data-iframe-* attributes
+         */
+        for(var prop in dataset){
+            if(prop.lastIndexOf('iframe') === 0){
+                attrs[prop.slice(6).toLowerCase()] = dataset[prop];
+            }
+        }
 
         return {
             _id: dataset.id,
@@ -103,7 +120,8 @@
             _backgroundDiv: null,
             _hasIframe: false,
             _hasNotice: false,
-            _showNotice : true
+            _showNotice : true,
+            _iframeAttributes: attrs
         };
     };
 
@@ -225,7 +243,6 @@
         var embedUrl = service.embedUrl || '';
         var src = embedUrl.replace('{data-id}', video._id);
 
-        video._iframe.loading = 'lazy';
         video._title && (video._iframe.title = video._title);
 
         // Add parameters to src
@@ -249,14 +266,18 @@
             && iframeProps.onload(video._id, video._iframe);
         };
 
-        var disallowedProps = ['params', 'onload', 'onerror', 'src'];
-        
         /**
-         * Allow "any" attribute
+         * Add global internal attributes
          */
         for(var key in iframeProps){
-            if(!disallowedProps.includes(key))
-                video._iframe.setAttribute(key, iframeProps[key]);
+            setAttribute(video._iframe, key, iframeProps[key])
+        }
+
+        /**
+         * Add all data-attr-* attributes (iframe specific)
+         */
+        for(var attr in video._iframeAttributes){
+            setAttribute(video._iframe, attr, video._iframeAttributes[attr])
         }
 
         video._iframe.src = src;
@@ -265,8 +286,18 @@
     };
 
     /**
+     * @param {HTMLElement} el
+     * @param {string} attrKey
+     * @param {string} attrValue
+     */
+    function setAttribute(el, attrKey, attrValue){
+        if(!disallowedProps.includes(attrKey))
+            el.setAttribute(attrKey, attrValue);
+    }
+
+    /**
      * Remove iframe HTMLElement from div
-     * @param {Object} video
+     * @param {IframeObj} video
      */
     var removeIframe = function(video){
         video._iframe.parentNode.removeChild(video._iframe);
@@ -421,15 +452,16 @@
 
     /**
      * Create all notices relative to the specified service
-     * @param {String} serviceName
-     * @param {Object} service
-     * @param {Boolean} hidden
+     * @param {string} serviceName
+     * @param {Service} service
+     * @param {boolean} hidden
      */
     var createAllNotices = function(serviceName, service, hidden){
 
         // get number of iframes of current service
         var _iframes = iframeDivs[serviceName];
         var nIframes = _iframes.length;
+        var languages = service.languages;
 
         // for each iframe
         for(var i=0; i<nIframes; i++){
@@ -438,9 +470,9 @@
                 var video = _iframes[i];
 
                 if(!video._hasNotice){
-                    var loadBtnText = service.languages[currLang].loadBtn;
-                    var noticeText = service.languages[currLang].notice;
-                    var loadAllBtnText = service.languages[currLang].loadAllBtn;
+                    var loadBtnText = languages[currLang].loadBtn;
+                    var noticeText = languages[currLang].notice;
+                    var loadAllBtnText = languages[currLang].loadAllBtn;
 
                     var fragment = doc.createDocumentFragment();
                     var notice = createNode('div');
@@ -535,13 +567,13 @@
     /**
      * Hides all notices relative to the specified service
      * and creates iframe with the video
-     * @param {String} service_name
-     * @param {Object} service
+     * @param {string} serviceName
+     * @param {Service} service
      */
-    var hideAllNotices = function(service_name, service){
+    var hideAllNotices = function(serviceName, service){
 
         // get number of iframes of current service
-        var videos = iframeDivs[service_name];
+        var videos = iframeDivs[serviceName];
 
         if ('IntersectionObserver' in window) {
             var observer = new IntersectionObserver(function(entries) {
@@ -581,13 +613,13 @@
     /**
      * Show all notices relative to the specified service
      * and hides iframe with the video
-     * @param {String} service_name
-     * @param {Object} service
+     * @param {string} serviceName
+     * @param {Service} service
      */
-    var showAllNotices = function(service_name, service){
+    var showAllNotices = function(serviceName, service){
 
         // get number of iframes of current service
-        var videos = iframeDivs[service_name];
+        var videos = iframeDivs[serviceName];
         var nDivs = videos.length;
 
         for(var i=0; i<nDivs; i++){
@@ -608,9 +640,9 @@
 
     /**
      * Validate language (make sure it exists)
-     * @param {String} lang
+     * @param {string} lang
      * @param {Object} allLanguages
-     * @returns {String} language
+     * @returns {string} language
      */
     var getValidatedLanguage = function(lang, allLanguages){
         if(allLanguages.hasOwnProperty(lang)){
@@ -637,7 +669,7 @@
         /**
          * 1. Set cookie (if not alredy set)
          * 2. show iframes (relative to the specified service)
-         * @param {String} serviceName
+         * @param {string} serviceName
          */
         acceptService : function(serviceName){
             stopObserver = false;
@@ -664,28 +696,28 @@
          * 1. set cookie
          * 2. hide all notices
          * 3. how iframes (relative to the specified service)
-         * @param {String} service_name
+         * @param {string} service_name
          */
-        rejectService : function(service_name){
-            if(service_name === 'all'){
+        rejectService : function(serviceName){
+            if(serviceName === 'all'){
                 stopObserver = true;
                 var length = serviceNames.length;
                 for(var i=0; i<length; i++){
-                    var service_name = serviceNames[i];
-                    rejectHelper(service_name, services[service_name]);
+                    var serviceName = serviceNames[i];
+                    rejectHelper(serviceName, services[serviceName]);
                 }
             }else{
-                if(serviceNames.indexOf(service_name) > -1){
-                    rejectHelper(service_name, services[service_name]);
+                if(serviceNames.indexOf(serviceName) > -1){
+                    rejectHelper(serviceName, services[serviceName]);
                 }
             }
 
-            function rejectHelper(service_name, service){
+            function rejectHelper(serviceName, service){
                 if(getCookie(service.cookie.name)){
                     eraseCookie(service.cookie);
                 }
 
-                showAllNotices(service_name, service);
+                showAllNotices(serviceName, service);
             }
         },
 
@@ -704,20 +736,17 @@
                 });
             });
 
-            // configuration of the observer:
-            var config = {
-                attributes: false,
-                childList: true,
-                subtree: false
-            }
-
             if(target.querySelector('iframe')){
                 setTimeout(function(){
                     callback(target.querySelector('iframe'));
                 }, 300);
             }else{
                 // pass in the target node, as well as the observer options
-                observer.observe(target, config);
+                observer.observe(target, {
+                    attributes: false,
+                    childList: true,
+                    subtree: false
+                });
             }
         },
 
@@ -749,7 +778,7 @@
             if(_config.autoLang === true){
                 currLang = getValidatedLanguage(getBrowserLang(), languages);
             }else{
-                if(typeof _config.currLang === "string"){
+                if(typeof _config.currLang === 'string'){
                     currLang = getValidatedLanguage(_config.currLang, languages);
                 }
             }
