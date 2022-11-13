@@ -23,14 +23,10 @@
      * 
      */
 
-
     /**
-     * @typedef {Object} IframeProp
-     * @property {string} allow
-     * @property {string} params
-     * @property {Function} onload
+     * @typedef {HTMLIFrameElement} IframeProp
      */
-
+    
     /**
      * @typedef {Object} CookieStructure
      * @property {string} name
@@ -38,7 +34,7 @@
      * @property {string} domain
      * @property {string} sameSite
      */
-
+    
     /**
      * @typedef {Object} Language
      * @property {string} notice
@@ -232,11 +228,6 @@
         video._iframe.loading = 'lazy';
         video._title && (video._iframe.title = video._title);
 
-        // Add allow attribute to iframe
-        if(service.iframe && service.iframe.allow){
-            video._iframe.allow = service.iframe.allow;
-        }
-
         // Add parameters to src
         if(iframeParams){
             if (iframeParams.substring(0, 3) === 'ap:'){
@@ -245,8 +236,6 @@
                 src += '?' + iframeParams;
             }
         }
-
-        video._iframe.src = src;
 
         var iframeProps = service.iframe;
 
@@ -259,6 +248,18 @@
             && typeof iframeProps.onload === 'function'
             && iframeProps.onload(video._id, video._iframe);
         };
+
+        var disallowedProps = ['params', 'onload', 'onerror', 'src'];
+        
+        /**
+         * Allow "any" attribute
+         */
+        for(var key in iframeProps){
+            if(!disallowedProps.includes(key))
+                video._iframe.setAttribute(key, iframeProps[key]);
+        }
+
+        video._iframe.src = src;
 
         appendChild(video._div, video._iframe);
     };
