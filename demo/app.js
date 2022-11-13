@@ -10,11 +10,11 @@
 		services : {
 			youtube : {
 				embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
-				
+
 				iframe : {
 					allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
 				},
-				cookie : {						
+				cookie : {
 					name : 'cc_youtube'
 				},
 				languages : {
@@ -27,13 +27,13 @@
 			},
 			dailymotion : {
 				embedUrl: 'https://www.dailymotion.com/embed/video/{data-id}',
-				
+
 				// Use dailymotion api to obtain thumbnail
 				thumbnailUrl: function(id, setThumbnail){
-				
+
 					var url = "https://api.dailymotion.com/video/" + id + "?fields=thumbnail_large_url";
 					var xhttp = new XMLHttpRequest();
-					
+
 					xhttp.onreadystatechange = function() {
 						if (this.readyState == 4 && this.status == 200) {
 							var src = JSON.parse(this.response).thumbnail_large_url;
@@ -47,7 +47,7 @@
 				iframe : {
 					allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;'
 				},
-				cookie : {						
+				cookie : {
 					name : 'cc_dailymotion'
 				},
 				languages : {
@@ -55,7 +55,7 @@
 						notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="#link_dailymotion" title="Terms and conditions" target="_blank">terms and conditions</a> of dailymotion.com.',
 						loadBtn: 'Load video',
 						loadAllBtn: 'Don\'t ask again'
-						
+
 					}
 				}
 			},
@@ -65,7 +65,7 @@
 					allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
 					params: '',// optional
 				},
-				cookie : {						
+				cookie : {
 					name : 'cc_twitch'
 				},
 				languages : {
@@ -78,25 +78,23 @@
 			},
 			twitter : {
 				onAccept: function(div, callback){
-				   
-					manager.loadScript('https://platform.twitter.com/widgets.js', function(){
-						
+
+					CookieConsent.loadScript('https://platform.twitter.com/widgets.js').then(() => {
 						twttr.widgets.createTweet(div.dataset.id, div).then(function(tweet){
 							console.log("tweet", tweet);
 							callback(tweet.firstChild);
 						});
-						
 					});
 				},
-	
+
 				onReject: function(iframe){
 					iframe.parentNode.remove();
 				},
-	
-				cookie : {						
+
+				cookie : {
 					name : 'cc_twitter'
 				},
-	
+
 				languages : {
 					'en' : {
 						notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of twitter.com.',
@@ -105,7 +103,7 @@
 					}
 				}
 
-				
+
 			},
 
 			"facebook-post" : {
@@ -115,13 +113,31 @@
 					allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share;',
 					params: '',// optional
 				},
-				cookie : {						
+				cookie : {
 					name : 'cc_facebook_post'
 				},
 				languages : {
 					'en' : {
 						notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="#link_twitch" title="Terms and conditions" target="_blank">terms and conditions</a> of twitch.com.',
 						loadBtn: 'Load video',
+						loadAllBtn: 'Don\'t ask again'
+					}
+				}
+			},
+
+			googlemaps: {
+
+				embedUrl: 'https://www.google.com/maps/embed?pb={data-id}',
+				iframe: {
+					allow : 'picture-in-picture; fullscreen;'
+				},
+				cookie: {
+					name: 'cc_maps'
+				},
+				languages: {
+					'en' : {
+						notice: 'Notice message ...',
+						loadBtn: 'Load map',
 						loadAllBtn: 'Don\'t ask again'
 					}
 				}
@@ -137,29 +153,29 @@
 					fbVideo.setAttribute('data-href', this.embedUrl + div.dataset.id);
 					fbVideo.setAttribute('data-width', 'auto');
 					div.appendChild(fbVideo);
-					
-					manager.loadScript('https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v11.0', function(){
+
+					CookieConsent.loadScript('https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v11.0').then(() => {
 						var c = document.querySelector(`[data-id="${div.dataset.id}"`).lastChild;
 						FB.XFBML.parse(document.querySelector(`[data-id="${div.dataset.id}"`));
-						
+
 						manager.observe(fbVideo, function(iframe){
 							console.log("wwwaaaa", iframe);
 							callback(iframe)
 						});
-						
+
 						//FB.XFBML.parse(document.querySelector(`[data-id="${div.dataset.id}"`));
-						
+
 					});
 				},
-	
+
 				onReject: function(iframe){
 					iframe.parentNode.parentNode.remove();
 				},
-	
-				cookie : {						
+
+				cookie : {
 					name : 'cc_facebook'
 				},
-	
+
 				languages : {
 					'en' : {
 						notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of twitter.com.',
@@ -171,7 +187,7 @@
 		}
 	});
 
-	
+
 	var accept_all = document.getElementById('accept-all');
 	var reject_all = document.getElementById('reject-all');
 
