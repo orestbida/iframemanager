@@ -52,7 +52,7 @@ div[data-service].c-h-n .c-ld{
 	visibility: visible;
 	transform: translateY(0);
 }
-  
+
 @keyframes spin {
 	0% { transform: rotate(0deg); }
 	100% { transform: rotate(360deg); }
@@ -65,7 +65,9 @@ div[data-service]{
 	min-width: 300px;
 	font-family: inherit;
 	position: relative;
+	font-size: initial;
 	background-color: #0b1016;
+	overflow: hidden;
 }
 
 div[data-service] button,
@@ -94,7 +96,7 @@ div[data-service] .c-nt{
 	max-width: 100%;
 	height: 100%;
 	width: 100%;
-	transition: opacity .3s ease, visibility .3s ease; 
+	transition: opacity .3s ease, visibility .3s ease;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -224,7 +226,8 @@ div[data-service] .c-n-c .c-l-b::before{
 	content: '';
     display: block;
     position: absolute;
-    top: 12px;
+	top: 50%;
+    transform: translateY(-50%);
     left: 1.1em;
     z-index: 2;
     height: 0;
@@ -274,11 +277,11 @@ div[data-service] iframe{
 	border: none;
 	max-width: 100%;
 	width: 100%;
-	background: #000000;
+	background: #fff;
 	display: block;
 	visibility: hidden;
 	opacity: 0;
-	z-index: 1;
+	z-index: 2;
 	transition: opacity .5s ease;
 }
 
@@ -298,3 +301,87 @@ div[data-service] .c-n-t a {
 div[data-service] .c-n-t a:hover{
 	border-color: transparent;
 }
+
+div[data-service][data-ratio="1:1"]::before{
+	padding-top: 100%;
+}
+
+div[data-service][data-ratio="2:1"]::before{
+	padding-top: 50%;
+}
+
+div[data-service][data-ratio="3:2"]::before{
+	padding-top: 66.666666%;
+}
+
+div[data-service][data-ratio="5:2"]::before{
+	padding-top: 40%;
+}
+
+div[data-service][data-ratio="4:3"]::before{
+	padding-top: 75%;
+}
+
+div[data-service][data-ratio="16:9"]::before{
+	padding-top: 56.25%;
+}
+
+div[data-service][data-ratio="16:10"]::before{
+	padding-top: 62.5%;
+}
+
+div[data-service][data-ratio="20:9"]::before{
+	padding-top: 45%;
+}
+
+div[data-service][data-ratio="21:9"]::before{
+	padding-top: 42.857142%;
+}
+
+/** Vertical aspect ratios **/
+div[data-service][data-ratio="9:16"]::before{
+	padding-top: 177.777777%;
+}
+
+div[data-service][data-ratio="9:20"]::before{
+	padding-top: 222.222222%;
+}
+
+div[data-customwidget]::before {
+	display: none;
+}
+
+div[data-customwidget].c-h-b{
+	background: transparent;
+}
+
+div[data-customwidget].c-h-b .c-ld{
+	opacity: 0;
+	visibility: hidden;
+}
+
+div[data-customwidget] > div{
+	margin: 0!important;
+}
+
+div[data-customwidget]{
+	vertical-align: top;
+	min-width: 296px;
+	transition: background-color .3s ease;
+	transition-delay: .3s;
+}
+
+/* div[data-service="twitter"] .c-n-c .c-l-b{
+	background-color: #1DA1F2;
+}
+
+div[data-service="twitter"] .c-n-c .c-l-b::before{
+	border: none;
+	height: 15px;
+	width: 15px;
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAATZJREFUOE+lk78rRWEcxj/PJhmUMhhkkMEgGyZSlCR27qRYFItRXWVQJsVm8A8w3GSQUpTcYlCUzXAzKPEnPHp1zunc0znXkW+9y/s+30/P98cr/hkqk2+7E1gA2oG6pIeQZ3v6B2B7T9JmHsz2LHAA9KXeq8AUsCTbE8AVcAGsS3pJg2zXgLkM/Bm4BL7SgKB5B3aBm5RNF5RZlbQdl3AHjGSET8AtsFIAGJVUDw76gS0gwCplmhppuiR9xg7OgZk/JDck9QZ9DJgEdoCxkpCapPk0YBA4jJJ7gIFfQOOSrhNAtAvLwFEJB/uSNmJd0ybaDk5CGWvAcA7sMeyEpEYTwHY3EJqyCCT0DOAUWJX0kb4PYwzzD3tQFCfAsaSzPEFSgu0OYCg6bcAb8CrpvlVfSv3GVoBvLzlh7eQqydQAAAAASUVORK5CYII=')
+}
+
+.fb_iframe_widget_fluid span{
+	width: 100%!important;
+} */

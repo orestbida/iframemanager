@@ -30,29 +30,58 @@
 		<p>Demo with youtube & dailymotion config.</p>
         <br>
         <br>
-		
+
+        <button id="accept-all">Accept all</button>
+        <button id="reject-all">Reject all</button>
+        <br>
+
 		<h2>Simple example</h2>
 		<br>
 		<div
-            data-service="youtube" 
+            data-service="youtube"
+            data-ratio="9:16"
             data-id="fJ9rUzIMcZQ">
         </div>
-		
+
 		<br>
 		<br>
 		<h2>Example with autoscale width (fill width of parent container)</h2>
 		<br>
 		<div
-            data-service="youtube" 
-            data-id="fJ9rUzIMcZQ" 
+            data-service="youtube"
+            data-id="fJ9rUzIMcZQ"
 			data-autoscale>
         </div>
 		<br>
+
+        <div
+            data-service="twitter"
+            data-id="1404125474981298177"
+            data-customwidget
+            style="height: 518px;">
+        </div>
+
+        <div
+            data-service="twitter"
+            data-id="1429246345668304898"
+            data-customwidget
+            style="height: 285px;">
+        </div>
+
+        <div
+            data-service="twitter"
+            data-id="1429246345668304898"
+            data-customwidget
+            style="height: 285px;">
+        </div>
+
+        <br>
+        <br>
 		<br>
 		<h2>Example with custom thumbnail + params (video starts muted at 21s)</h2>
 		<br>
-        <div 
-            data-service="youtube" 
+        <div
+            data-service="youtube"
             data-id="861gfPVmgdc"
 			data-params="start=21&mute=1"
 			data-thumbnail="https://i.pinimg.com/originals/0a/4d/cb/0a4dcb92fa2d3c601b58d72720d6bec4.jpg"
@@ -63,23 +92,68 @@
 		<br>
 		<h2>Daily motion video</h2>
 		<br>
-        <div 
-            data-service="dailymotion" 
+        <div
+            data-service="dailymotion"
             data-id="x81n4gf"
             data-autoscale >
         </div>
 
         <br>
+
+        <div
+            data-service="facebook"
+            data-id="20531316728/posts/10154009990506729/"
+            data-title="facebook post"
+            style="height: 310px; max-width: 350px; width: 100%;"
+            data-customwidget
+            data-autoscale
+        ></div>
+
+        <div
+            data-service="facebook-post"
+            data-id="href=https://www.facebook.com/nokia/photos/a.338008237396/10157974130297397/&show_text=true&width=500"
+            data-title="nokia post"
+            style="height: 453px; max-width: 500px;"
+            data-customwidget
+            data-autoscale
+        ></div>
+
+        <br>
+		<br>
+		<h2>Google Maps</h2>
+		<br>
+        <div
+            data-service="googlemaps"
+            data-id="!1m18!1m12!1m3!1d2659.4482749804133!2d11.644969316034478!3d48.19798087922823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479e7499e2d4c67f%3A0x32f7f02c5e77043a!2sM%C3%BCnchner+Str.+123%2C+85774+Unterf%C3%B6hring%2C+Germany!5e0!3m2!1sen!2sin!4v1565347252768!5m2!1sen!2sin"
+            data-thumbnail="./assets/maps-thumbnail-min.png"
+            data-title="Random place in Germany"
+            data-autoscale
+        ></div>
+
+        <!--
+        <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A//www.facebook.com/nokia/photos/a.338008237396/10157974130297397/&show_text=true&width=500" width="500" height="453" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+
+
+        <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A//www.facebook.com/marsel.bida.12/videos/242627174439550/&show_text=true&width=267&t=21" width="267" height="591" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
+        <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A//www.facebook.com/HackingTricks/posts/1730338337164763&show_text=true&width=500" width="500" height="589" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+            -->
+        <br>
 		<br>
 		<h2>Twitch channel embed</h2>
 		<br>
-		<div 
-        data-service="twitch" 
+		<div
+        data-service="twitch"
         data-id="channel=bdougieYO"
         data-title="Twitch channel stream"
         data-autoscale></div>
-    </div>
-    <script src="../dist/iframemanager.js" defer></script>
-    <script src="app.js" defer></script>
+        <br>
+        <br>
+
+        <br>
+        <h1>Ciao</h1>
+
+    <script defer src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v3.0.0-rc.9/dist/cookieconsent.umd.js"></script>
+    <script defer src="../dist/iframemanager.js"></script>
+    <script defer src="app.js"></script>
  </body>
 </html>
