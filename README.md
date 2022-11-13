@@ -12,7 +12,7 @@
 </div>
 <div align="center">
 
-**IframeMananger** is a lightweight javascript plugin which helps you **comply with `GDPR`** by completely removing iframes initially and setting a notice relative to that service. **Iframes are loaded only after consent**. 
+**IframeMananger** is a lightweight javascript plugin which helps you **comply with `GDPR`** by completely removing iframes initially and setting a notice relative to that service. **Iframes are loaded only after consent**.
 
 <sub>
 <i>
@@ -77,7 +77,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
         <p>
 
         - Create a .js file (e.g. `app.js`) and import it in your html markup:
-    
+
             ```html
             <body>
                 ...
@@ -87,12 +87,12 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
             ```
 
         - Configure iframemanager inside `app.js`:
-        
+
             ```javascript
             (function(){
-            
+
                 var manager = iframemanager();
-                
+
                 // Example with youtube embed
                 manager.run({
                     currLang: 'en',
@@ -131,9 +131,9 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
           <!-- Inline script -->
           <script>
             window.addEventListener('load', function(){
-                
+
                 var manager = iframemanager();
-                
+
                 // Example with youtube embed
                 manager.run({
                     currLang: 'en',
@@ -174,11 +174,12 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
 All available options for  the `<div>` element:
 ```html
 <div
-    data-service="<service-name>"	
+    data-service="<service-name>"
     data-id="<resource-id>"
     data-params="<iframe-query-parameters>"
-    data-thumbnail="<path-to-image>" 
-    data-autoscale>
+    data-thumbnail="<path-to-image>"
+    data-autoscale
+    data-ratio="<x:y>">
 </div>
 ```
 
@@ -186,8 +187,24 @@ All available options for  the `<div>` element:
 - `data-id` :           [String, Required] unique id of the resource (example: video id)
 - `data-params` :       [String] iframe query parameters
 - `data-thumbnail` :    [String] path to custom thumbnail
-- `data-ratio` :        [String] aspect ratio ([supported aspect ratios](#aspect-ratios))
+- `data-ratio` :        [String] custom aspect ratio ([Avaialable values.](#available-data-ratio))[v1.1.0]
 - `data-autoscale` :    specify for **responsive iframe** (fill parent width + scale proportionally)
+
+### How to set attributes on the `iframe` element
+You can set set attribute by using the following syntax
+- `data-iframe-<attribute>`  [String] note: replace `<attribute>` with a valid attribute name. [v1.1.0]
+
+Example:
+```html
+<div
+    data-service="..."
+    data-id="..."
+    data-autoscale
+    data-iframe-id="myGoogleMapsEmbed"
+    data-iframe-loading="lazy"
+    data-iframe-frameborder="0">
+</div>
+```
 
 <br>
 
@@ -195,7 +212,7 @@ All available options for the config. object:
 ```javascript
 {
     currLang: 'en',     // current language of the notice (must also be defined in the "languages" object below)
-    autoLang: false,    // if enabled => use current client's browser language 
+    autoLang: false,    // if enabled => use current client's browser language
                         // instead of currLang [OPTIONAL]
 
     services : {
@@ -204,7 +221,7 @@ All available options for the config. object:
             embedUrl: 'https://myservice_embed_url>/{data-id}',
 
             // set valid url for automatic thumbnails   [OPTIONAL]
-            thumbnailUrl: 'https://<myservice_embed_thumbnail_url>/{data-id}',	
+            thumbnailUrl: 'https://<myservice_embed_thumbnail_url>/{data-id}',
 
             // global iframe settings (apply to all iframes relative to current service) [OPTIONAL]
             iframe : {
@@ -229,13 +246,35 @@ All available options for the config. object:
                 en : {
                     notice: 'Html <b>notice</b> message',
                     loadBtn: 'Load video',          // Load only current iframe
-                    loadAllBtn: 'Don\'t ask again'  // Load all iframes configured with this service + set cookie		
+                    loadAllBtn: 'Don\'t ask again'  // Load all iframes configured with this service + set cookie
                 }
             }
         },
 
         anotherservice : {
             ...
+        }
+    }
+}
+```
+
+Any other property specified inside the `iframe` object, will be applied directly to the `iframe` element as an attribute.
+
+Example: add `frameborder` and `style` attributes:
+```javascript
+{
+    // ...
+
+    services : {
+        myservice : {
+            // ...
+
+            iframe : {
+                // ...
+
+                frameborder: '0',
+                style: 'border: 4px solid red;'
+            }
         }
     }
 }
@@ -325,13 +364,13 @@ Both `acceptService` and `rejectService` work the same way:
         services : {
             dailymotion : {
                 embedUrl: 'https://www.dailymotion.com/embed/video/{data-id}',
-                
+
                 // Use dailymotion api to obtain thumbnail
                 thumbnailUrl: function(id, setThumbnail){
-                
+
                     var url = "https://api.dailymotion.com/video/" + id + "?fields=thumbnail_large_url";
                     var xhttp = new XMLHttpRequest();
-                    
+
                     xhttp.onreadystatechange = function() {
                         if (this.readyState == 4 && this.status == 200) {
                             var src = JSON.parse(this.response).thumbnail_large_url;
@@ -345,7 +384,7 @@ Both `acceptService` and `rejectService` work the same way:
                 iframe : {
                     allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
                 },
-                cookie : {						
+                cookie : {
                     name : 'cc_dailymotion'
                 },
                 languages : {
@@ -373,10 +412,10 @@ Both `acceptService` and `rejectService` work the same way:
                 embedUrl: 'https://player.vimeo.com/video/{data-id}',
 
                 thumbnailUrl: function(id, setThumbnail){
-                
+
                     var url = "https://vimeo.com/api/v2/video/" + id + ".json";
                     var xhttp = new XMLHttpRequest();
-                    
+
                     xhttp.onreadystatechange = function() {
                         if (this.readyState == 4 && this.status == 200) {
                             var src = JSON.parse(this.response)[0].thumbnail_large;
@@ -390,7 +429,7 @@ Both `acceptService` and `rejectService` work the same way:
                 iframe : {
                     allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
                 },
-                cookie : {						
+                cookie : {
                     name : 'cc_vimeo'
                 },
                 languages : {
@@ -420,7 +459,7 @@ Both `acceptService` and `rejectService` work the same way:
                 iframe : {
                     allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
                 },
-                cookie : {						
+                cookie : {
                     name : 'cc_twitch'
                 },
                 languages : {
@@ -437,6 +476,16 @@ Both `acceptService` and `rejectService` work the same way:
     </p>
     </details>
 - More "presets" for other service to come ...
+
+
+### Available `data-ratio`
+
+Horizontal aspect ratio:
+
+* `1:1`, `2:1`, `3:2`, `5:2`, `4:3`, `16:9`, `16:10`, `20:9`, `21:9`
+
+Vertical aspect ratio:
+* `9:16`, `9:20`
 
 ## License
 Distributed under the MIT License. See [LICENSE](https://github.com/orestbida/iframemanager/blob/master/LICENSE) for more information.
