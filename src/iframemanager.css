@@ -154,7 +154,7 @@ div[data-service] .c-tl{
     display: block;
     margin-bottom: 10px;
     font-size: 1.2em;
-    font-weight: bold;
+    font-weight: 600;
     text-align: center;
 }
 
@@ -216,7 +216,7 @@ div[data-service] .c-n-c .c-l-b{
     padding-left: 2.8em;
     color: #ffffff;
     margin: 0 auto;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     transition: opacity .3s ease, transform .3s cubic-bezier(0.25, 1, 0.5, 1), visibility .3s ease, box-shadow .3s ease, background-color .3s ease;
     box-shadow: rgba(0, 0, 0, 0.19) 0px 4px 12px;
