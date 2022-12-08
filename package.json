@@ -31,8 +31,8 @@
   "devDependencies": {
     "cssnano": "^5.1.14",
     "postcss": "^8.4.19",
-    "postcss-cli": "^10.0.0",
-    "postcss-custom-properties": "^12.1.10",
-    "terser": "^5.15.1"
+    "postcss-cli": "^10.1.0",
+    "postcss-custom-properties": "^12.1.11",
+    "terser": "^5.16.1"
   }
 }

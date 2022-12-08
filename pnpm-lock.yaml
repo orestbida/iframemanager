@@ -3,16 +3,16 @@ lockfileVersion: 5.4
 specifiers:
   cssnano: ^5.1.14
   postcss: ^8.4.19
-  postcss-cli: ^10.0.0
-  postcss-custom-properties: ^12.1.10
-  terser: ^5.15.1
+  postcss-cli: ^10.1.0
+  postcss-custom-properties: ^12.1.11
+  terser: ^5.16.1
 
 devDependencies:
   cssnano: 5.1.14_postcss@8.4.19
   postcss: 8.4.19
-  postcss-cli: 10.0.0_postcss@8.4.19
-  postcss-custom-properties: 12.1.10_postcss@8.4.19
-  terser: 5.15.1
+  postcss-cli: 10.1.0_postcss@8.4.19
+  postcss-custom-properties: 12.1.11_postcss@8.4.19
+  terser: 5.16.1
 
 packages:
 
@@ -381,9 +381,9 @@ packages:
       to-regex-range: 5.0.1
     dev: true
 
-  /fs-extra/10.1.0:
-    resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
-    engines: {node: '>=12'}
+  /fs-extra/11.1.0:
+    resolution: {integrity: sha512-0rcTq621PD5jM/e0a3EJoGC/1TC5ZBCERW82LQuwfGnCa1V8w7dpYH1yNu+SLb6E5dkeCBzKEyLGlFrnr+dUyw==}
+    engines: {node: '>=14.14'}
     dependencies:
       graceful-fs: 4.2.10
       jsonfile: 6.1.0
@@ -557,8 +557,8 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
-  /postcss-cli/10.0.0_postcss@8.4.19:
-    resolution: {integrity: sha512-Wjy/00wBBEgQqnSToznxLWDnATznokFGXsHtF/3G8glRZpz5KYlfHcBW/VMJmWAeF2x49zjgy4izjM3/Wx1dKA==}
+  /postcss-cli/10.1.0_postcss@8.4.19:
+    resolution: {integrity: sha512-Zu7PLORkE9YwNdvOeOVKPmWghprOtjFQU3srMUGbdz3pHJiFh7yZ4geiZFMkjMfB0mtTFR3h8RemR62rPkbOPA==}
     engines: {node: '>=14'}
     hasBin: true
     peerDependencies:
@@ -566,7 +566,7 @@ packages:
     dependencies:
       chokidar: 3.5.3
       dependency-graph: 0.11.0
-      fs-extra: 10.1.0
+      fs-extra: 11.1.0
       get-stdin: 9.0.0
       globby: 13.1.2
       picocolors: 1.0.0
@@ -575,7 +575,7 @@ packages:
       postcss-reporter: 7.0.5_postcss@8.4.19
       pretty-hrtime: 1.0.3
       read-cache: 1.0.0
-      slash: 4.0.0
+      slash: 5.0.0
       yargs: 17.6.2
     transitivePeerDependencies:
       - ts-node
@@ -605,8 +605,8 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
-  /postcss-custom-properties/12.1.10_postcss@8.4.19:
-    resolution: {integrity: sha512-U3BHdgrYhCrwTVcByFHs9EOBoqcKq4Lf3kXwbTi4hhq0qWhl/pDWq2THbv/ICX/Fl9KqeHBb8OVrTf2OaYF07A==}
+  /postcss-custom-properties/12.1.11_postcss@8.4.19:
+    resolution: {integrity: sha512-0IDJYhgU8xDv1KY6+VgUwuQkVtmYzRwu+dMjnmdMafXYv86SWqfxkc7qdDvWS38vsjaEtv8e0vGOUQrAiMBLpQ==}
     engines: {node: ^12 || ^14 || >=16}
     peerDependencies:
       postcss: ^8.2
@@ -955,6 +955,11 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
+  /slash/5.0.0:
+    resolution: {integrity: sha512-n6KkmvKS0623igEVj3FF0OZs1gYYJ0o0Hj939yc1fyxl2xt+xYpLnzJB6xBSqOfV9ZFLEWodBBN/heZJahuIJQ==}
+    engines: {node: '>=14.16'}
+    dev: true
+
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
@@ -1018,8 +1023,8 @@ packages:
       stable: 0.1.8
     dev: true
 
-  /terser/5.15.1:
-    resolution: {integrity: sha512-K1faMUvpm/FBxjBXud0LWVAGxmvoPbZbfTCYbSgaaYQaIXI3/TdI7a7ZGA73Zrou6Q8Zmz3oeUTsp/dj+ag2Xw==}
+  /terser/5.16.1:
+    resolution: {integrity: sha512-xvQfyfA1ayT0qdK47zskQgRZeWLoOQ8JQ6mIgRGVNwZKdQMU+5FkCBjmv4QjcrTzyZquRw2FVtlJSRUmMKQslw==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
