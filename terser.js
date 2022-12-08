@@ -1,9 +1,9 @@
 const { minify } = require("terser");
 const { writeFileSync, readFileSync } = require('fs');
-const pkg = require('./package.json');
+const pkgName = 'iframemanager';
 
-const srcFile = `src/${pkg.name}.js`;
-const distFile = `dist/${pkg.name}.js`;
+const srcFile = `src/${pkgName}.js`;
+const distFile = `dist/${pkgName}.js`;
 
 const code = readFileSync(srcFile, {
     encoding: 'utf8'
