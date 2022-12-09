@@ -161,14 +161,15 @@ div[data-service].c-h-n .c-nt{
 }
 
 div[data-service] .c-n-c{
-    display: table;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100%;
-    width: 100%;
     position: relative;
     z-index: 1;
-    margin: 0;
     font-size: .9em;
-    transition: background-color .3s ease, opacity .3s ease;
+    transition: background-color .3s ease,
+                opacity .3s ease;
 }
 
 div[data-service] .c-n-t{
@@ -185,51 +186,49 @@ div[data-service] .c-n-t{
 
 div[data-service] .c-n-t,
 div[data-service] .c-n-a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    gap: 12px;
 }
 
 div[data-service] .c-t-cn{
-    display: table-cell;
-    vertical-align: middle;
     padding: 0 12px;
     transition: opacity .3s ease, transform .3s ease, visibility .3s ease;
 }
 
 div[data-service] .c-n-c .c-la-b,
 div[data-service] .c-n-c .c-l-b{
-    display: inline-block;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 8px;
     position: relative;
     padding: 1em;
-    vertical-align: middle;
     background: rgba(0, 102, 219, 0.84);
-    border: none;
-    border-radius: .25em;
+    border-radius: 4px;
     font-size: .85em;
-    padding-left: 2.8em;
     color: #ffffff;
-    margin: 0 auto;
     font-weight: 600;
-    cursor: pointer;
-    transition: opacity .3s ease, transform .3s cubic-bezier(0.25, 1, 0.5, 1), visibility .3s ease, box-shadow .3s ease, background-color .3s ease;
     box-shadow: rgba(0, 0, 0, 0.19) 0px 4px 12px;
+    transition: opacity .3s ease,
+                transform .3s cubic-bezier(0.25, 1, 0.5, 1),
+                visibility .3s ease,
+                box-shadow .3s ease,
+                background-color .3s ease;
 }
+
 /* Play icon */
 div[data-service] .c-n-c .c-l-b::before{
     content: '';
     display: block;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 1.1em;
-    z-index: 2;
-    height: 0;
     border-left: 12px solid white;
     border-top: 7.5px solid transparent;
     border-bottom: 7.5px solid transparent;
 }
 
 div[data-service] .c-n-c .c-la-b{
-    margin-left: 1em;
     padding: 1em;
     background: rgba(225, 239, 255, .8);
     color: #0d1f34;
