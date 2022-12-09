@@ -4,6 +4,49 @@
 	// get module
 	var manager = iframemanager();
 
+	/**
+	 * @typedef {object} WaitConfig
+	 * @property {'script' | 'iframe'} type,
+	 * @property {any} obj
+	 * @property {string} [prop]
+	 * @property {string} [selector]
+	 */
+
+	/**
+	 * Wait until a property on the window object is available
+	 * @param {WaitConfig} opts
+	 * @returns {Promise<boolean>}
+	 */
+	const waitFor = async (opts) => {
+		const {obj, type, prop, selector} = opts;
+
+		const isIframe = type === 'iframe';
+
+		const timeout = isIframe 
+			? 100
+			: 10;
+
+		const maxWait = 500;
+
+		const objToCheck = prop 
+			? obj[prop] 
+			: obj;
+		
+		const isDefined = () => typeof (isIframe && obj.querySelector(selector) || objToCheck) !== 'undefined'
+
+		let nIntervals = 0;
+
+		return await new Promise(resolve => {
+			const interval = setInterval(() => {
+				const timedOut = !isIframe && ++nIntervals * timeout > maxWait;
+				if (isDefined() || timedOut) {
+					clearInterval(interval);
+					resolve(!timedOut);
+				}
+			}, timeout);
+		});
+	};
+
 	manager.run({
 		currLang: document.documentElement.getAttribute('lang'),
 		// autoLang: true,
@@ -77,14 +120,12 @@
 				}
 			},
 			twitter : {
-				onAccept: function(div, callback){
 
-					CookieConsent.loadScript('https://platform.twitter.com/widgets.js').then(() => {
-						twttr.widgets.createTweet(div.dataset.id, div).then(function(tweet){
-							console.log("tweet", tweet);
-							callback(tweet.firstChild);
-						});
-					});
+				onAccept: async (div, setIframe) => {
+					const twttrLoaded = await CookieConsent.loadScript('https://platform.twitter.com/widgets.js');
+					const twttrReady = twttrLoaded && await waitFor({type: 'script', obj: window, prop: 'twttr'});
+					const tweet = twttrReady && await twttr.widgets.createTweet(div.dataset.id, div);
+					tweet && setIframe(tweet.firstChild);
 				},
 
 				onReject: function(iframe){
@@ -102,8 +143,6 @@
 						loadAllBtn: 'Don\'t ask again'
 					}
 				}
-
-
 			},
 
 			"facebook-post" : {
