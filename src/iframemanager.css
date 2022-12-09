@@ -1,25 +1,45 @@
-div[data-service] *,
-div[data-service] :before,
-div[data-service] :after{
-    -webkit-box-sizing: border-box;
+div[data-service],
+div[data-service] span,
+div[data-service] a,
+div[data-service] button,
+div[data-service] ::before,
+div[data-service] ::after{
+    all: unset;
     box-sizing: border-box;
-    float: none;
-    font-style: inherit;
-    font-variant: normal;
-    font-weight: inherit;
+}
+
+div[data-service] a,
+div[data-service] button,
+div[data-service] input{
     font-family: inherit;
-    line-height: 1.2;
-    font-size: 1em;
+    font-size: 100%;
+    line-height: normal;
     margin: 0;
-    padding: 0;
-    text-transform: none;
-    letter-spacing: unset;
-    color: inherit;
-    background: none;
-    border: none;
-    box-shadow: none;
-    text-decoration: none;
-    text-align: left;
+    outline: revert;
+    outline-offset: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+div[data-service]{
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-size: 16px;
+    font-weight: 400;
+    display: inline-block;
+    max-width: 100%;
+    min-height: 150px;
+    min-width: 300px;
+    position: relative;
+    background-color: #0b1016;
+    overflow: hidden;
+}
+
+div[data-service]::before{
+    padding-top: 56.25%;
+    display: block;
+    content: '';
 }
 
 div[data-service] .c-ld {
@@ -56,34 +76,6 @@ div[data-service].c-h-n .c-ld{
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-}
-
-div[data-service]{
-    display: inline-block;
-    max-width: 100%;
-    min-height: 150px;
-    min-width: 300px;
-    font-family: inherit;
-    position: relative;
-    font-size: initial;
-    background-color: #0b1016;
-    overflow: hidden;
-}
-
-div[data-service] button,
-div[data-service] label,
-div[data-service] input,
-div[data-service] h1,
-div[data-service] h2,
-div[data-service] h3{
-    transition: none;
-    animation: none;
-}
-
-div[data-service]::before{
-    padding-top: 56.25%;
-    display: block;
-    content: "";
 }
 
 div[data-autoscale]{
