@@ -1,3 +1,21 @@
+:root {
+    --im-font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+
+    --im-color: #fff;
+    --im-bg: #0b1016;
+
+    --im-btn-color: #fff;
+    --im-btn-hover-color: #fff;
+    --im-btn-bg: rgba(0, 102, 219, 0.84);
+    --im-btn-hover-bg: rgba(9, 80, 161, 0.89);
+
+    --im-overlay-bg: linear-gradient(
+        14deg,
+        rgba(30,56,97,1) 0%,
+        rgba(206,220,233,0.1181022750897234) 100%
+    )
+}
+
 div[data-service],
 div[data-service] span,
 div[data-service] a,
@@ -24,7 +42,7 @@ div[data-service] input{
 }
 
 div[data-service]{
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-family: var(--im-font-family);
     font-size: 16px;
     font-weight: 400;
     display: inline-block;
@@ -32,7 +50,7 @@ div[data-service]{
     min-height: 150px;
     min-width: 300px;
     position: relative;
-    background-color: #0b1016;
+    background-color: var(--im-bg);
     overflow: hidden;
 }
 
@@ -48,7 +66,9 @@ div[data-service] .c-ld {
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px);
-    transition: opacity .3s ease, visibility .3s ease, transform .3s ease;
+    transition: opacity .3s ease,
+                visibility .3s ease,
+                transform .3s ease;
 }
 
 div[data-service] .c-ld,
@@ -84,7 +104,7 @@ div[data-autoscale]{
 }
 
 div[data-service] .c-nt{
-    color: #fff;
+    color: var(--im-color);
     max-width: 100%;
     height: 100%;
     width: 100%;
@@ -116,13 +136,10 @@ div[data-service] .c-bg::before{
     right: 0;
     bottom: 0;
     z-index: 1;
-    transition: opacity .3s ease, visibility .3s ease;
+    transition: opacity .3s ease,
+                visibility .3s ease;
     background: rgb(30,56,97);
-    background: linear-gradient( 14deg, rgb(12 15 23 / 95%) 10%, rgb(0 0 0 / 51%) 100%, rgba(68,77,125,0.1082983535210959) 0%);
-    background: -moz-linear-gradient(14deg, rgba(30,56,97,1) 0%, rgba(206,220,233,0.1181022750897234) 100%);
-    background: -webkit-linear-gradient(14deg, rgba(30,56,97,1) 0%, rgba(206,220,233,0.1181022750897234) 100%);
-    background: linear-gradient(14deg, rgba(30,56,97,1) 0%, rgba(206,220,233,0.1181022750897234) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#1e3861",endColorstr="#cedce9",GradientType=1);
+    background: var(--im-overlay-bg);
 }
 
 div[data-service] .c-bg-i{
@@ -135,7 +152,8 @@ div[data-service] .c-bg-i{
     right: 0;
     bottom: 0;
     opacity: 0;
-    transition: opacity .5s ease, transform .5s ease;
+    transition: opacity .5s ease,
+                transform .5s ease;
 }
 
 div[data-service] .c-bg-i.loaded{
@@ -178,7 +196,6 @@ div[data-service] .c-n-t{
     position: relative;
     z-index: 1;
     line-height: 1.4em;
-    color: #fff;
     max-width: 420px;
     margin: 0 auto;
     margin-bottom: 20px;
@@ -195,7 +212,9 @@ div[data-service] .c-n-a{
 
 div[data-service] .c-t-cn{
     padding: 0 12px;
-    transition: opacity .3s ease, transform .3s ease, visibility .3s ease;
+    transition: opacity .3s ease,
+                transform .3s ease,
+                visibility .3s ease;
 }
 
 div[data-service] .c-n-c .c-la-b,
@@ -206,10 +225,10 @@ div[data-service] .c-n-c .c-l-b{
     gap: 8px;
     position: relative;
     padding: 1em;
-    background: rgba(0, 102, 219, 0.84);
+    background: var(--im-btn-bg);
     border-radius: 4px;
     font-size: .85em;
-    color: #ffffff;
+    color: var(--im-btn-color);
     font-weight: 600;
     box-shadow: rgba(0, 0, 0, 0.19) 0px 4px 12px;
     transition: opacity .3s ease,
@@ -223,7 +242,7 @@ div[data-service] .c-n-c .c-l-b{
 div[data-service] .c-n-c .c-l-b::before{
     content: '';
     display: block;
-    border-left: 12px solid white;
+    border-left: 12px solid var(--im-btn-color);
     border-top: 7.5px solid transparent;
     border-bottom: 7.5px solid transparent;
 }
@@ -239,7 +258,7 @@ div[data-service] .c-n-c .c-la-b:hover{
 }
 
 div[data-service] .c-n-c .c-l-b:hover{
-    background: rgba(9, 80, 161, 0.89);
+    background: var(--im-btn-hover-bg);
 }
 
 div[data-service] .c-n-c .c-la-b:active{
