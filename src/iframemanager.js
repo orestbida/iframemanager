@@ -476,12 +476,12 @@
 
                     var fragment = doc.createDocumentFragment();
                     var notice = createNode('div');
-                    var span = createNode('span');
-                    var innerDiv = createNode('p');
+                    var span = createNode('div');
+                    var innerDiv = createNode('div');
                     var load_button = createNode('button');
                     var load_all_button = createNode('button');
 
-                    var notice_text = createNode('span');
+                    var notice_text = createNode('div');
                     var ytVideoBackground = createNode('div');
                     var loaderBg = createNode('div');
                     var ytVideoBackgroundInner = createNode('div');
