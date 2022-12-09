@@ -215,22 +215,9 @@
 
             // Let the onAccept method create the iframe
             service.onAccept(video._div, function(iframe){
-                //console.log("iframe_created!", iframe);
                 video._iframe = iframe;
                 video._hasIframe = true;
                 video._div.classList.add('c-h-b');
-
-                // if(video._autoscale){
-                //     var t;
-                //     video._div.style.minHeight = iframe.style.height;
-                //     window.addEventListener('resize', function(){
-                //         clearTimeout(t);
-                //         t = setTimeout(function(){
-                //             video._div.style.minHeight = iframe.style.height;
-                //         }, 200);
-                //     }, {passive: true});
-                // }
-
             });
 
             return;
@@ -324,8 +311,8 @@
 
     /**
      * Get cookie by name
-     * @param {String} a cookie name
-     * @returns {String} cookie value
+     * @param {string} a cookie name
+     * @returns {string} cookie value
      */
     var getCookie = function(a) {
         return (a = doc.cookie.match("(^|;)\\s*" + a + "\\s*=\\s*([^;]+)")) ? a.pop() : '';
@@ -333,7 +320,7 @@
 
     /**
      * Set cookie based on given object
-     * @param {Object} cookie
+     * @param {CookieStructure} cookie
      */
     var setCookie = function(cookie) {
 
@@ -363,8 +350,7 @@
 
     /**
      * Delete cookie by name & path
-     * @param {Array} cookies
-     * @param {String} custom_path
+     * @param {CookieStructure} cookie
      */
     var eraseCookie = function(cookie) {
         var path = cookie.path || '/';
@@ -376,15 +362,15 @@
 
     /**
      * Get all prop. keys defined inside object
-     * @param {Object} obj
+     * @param {any} obj
      */
     var getKeys = function(obj){
-        return Object.keys(obj);
+        return obj && Object.keys(obj) || [];
     };
 
     /**
      * Add link rel="preconnect"
-     * @param {String} _url
+     * @param {string} _url
      */
     var preconnect = function(_url){
         var url = _url.split('://');
@@ -412,7 +398,7 @@
 
     /**
      * Add link rel="preload"
-     * @param {String} url
+     * @param {string} url
      */
     function preloadThumbnail(url){
         if(url && preloads.indexOf(url) === -1){
@@ -427,11 +413,27 @@
 
     /**
      * Create and return HTMLElement based on specified type
-     * @param {String} type
+     * @param {string} type
      * @returns {HTMLElement}
      */
     function createNode(type){
         return doc.createElement(type);
+    }
+
+    /**
+     * @returns {HTMLDivElement}
+     */
+    function createDiv() {
+        return createNode('div');
+    }
+
+    /**
+     * @returns {HTMLButtonElement}
+     */
+    function createButton() {
+        const btn = createNode('button');
+        btn.type = 'button';
+        return btn;
     }
 
     /**
@@ -475,20 +477,35 @@
                     var loadAllBtnText = languages[currLang].loadAllBtn;
 
                     var fragment = doc.createDocumentFragment();
-                    var notice = createNode('div');
-                    var span = createNode('div');
-                    var innerDiv = createNode('div');
-                    var load_button = createNode('button');
-                    var load_all_button = createNode('button');
+                    var notice = createDiv();
+                    var span = createDiv();
+                    var innerDiv = createDiv();
 
-                    var notice_text = createNode('div');
-                    var ytVideoBackground = createNode('div');
-                    var loaderBg = createNode('div');
-                    var ytVideoBackgroundInner = createNode('div');
-                    var notice_text_container = createNode('div');
-                    var buttons = createNode('div');
+                    if(loadBtnText){
+                        var load_button = createButton();
+                        load_button.textContent = loadBtnText;
+                        setClassName(load_button, 'c-l-b');
 
-                    load_button.type = load_all_button.type = 'button';
+                        load_button.addEventListener('click', showVideo);
+                    }
+
+                    if(loadAllBtnText){
+                        var load_all_button = createButton()
+                        load_all_button.textContent = loadAllBtnText;
+                        setClassName(load_all_button, 'c-la-b');
+
+                        load_all_button.addEventListener('click', function(){
+                            showVideo();
+                            api.acceptService(serviceName);
+                        });
+                    }
+
+                    var notice_text = createDiv();
+                    var ytVideoBackground = createDiv();
+                    var loaderBg = createDiv();
+                    var ytVideoBackgroundInner = createDiv();
+                    var notice_text_container = createDiv();
+                    var buttons = createDiv();
 
                     setClassName(notice_text, 'cc-text');
                     setClassName(ytVideoBackgroundInner, 'c-bg-i');
@@ -510,9 +527,6 @@
                         appendChild(fragment_2, title_span);
                     }
 
-                    load_button.textContent = loadBtnText;
-                    load_all_button.textContent = loadAllBtnText;
-
                     appendChild(notice_text, fragment_2);
                     notice && notice_text.insertAdjacentHTML('beforeend', noticeText || "");
                     appendChild(span, notice_text);
@@ -523,11 +537,9 @@
                     setClassName(notice, 'c-nt');
 
                     setClassName(buttons,  'c-n-a');
-                    setClassName(load_button, 'c-l-b');
-                    setClassName(load_all_button, 'c-la-b');
 
-                    appendChild(buttons, load_button);
-                    appendChild(buttons, load_all_button);
+                    loadBtnText && appendChild(buttons, load_button);
+                    loadAllBtnText && appendChild(buttons, load_all_button);
 
                     appendChild(notice_text_container, span);
                     appendChild(notice_text_container, buttons);
@@ -540,14 +552,6 @@
                         createIframe(video, service);
                     }
 
-                    load_button.addEventListener('click', function(){
-                        showVideo();
-                    });
-
-                    load_all_button.addEventListener('click', function(){
-                        showVideo();
-                        api.acceptService(serviceName);
-                    });
 
                     appendChild(ytVideoBackground, ytVideoBackgroundInner);
                     appendChild(fragment, notice);
@@ -658,7 +662,7 @@
 
     /**
      * Get current client's browser language
-     * @returns {String} browser language
+     * @returns {string} browser language
      */
     var getBrowserLang = function(){
         return navigator.language.slice(0, 2).toLowerCase()
