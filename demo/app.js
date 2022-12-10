@@ -22,17 +22,21 @@
 
 		const isIframe = type === 'iframe';
 
-		const timeout = isIframe 
+		const timeout = isIframe
 			? 100
 			: 10;
 
 		const maxWait = 500;
 
-		const objToCheck = prop 
-			? obj[prop] 
+		const objToCheck = prop
+			? obj[prop]
 			: obj;
-		
-		const isDefined = () => typeof (isIframe && obj.querySelector(selector) || objToCheck) !== 'undefined'
+
+		const isDefined = () => typeof
+			(isIframe
+				? obj.querySelector(selector)
+				: objToCheck
+			) !== 'undefined'
 
 		let nIntervals = 0;
 
@@ -158,7 +162,7 @@
 				languages : {
 					'en' : {
 						notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="#link_twitch" title="Terms and conditions" target="_blank">terms and conditions</a> of twitch.com.',
-						loadBtn: 'Load video',
+						loadBtn: 'Load post',
 						loadAllBtn: 'Don\'t ask again'
 					}
 				}
@@ -182,47 +186,6 @@
 				}
 			},
 
-			facebook : {
-				embedUrl : "https://www.facebook.com/",
-
-				onAccept: function(div, callback){
-
-					var fbVideo = document.createElement('div');
-					fbVideo.className = "fb-post";
-					fbVideo.setAttribute('data-href', this.embedUrl + div.dataset.id);
-					fbVideo.setAttribute('data-width', 'auto');
-					div.appendChild(fbVideo);
-
-					CookieConsent.loadScript('https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v11.0').then(() => {
-						var c = document.querySelector(`[data-id="${div.dataset.id}"`).lastChild;
-						FB.XFBML.parse(document.querySelector(`[data-id="${div.dataset.id}"`));
-
-						manager.observe(fbVideo, function(iframe){
-							console.log("wwwaaaa", iframe);
-							callback(iframe)
-						});
-
-						//FB.XFBML.parse(document.querySelector(`[data-id="${div.dataset.id}"`));
-
-					});
-				},
-
-				onReject: function(iframe){
-					iframe.parentNode.parentNode.remove();
-				},
-
-				cookie : {
-					name : 'cc_facebook'
-				},
-
-				languages : {
-					'en' : {
-						notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of twitter.com.',
-						loadBtn: 'Load tweet',
-						loadAllBtn: 'Don\'t ask again'
-					}
-				}
-			}
 		}
 	});
 
