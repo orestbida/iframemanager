@@ -97,17 +97,20 @@
      */
     function getVideoProp(div){
 
-        var dataset = div.dataset;
-        var attrs = {};
+        const dataset = div.dataset;
+
+        const iframeAttrs = {};
+        const iframeAttrSelector = 'data-iframe-';
+
+        const iframeAttrNames = div.getAttributeNames()
+            .filter(attr => attr.slice(0, 12) === iframeAttrSelector)
+            .map(attr => attr.slice(12));
 
         /**
          * Get all "data-iframe-* attributes
          */
-        for(var prop in dataset){
-            if(prop.lastIndexOf('iframe') === 0){
-                attrs[prop.slice(6).toLowerCase()] = dataset[prop];
-            }
-        }
+        for(const attrName of iframeAttrNames)
+            iframeAttrs[attrName] = div.getAttribute(iframeAttrSelector + attrName);
 
         return {
             _id: dataset.id,
@@ -121,7 +124,7 @@
             _hasIframe: false,
             _hasNotice: false,
             _showNotice : true,
-            _iframeAttributes: attrs
+            _iframeAttributes: iframeAttrs
         };
     };
 
