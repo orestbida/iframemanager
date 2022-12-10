@@ -475,7 +475,88 @@ Both `acceptService` and `rejectService` work the same way:
     ```
     </p>
     </details>
-- More "presets" for other service to come ...
+-   <details><summary>How to embed google maps</summary>
+    <p>
+
+    -   <details><summary>With API key</summary>
+        <p>
+
+        ```javascript
+        manager.run({
+            currLang: 'en',
+            services : {
+                googlemaps : {
+                    embedUrl: 'https://www.google.com/maps/embed/v1/place?key=API_KEY&q={data-id}',
+                    iframe: {
+                        allow : 'picture-in-picture; fullscreen;'
+                    },
+                    cookie: {
+                        name: 'cc_maps'
+                    },
+                    languages : {
+                        en : {
+                            notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://cloud.google.com/maps-platform/terms" target="_blank">terms and conditions</a> of Google Maps.',
+                            loadBtn: 'Load map',
+                            loadAllBtn: 'Don\'t ask again'
+                        }
+                    }
+                }
+            }
+        });
+        ```
+
+        Example usage:
+        ```html
+        <div
+            data-service="GoogleMaps"
+            data-id="Space+Needle,Seattle+WA"
+            data-autoscale
+        ></div>
+        ```
+        </p>
+        </details>
+
+    -   <details><summary>Without API key</summary>
+        <p>
+
+        ```javascript
+        manager.run({
+            currLang: 'en',
+            services : {
+                googlemaps : {
+                    embedUrl: 'https://www.google.com/maps/embed?pb={data-id}',
+                    iframe: {
+                        allow : 'picture-in-picture; fullscreen;'
+                    },
+                    cookie: {
+                        name: 'cc_maps'
+                    },
+                    languages : {
+                        en : {
+                            notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://cloud.google.com/maps-platform/terms" target="_blank">terms and conditions</a> of Google Maps.',
+                            loadBtn: 'Load map',
+                            loadAllBtn: 'Don\'t ask again'
+                        }
+                    }
+                }
+            }
+        });
+        ```
+
+        Example usage:
+        ```html
+        <div
+            data-service="googlemaps"
+            data-id="!1m18!1m12!1m3!1d2659.4482749804133!2d11.644969316034478!3d48.19798087922823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479e7499e2d4c67f%3A0x32f7f02c5e77043a!2sM%C3%BCnchner+Str.+123%2C+85774+Unterf%C3%B6hring%2C+Germany!5e0!3m2!1sen!2sin!4v1565347252768!5m2!1sen!2sin"
+            data-autoscale
+        ></div>
+        ```
+        </p>
+        </details>
+    </p>
+    </details>
+
+
 
 
 ### Available `data-ratio`
