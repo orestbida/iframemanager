@@ -826,16 +826,23 @@
                     iframeDivs[serviceName].push(getVideoProp(foundDivs[j]));
                 }
 
-                var currService = services[serviceName];
+                const currService = services[serviceName];
 
-                // check if cookie for current service is set
-                var cookie_name = currService.cookie.name;
+                /**
+                 * Use service's name as cookie name,
+                 * if no cookie.name is specified
+                 */
+                const { cookie } = currService;
+                !cookie && (currService.cookie = {});
+                const cookieObj = currService.cookie;
 
-                // get current service's cookie value
-                var cookie = getCookie(cookie_name);
+                const cookieName = cookieObj.name || `im_${serviceName}`;
+                cookieObj.name = cookieName;
+
+                const cookieExists = getCookie(cookieName);
 
                 // if cookie is not set => show notice
-                if(cookie){
+                if(cookieExists){
                     createAllNotices(serviceName, currService, true);
                     hideAllNotices(serviceName, currService);
                 }else{
