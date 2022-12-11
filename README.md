@@ -108,9 +108,9 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
                             },
                             languages : {
                                 en : {
-                                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of youtube.com.',
+                                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of youtube.com.',
                                     loadBtn: 'Load video',
-                                    loadAllBtn: 'Don\'t ask again'
+                                    loadAllBtn: "Don't ask again"
                                 }
                             }
                         }
@@ -149,9 +149,9 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
                             },
                             languages : {
                                 en : {
-                                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of youtube.com.',
+                                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of youtube.com.',
                                     loadBtn: 'Load video',
-                                    loadAllBtn: 'Don\'t ask again'
+                                    loadAllBtn: "Don't ask again"
                                 }
                             }
                         }
@@ -246,7 +246,7 @@ All available options for the config. object:
                 en : {
                     notice: 'Html <b>notice</b> message',
                     loadBtn: 'Load video',          // Load only current iframe
-                    loadAllBtn: 'Don\'t ask again'  // Load all iframes configured with this service + set cookie
+                    loadAllBtn: "Don't ask again"  // Load all iframes configured with this service + set cookie
                 }
             }
         },
@@ -324,74 +324,70 @@ Both `acceptService` and `rejectService` work the same way:
 2. create/remove iframes
 
 ## Configuration examples
--   <details><summary>How to embed youtube videos</summary>
+-   <details><summary>Youtube</summary>
     <p>
 
     ```javascript
-    // Example with youtube embed
     manager.run({
         currLang: 'en',
-        services : {
-            youtube : {
+        services: {
+            youtube: {
                 embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
+
                 thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg',
-                iframe : {
-                    allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
+
+                iframe: {
+                    allow: 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
                 },
-                cookie : {
-                    name : 'cc_youtube'
-                },
-                languages : {
-                    en : {
-                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of youtube.com.',
+
+                languages: {
+                    en: {
+                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of youtube.com.',
                         loadBtn: 'Load video',
-                        loadAllBtn: 'Don\'t ask again'
+                        loadAllBtn: "Don't ask again"
                     }
                 }
             }
         }
     });
     ```
+    Example:
+    ```html
+    <!-- https://www.youtube.com/watch?v=5b35haQV7tU -->
+    <div
+        data-service="youtube"
+        data-id="5b35haQV7tU"
+    ></div>
+    ```
     </p>
     </details>
--   <details><summary>How to embed dailymotion videos</summary>
+-   <details><summary>Dailymotion</summary>
     <p>
 
     ```javascript
-    // Example with dailymotion embed
     manager.run({
         currLang: 'en',
-        services : {
-            dailymotion : {
+        services: {
+            dailymotion: {
                 embedUrl: 'https://www.dailymotion.com/embed/video/{data-id}',
 
-                // Use dailymotion api to obtain thumbnail
-                thumbnailUrl: function(id, setThumbnail){
-
-                    var url = "https://api.dailymotion.com/video/" + id + "?fields=thumbnail_large_url";
-                    var xhttp = new XMLHttpRequest();
-
-                    xhttp.onreadystatechange = function() {
-                        if (this.readyState == 4 && this.status == 200) {
-                            var src = JSON.parse(this.response).thumbnail_large_url;
-                            setThumbnail(src);
-                        }
-                    };
-
-                    xhttp.open("GET", url, true);
-                    xhttp.send();
+                thumbnailUrl: async (dataId, setThumbnail) => {
+                    // Use dailymotion's API to fetch the thumbnail
+                    const url = `https://api.dailymotion.com/video/${dataId}?fields=thumbnail_large_url`;
+                    const response = await (await fetch(url)).json();
+                    const thumbnailUlr = response?.thumbnail_large_url;
+                    thumbnailUlr && setThumbnail(thumbnailUlr);
                 },
-                iframe : {
-                    allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
+
+                iframe: {
+                    allow: 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
                 },
-                cookie : {
-                    name : 'cc_dailymotion'
-                },
-                languages : {
-                    'en' : {
-                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.dailymotion.com/legal/privacy?localization=en" title="Terms and conditions" target="_blank">terms and conditions</a> of dailymotion.com.',
+
+                languages: {
+                    en: {
+                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.dailymotion.com/legal/privacy?localization=en" target="_blank">terms and conditions</a> of dailymotion.com.',
                         loadBtn: 'Load video',
-                        loadAllBtn: 'Don\'t ask again'
+                        loadAllBtn: "Don't ask again"
                     }
                 }
             }
@@ -400,43 +396,32 @@ Both `acceptService` and `rejectService` work the same way:
     ```
     </p>
     </details>
--   <details><summary>How to embed vimeo videos</summary>
+-   <details><summary>Vimeo</summary>
     <p>
 
     ```javascript
-    // Example with vimeo embed
     manager.run({
         currLang: 'en',
-        services : {
-            vimeo : {
+        services: {
+            vimeo: {
                 embedUrl: 'https://player.vimeo.com/video/{data-id}',
 
-                thumbnailUrl: function(id, setThumbnail){
-
-                    var url = "https://vimeo.com/api/v2/video/" + id + ".json";
-                    var xhttp = new XMLHttpRequest();
-
-                    xhttp.onreadystatechange = function() {
-                        if (this.readyState == 4 && this.status == 200) {
-                            var src = JSON.parse(this.response)[0].thumbnail_large;
-                            setThumbnail(src);
-                        }
-                    };
-
-                    xhttp.open("GET", url, true);
-                    xhttp.send();
+                iframe: {
+                    allow : 'fullscreen; picture-in-picture, allowfullscreen;',
                 },
-                iframe : {
-                    allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
+
+                thumbnailUrl: async (dataId, setThumbnail) => {
+                    const url = `https://vimeo.com/api/v2/video/${dataId}.json`;
+                    const response = await (await fetch(url)).json();
+                    const thumbnailUrl = response[0]?.thumbnail_large;
+                    thumbnailUrl && setThumbnail(thumbnailUrl);
                 },
-                cookie : {
-                    name : 'cc_vimeo'
-                },
-                languages : {
-                    'en' : {
-                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://vimeo.com/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of vimeo.com.',
+
+                languages: {
+                    en: {
+                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://vimeo.com/terms" target="_blank">terms and conditions</a> of vimeo.com.',
                         loadBtn: 'Load video',
-                        loadAllBtn: 'Don\'t ask again'
+                        loadAllBtn: "Don't ask again"
                     }
                 }
             }
@@ -445,7 +430,7 @@ Both `acceptService` and `rejectService` work the same way:
     ```
     </p>
     </details>
--   <details><summary>How to embed twitch videos/streams/chats</summary>
+-   <details><summary>Twitch</summary>
     <p>
 
     ```javascript
@@ -453,20 +438,19 @@ Both `acceptService` and `rejectService` work the same way:
     // IMPORTANT: replace "yourWebsite.com" with your own website
     manager.run({
         currLang: 'en',
-        services : {
-            twitch : {
+        services: {
+            twitch: {
                 embedUrl: 'https://player.twitch.tv/?{data-id}&parent=localhost&parent=yourWebsite.com',
-                iframe : {
-                    allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
+
+                iframe: {
+                    allow: 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
                 },
-                cookie : {
-                    name : 'cc_twitch'
-                },
-                languages : {
-                    'en' : {
-                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.twitch.tv/p/en/legal/terms-of-service/" title="Terms and conditions" target="_blank">terms and conditions</a> of twitch.com.',
+
+                languages: {
+                    en: {
+                        notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.twitch.tv/p/en/legal/terms-of-service/" target="_blank">terms and conditions</a> of twitch.com.',
                         loadBtn: 'Load stream',
-                        loadAllBtn: 'Don\'t ask again'
+                        loadAllBtn: "Don't ask again"
                     }
                 }
             }
@@ -475,7 +459,7 @@ Both `acceptService` and `rejectService` work the same way:
     ```
     </p>
     </details>
--   <details><summary>How to embed google maps</summary>
+-   <details><summary>Google Maps</summary>
     <p>
 
     -   <details><summary>With API key</summary>
@@ -484,20 +468,19 @@ Both `acceptService` and `rejectService` work the same way:
         ```javascript
         manager.run({
             currLang: 'en',
-            services : {
-                googlemaps : {
+            services: {
+                googlemaps: {
                     embedUrl: 'https://www.google.com/maps/embed/v1/place?key=API_KEY&q={data-id}',
+
                     iframe: {
-                        allow : 'picture-in-picture; fullscreen;'
+                        allow: 'picture-in-picture; fullscreen;'
                     },
-                    cookie: {
-                        name: 'cc_maps'
-                    },
-                    languages : {
-                        en : {
-                            notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://cloud.google.com/maps-platform/terms" target="_blank">terms and conditions</a> of Google Maps.',
+
+                    languages: {
+                        en: {
+                            notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://cloud.google.com/maps-platform/terms" target="_blank">terms and conditions</a> of Google Maps.',
                             loadBtn: 'Load map',
-                            loadAllBtn: 'Don\'t ask again'
+                            loadAllBtn: "Don't ask again"
                         }
                     }
                 }
@@ -505,7 +488,7 @@ Both `acceptService` and `rejectService` work the same way:
         });
         ```
 
-        Example usage:
+        Example:
         ```html
         <div
             data-service="GoogleMaps"
@@ -525,17 +508,16 @@ Both `acceptService` and `rejectService` work the same way:
             services : {
                 googlemaps : {
                     embedUrl: 'https://www.google.com/maps/embed?pb={data-id}',
+
                     iframe: {
                         allow : 'picture-in-picture; fullscreen;'
                     },
-                    cookie: {
-                        name: 'cc_maps'
-                    },
+
                     languages : {
                         en : {
-                            notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://cloud.google.com/maps-platform/terms" target="_blank">terms and conditions</a> of Google Maps.',
+                            notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://cloud.google.com/maps-platform/terms" target="_blank">terms and conditions</a> of Google Maps.',
                             loadBtn: 'Load map',
-                            loadAllBtn: 'Don\'t ask again'
+                            loadAllBtn: "Don't ask again"
                         }
                     }
                 }
