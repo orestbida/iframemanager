@@ -63,7 +63,7 @@ im.run({
 
             languages : {
                 en : {
-                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of youtube.com.',
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of youtube.com.',
                     loadBtn: 'Load video',
                     loadAllBtn: "Don't ask again"
                 }
@@ -77,8 +77,8 @@ im.run({
             thumbnailUrl: async (id, setThumbnail) => {
                 const url = `https://api.dailymotion.com/video/${id}?fields=thumbnail_large_url`;
                 const response = await (await fetch(url)).json();
-                const thumbnailUlr = response?.thumbnail_large_url;
-                thumbnailUlr && setThumbnail(thumbnailUlr);
+                const thumbnailUrl = response?.thumbnail_large_url;
+                thumbnailUrl && setThumbnail(thumbnailUrl);
             },
 
             iframe : {
@@ -87,7 +87,7 @@ im.run({
 
             languages : {
                 en : {
-                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="#link_dailymotion" title="Terms and conditions" target="_blank">terms and conditions</a> of dailymotion.com.',
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="#link_dailymotion" target="_blank">terms and conditions</a> of dailymotion.com.',
                     loadBtn: 'Load video',
                     loadAllBtn: "Don't ask again"
                 }
@@ -103,7 +103,7 @@ im.run({
 
             languages : {
                 en : {
-                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="#link_twitch" title="Terms and conditions" target="_blank">terms and conditions</a> of twitch.com.',
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="#link_twitch" target="_blank">terms and conditions</a> of twitch.com.',
                     loadBtn: 'Load stream',
                     loadAllBtn: "Don't ask again"
                 }
@@ -125,7 +125,7 @@ im.run({
 
             languages : {
                 en : {
-                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="https://www.youtube.com/t/terms" title="Terms and conditions" target="_blank">terms and conditions</a> of twitter.com.',
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of twitter.com.',
                     loadBtn: 'Load tweet',
                     loadAllBtn: "Don't ask again"
                 }
@@ -141,7 +141,7 @@ im.run({
 
             languages : {
                 en : {
-                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer" href="#link_twitch" title="Terms and conditions" target="_blank">terms and conditions</a> of twitch.com.',
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="#link_twitch" target="_blank">terms and conditions</a> of twitch.com.',
                     loadBtn: 'Load post',
                     loadAllBtn: "Don't ask again"
                 }
@@ -158,12 +158,35 @@ im.run({
 
             languages: {
                 en : {
-                    notice: 'Notice message ...',
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://cloud.google.com/maps-platform/terms" target="_blank">terms and conditions</a> of Google Maps.',
                     loadBtn: 'Load map',
                     loadAllBtn: "Don't ask again"
                 }
             }
         },
+
+        vimeo: {
+            embedUrl: 'https://player.vimeo.com/video/{data-id}',
+
+            iframe: {
+                allow : 'fullscreen; picture-in-picture, allowfullscreen;'
+            },
+
+            thumbnailUrl: async (dataId, setThumbnail) => {
+                const url = `https://vimeo.com/api/v2/video/${dataId}.json`;
+                const response = await (await fetch(url)).json();
+                const thumbnailUrl = response[0]?.thumbnail_large;
+                thumbnailUrl && setThumbnail(thumbnailUrl);
+            },
+
+            languages: {
+                en : {
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://vimeo.com/terms" target="_blank">terms and conditions</a> of vimeo.com.',
+                    loadBtn: 'Load video',
+                    loadAllBtn: "Don't ask again"
+                }
+            }
+        }
 
     }
 });
