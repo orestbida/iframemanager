@@ -49,6 +49,28 @@ const waitFor = async (opts) => {
 };
 
 im.run({
+
+    /**
+     * @param {{
+     *  servicesState: Map<string, boolean>
+     *  eventSource: 'click' | 'api'
+     * }}
+     */
+    onChange: ({servicesState, eventSource}) => {
+        if(eventSource === 'api')
+            return;
+
+        const enabledServices = [...servicesState]
+            .filter(([k, v]) => v === true)
+            .map(([k, v]) => k);
+
+        console.log("www", enabledServices)
+
+        for(const [key, value] of servicesState){
+            console.log(key, value);
+        }
+    },
+
     currLang: 'en',
     // autoLang: true,
 
@@ -169,7 +191,7 @@ im.run({
             embedUrl: 'https://player.vimeo.com/video/{data-id}',
 
             iframe: {
-                allow : 'fullscreen; picture-in-picture, allowfullscreen;'
+                allow : 'fullscreen; picture-in-picture;'
             },
 
             thumbnailUrl: async (dataId, setThumbnail) => {

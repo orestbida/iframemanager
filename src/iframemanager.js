@@ -86,7 +86,11 @@
         /**
          * @type {Document}
          */
-        doc = {};
+        doc = {},
+
+        servicesState = new Map(),
+
+        onChangeCallback;
 
     /**
      * Prevent direct use of the following
@@ -502,6 +506,9 @@
                     load_all_button.addEventListener('click', () => {
                         showVideo();
                         api.acceptService(serviceName);
+
+                        if(isFunction(onChangeCallback))
+                            onChangeCallback({servicesState, eventSource: 'click'});
                     });
 
                     appendChild(buttons, load_all_button);
@@ -689,12 +696,27 @@
             stopObserver = false;
 
             if(serviceName === 'all'){
+                let changed = false;
 
-                for(const name of serviceNames)
-                    acceptHelper(name, services[name]);
+                for(const name of serviceNames){
+                    if(!servicesState.get(name)){
+                        servicesState.set(name, true);
+                        acceptHelper(name, services[name]);
+                        changed = true;
+                    }
+                }
+
+                changed && isFunction(onChangeCallback)
+                    && onChangeCallback({servicesState, eventSource: 'api'});
 
             }else if(serviceNames.includes(serviceName)){
-                acceptHelper(serviceName, services[serviceName]);
+                if(!servicesState.get(serviceName)){
+                    servicesState.set(serviceName, true);
+                    acceptHelper(serviceName, services[serviceName]);
+
+                    isFunction(onChangeCallback)
+                        && onChangeCallback({servicesState, eventSource: 'api'});
+                }
             }
         },
 
@@ -709,21 +731,40 @@
             if(serviceName === 'all'){
                 stopObserver = true;
 
-                for(const name of serviceNames)
-                    rejectHelper(name, services[name]);
+                let changed = false;
+
+                for(const name of serviceNames){
+                    if(servicesState.get(name)){
+                        servicesState.set(name, false);
+                        rejectHelper(name, services[name]);
+                        changed = true;
+                    }
+                }
+
+                changed && isFunction(onChangeCallback)
+                    && onChangeCallback({servicesState, eventSource: 'api'});
 
             }else if(serviceNames.includes(serviceName)){
-                rejectHelper(serviceName, services[serviceName]);
+                if(servicesState.get(serviceName)){
+                    servicesState.set(serviceName, false);
+                    rejectHelper(serviceName, services[serviceName]);
+
+                    isFunction(onChangeCallback)
+                        && onChangeCallback({servicesState, eventSource: 'api'});
+                }
             }
         },
 
         run : (_config) => {
 
             doc = document;
+
             /**
              * Object with all services config.
              */
             services = _config.services;
+
+            onChangeCallback = _config.onChange;
 
             /**
              * Array containing the names of all services
@@ -788,6 +829,8 @@
                 cookieObj.name = cookieName;
 
                 const cookieExists = getCookie(cookieName);
+
+                servicesState.set(serviceName, !!cookieExists);
 
                 // if cookie is not set => show notice
                 if(cookieExists){
