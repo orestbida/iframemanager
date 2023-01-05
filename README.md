@@ -31,10 +31,11 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
 - [**Installation**](#installation)
 - [**Configuration options & API**](#configuration-options)
 - [**Configuration examples**](#configuration-examples)
-    - [How to embed youtube video](#configuration-examples)
-    - [How to embed dailymotion video](#configuration-examples)
-    - [How to embed vimeo video](#configuration-examples)
-    - [How to embed twitch channel/chat](#configuration-examples)
+    - [youtube](#configuration-examples)
+    - [dailymotion](#configuration-examples)
+    - [vimeo](#configuration-examples)
+    - [twitch](#configuration-examples)
+    - [google maps](#configuration-examples)
 - [**License**](#license)
 
 ## Features
@@ -53,8 +54,8 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
 1. #### Download the [latest release](https://github.com/orestbida/iframemanager/releases/latest) or use via CDN:
 
     ```bash
-    https://cdn.jsdelivr.net/gh/orestbida/iframemanager@v1.1.0/dist/iframemanager.js
-    https://cdn.jsdelivr.net/gh/orestbida/iframemanager@v1.1.0/dist/iframemanager.css
+    https://cdn.jsdelivr.net/gh/orestbida/iframemanager@v1.2.0/dist/iframemanager.js
+    https://cdn.jsdelivr.net/gh/orestbida/iframemanager@v1.2.0/dist/iframemanager.css
     ```
 
 2. #### Import script + stylesheet:
@@ -67,7 +68,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
       </head>
       <body>
         ...
-        <script src="iframemanager.js" defer></script>
+        <script defer src="iframemanager.js"></script>
       <body>
     </html>
     ```
@@ -81,8 +82,8 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
             ```html
             <body>
                 ...
-                <script src="iframemanager.js" defer></script>
-                <script src="app.js" defer></script>
+                <script defer src="iframemanager.js"></script>
+                <script defer src="app.js"></script>
             <body>
             ```
 
@@ -91,20 +92,17 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
             ```javascript
             (function(){
 
-                var manager = iframemanager();
+                const im = iframemanager();
 
                 // Example with youtube embed
-                manager.run({
+                im.run({
                     currLang: 'en',
                     services : {
                         youtube : {
                             embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
                             thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg',
                             iframe : {
-                                allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
-                            },
-                            cookie : {
-                                name : 'cc_youtube'
+                                allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;'
                             },
                             languages : {
                                 en : {
@@ -126,26 +124,23 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
         ```html
         <body>
           ...
-          <script src="iframemanager.js" defer></script>
+          <script defer src="iframemanager.js"></script>
 
           <!-- Inline script -->
           <script>
             window.addEventListener('load', function(){
 
-                var manager = iframemanager();
+                const im = iframemanager();
 
                 // Example with youtube embed
-                manager.run({
+                im.run({
                     currLang: 'en',
                     services : {
                         youtube : {
                             embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
-                            thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg',
+                            thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg'
                             iframe : {
-                                allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
-                            },
-                            cookie : {
-                                name : 'cc_youtube'
+                                allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;'
                             },
                             languages : {
                                 en : {
@@ -164,7 +159,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
       </p>
     </details>
 
-4. #### Create a div (will contain the iframe) with `data-service` and `data-id` attributes:
+4. #### Create a div with `data-service` and `data-id` attributes:
 
     ```html
     <div data-service="youtube" data-id="<video-id>"></div>
@@ -197,10 +192,10 @@ You can set set attribute by using the following syntax
 Example:
 ```html
 <div
-    data-service="..."
-    data-id="..."
+    data-service="youtube"
+    data-id="5b35haQV7tU"
     data-autoscale
-    data-iframe-id="myGoogleMapsEmbed"
+    data-iframe-id="myYoutubeEmbed"
     data-iframe-loading="lazy"
     data-iframe-frameborder="0">
 </div>
@@ -218,58 +213,58 @@ All available options for the config. object:
     services : {
         myservice : {
 
-            embedUrl: 'https://myservice_embed_url>/{data-id}',
+            embedUrl: 'https://<myservice_embed_url>',
 
             // set valid url for automatic thumbnails   [OPTIONAL]
-            thumbnailUrl: 'https://<myservice_embed_thumbnail_url>/{data-id}',
+            thumbnailUrl: 'https://<myservice_embed_thumbnail_url>',
 
             // global iframe settings (apply to all iframes relative to current service) [OPTIONAL]
-            iframe : {
-                allow : 'fullscreen',           // iframe's allow attribute
-                params : 'mute=1&start=21'      // iframe's url query parameters
+            iframe: {
+                allow: 'fullscreen',           // iframe's allow attribute
+                params: 'mute=1&start=21',     // iframe's url query parameters
 
                 // function run for each iframe configured with current service
-                onload : function(data_id, setThumbnail){
-                    console.log("loaded iframe with data-id=" + data_id);
+                onload: (dataId, setThumbnail) => {
+                    console.log(`loaded iframe with data-id=${dataId}`);
                 }
             },
 
             // cookie is set if the current service is accepted
-            cookie : {
-                name : 'cc_youtube',            // cookie name
-                path : '/',                     // cookie path          [OPTIONAL]
-                samesite : 'lax',               // cookie samesite      [OPTIONAL]
-                domain : location.hostname      // cookie domain        [OPTIONAL]
+            cookie: {
+                name: 'cc_youtube',            // cookie name
+                path: '/',                     // cookie path          [OPTIONAL]
+                samesite: 'lax',               // cookie samesite      [OPTIONAL]
+                domain: location.hostname      // cookie domain        [OPTIONAL]
             },
 
-            languages : {
-                en : {
+            languages: {
+                en: {
                     notice: 'Html <b>notice</b> message',
                     loadBtn: 'Load video',          // Load only current iframe
-                    loadAllBtn: "Don't ask again"  // Load all iframes configured with this service + set cookie
+                    loadAllBtn: "Don't ask again"   // Load all iframes configured with this service + set cookie
                 }
             }
         },
 
-        anotherservice : {
-            ...
+        anotherservice: {
+            // ...
         }
     }
 }
 ```
 
-Any other property specified inside the `iframe` object, will be applied directly to the `iframe` element as an attribute.
+Any other property specified inside the `iframe` object, will be set directly to the `iframe` element as attribute.
 
 Example: add `frameborder` and `style` attributes:
 ```javascript
 {
     // ...
 
-    services : {
-        myservice : {
+    services: {
+        myservice: {
             // ...
 
-            iframe : {
+            iframe: {
                 // ...
 
                 frameborder: '0',
@@ -286,15 +281,13 @@ Note: `thumbnailUrl` can be static string, dynamic string or a function:
 - `dynamic string` : "https://myservice_embed_url/{data-id}"
 - `function` :
     ```javascript
-    ...
-    thumbnailUrl : function(data_id, setThumbnail){
-        // fetch thumbnail url here based on data_id of the current element ...
-        var url = 'fetched_url';
+    thumbnailUrl: (dataId, setThumbnail) => {
+        // fetch thumbnail url here based on dataId of the current element ...
+        let url = 'fetched_url';
 
         // pass obtained url to the setThumbnail function
         setThumbnail(url);
-    },
-    ...
+    }
     ```
 
 ## APIs
@@ -307,16 +300,16 @@ Example usage:
 
 ```javascript
 // accept specific service only
-manager.acceptService('youtube');
+im.acceptService('youtube');
 
 // accept all services (for example if user has given full consent to cookies)
-manager.acceptService('all');
+im.acceptService('all');
 
 // reject specific service
-manager.rejectService('youtube');
+im.rejectService('youtube');
 
 // reject all services (for example when user opts out of cookies)
-manager.rejectService('all');
+im.rejectService('all');
 ```
 
 Both `acceptService` and `rejectService` work the same way:
@@ -328,7 +321,7 @@ Both `acceptService` and `rejectService` work the same way:
     <p>
 
     ```javascript
-    manager.run({
+    im.run({
         currLang: 'en',
         services: {
             youtube: {
@@ -365,7 +358,7 @@ Both `acceptService` and `rejectService` work the same way:
     <p>
 
     ```javascript
-    manager.run({
+    im.run({
         currLang: 'en',
         services: {
             dailymotion: {
@@ -400,7 +393,7 @@ Both `acceptService` and `rejectService` work the same way:
     <p>
 
     ```javascript
-    manager.run({
+    im.run({
         currLang: 'en',
         services: {
             vimeo: {
@@ -434,13 +427,11 @@ Both `acceptService` and `rejectService` work the same way:
     <p>
 
     ```javascript
-    // Example with simple twitch stream/channel
-    // IMPORTANT: replace "yourWebsite.com" with your own website
-    manager.run({
+    im.run({
         currLang: 'en',
         services: {
             twitch: {
-                embedUrl: 'https://player.twitch.tv/?{data-id}&parent=localhost&parent=yourWebsite.com',
+                embedUrl: `https://player.twitch.tv/?{data-id}&parent=${location.hostname}`,
 
                 iframe: {
                     allow: 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
@@ -466,7 +457,7 @@ Both `acceptService` and `rejectService` work the same way:
         <p>
 
         ```javascript
-        manager.run({
+        im.run({
             currLang: 'en',
             services: {
                 googlemaps: {
@@ -503,7 +494,7 @@ Both `acceptService` and `rejectService` work the same way:
         <p>
 
         ```javascript
-        manager.run({
+        im.run({
             currLang: 'en',
             services : {
                 googlemaps : {
