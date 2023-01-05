@@ -117,7 +117,7 @@ im.run({
         },
 
         twitch : {
-            embedUrl: 'https://player.twitch.tv/?{data-id}&parent=localhost',
+            embedUrl: `https://player.twitch.tv/?{data-id}&parent=${location.hostname}`,
 
             iframe : {
                 allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
