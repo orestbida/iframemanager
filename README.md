@@ -186,7 +186,7 @@ All available options for  the `<div>` element:
 - `data-autoscale` :    specify for **responsive iframe** (fill parent width + scale proportionally)
 
 ### How to set attributes on the `iframe` element
-You can set set attribute by using the following syntax
+You can set any attribute by using the following syntax:
 - `data-iframe-<attribute>`  [String] note: replace `<attribute>` with a valid attribute name. [v1.1.0]
 
 Example:
