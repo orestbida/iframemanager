@@ -15,6 +15,9 @@
      * @property {boolean} _thumbnailPreload
      * @property {boolean} _autoscale
      * @property {HTMLDivElement} _div
+     * @property {HTMLDivElement} _innerContainer
+     * @property {HTMLDivElement} _placeholderDiv
+     * @property {HTMLDivElement} _initialPlaceholderClone
      * @property {HTMLIFrameElement} _iframe
      * @property {HTMLDivElement} _backgroundDiv
      * @property {boolean} _hasIframe
@@ -53,7 +56,21 @@
      * @property {Function} [onReject]
      */
 
+    const API_EVENT_SOURCE = 'api';
+    const CLICK_EVENT_SOURCE = 'click';
+    const DATA_ID_PLACEHOLDER = '{data-id}';
+
     let
+
+        /**
+         * @type {Window}
+         */
+        win,
+
+        /**
+         * @type {Document}
+         */
+        doc,
 
         /**
          * @type {Object.<string, IframeObj[]>}
@@ -84,11 +101,14 @@
         serviceNames = [],
 
         /**
-         * @type {Document}
+         * @type {Map<string, boolean>}
          */
-        doc = {},
-
         servicesState = new Map(),
+
+        /**
+         * @type {'api' | 'click'}
+         */
+        currentEventSource = API_EVENT_SOURCE,
 
         onChangeCallback;
 
@@ -122,6 +142,9 @@
             .filter(attr => attr.slice(0, 12) === iframeAttrSelector)
             .map(attr => attr.slice(12));
 
+        const placeholderDiv = div.querySelector('[data-placeholder]');
+        const placeholderClone = placeholderDiv && placeholderDiv.cloneNode(true);
+
         /**
          * Get all "data-iframe-* attributes
          */
@@ -136,6 +159,9 @@
             _thumbnailPreload: 'thumbnailpreload' in dataset,
             _autoscale: 'autoscale' in dataset,
             _div: div,
+            _innerContainer: null,
+            _placeholderDiv: placeholderDiv,
+            _initialPlaceholderClone: placeholderClone,
             _backgroundDiv: null,
             _hasIframe: false,
             _hasNotice: false,
@@ -153,7 +179,7 @@
 
         const videos = iframeDivs[serviceName];
 
-        if ("IntersectionObserver" in window) {
+        if ('IntersectionObserver' in win) {
             const thumbnailObserver = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
                     if(entry.isIntersecting){
@@ -164,9 +190,8 @@
                 });
             });
 
-            for(const video of videos) {
+            for(const video of videos)
                 thumbnailObserver.observe(video._div);
-            }
         }
     };
 
@@ -183,7 +208,7 @@
 
             const img = new Image();
 
-            img.onload = function() {
+            img.onload = () => {
                 video._backgroundDiv.classList.add('loaded');
             };
 
@@ -205,7 +230,7 @@
                 });
 
             }else if(isString(url)){
-                const src = url.replace('{data-id}', video._id);
+                const src = url.replace(DATA_ID_PLACEHOLDER, video._id);
                 preconnect(src);
                 video._thumbnailPreload && preloadThumbnail(src);
                 loadBackgroundImage(src);
@@ -218,8 +243,9 @@
      * Create iframe and append it into the specified div
      * @param {IframeObj} video
      * @param {Service} service
+     * @param {string} serviceName
      */
-    const createIframe = (video, service) => {
+    const createIframe = (video, service, serviceName) => {
 
         // Create iframe only if doesn't alredy have one
         if(video._hasIframe)
@@ -227,10 +253,34 @@
 
         video._hasIframe = true;
 
+        if(video._placeholderDiv){
+            const newFreshPlaceholder = video._initialPlaceholderClone.cloneNode(true);
+            video._placeholderDiv.replaceWith(newFreshPlaceholder);
+            video._placeholderDiv = newFreshPlaceholder;
+        }
+
+        const iframeProps = service.iframe;
+
         if(isFunction(service.onAccept)){
 
             // Let the onAccept method create the iframe
             service.onAccept(video._div, (iframe) => {
+
+                if(!(iframe instanceof HTMLIFrameElement))
+                    return;
+
+                /**
+                 * Add global internal attributes
+                 */
+                for(const key in iframeProps)
+                    setAttribute(iframe, key, iframeProps[key])
+
+                /**
+                 * Add all data-attr-* attributes (iframe specific)
+                 */
+                for(const attr in video._iframeAttributes)
+                    setAttribute(iframe, attr, video._iframeAttributes[attr])
+
                 video._iframe = iframe;
                 video._hasIframe = true;
                 video._div.classList.add('c-h-b');
@@ -245,7 +295,7 @@
 
         // Replace data-id with valid resource id
         const embedUrl = service.embedUrl || '';
-        let src = embedUrl.replace('{data-id}', video._id);
+        let src = embedUrl.replace(DATA_ID_PLACEHOLDER, video._id);
 
         video._title && (video._iframe.title = video._title);
 
@@ -258,10 +308,8 @@
             }
         }
 
-        const iframeProps = service.iframe;
-
         // When iframe is loaded => hide background image
-        video._iframe.onload = function() {
+        video._iframe.onload = () => {
             video._div.classList.add('c-h-b');
             video._iframe.onload = undefined;
 
@@ -286,7 +334,7 @@
 
         video._iframe.src = src;
 
-        appendChild(video._div, video._iframe);
+        appendChild(video._innerContainer, video._iframe);
     };
 
     /**
@@ -472,21 +520,23 @@
 
         videos.forEach(video => {
 
-
             if(!video._hasNotice){
                 const loadBtnText = languages[currLang].loadBtn;
                 const noticeText = languages[currLang].notice;
                 const loadAllBtnText = languages[currLang].loadAllBtn;
 
-                const fragment = doc.createDocumentFragment();
+                const fragment = doc.createElement('div');
                 const notice = createDiv();
                 const span = createDiv();
                 const innerDiv = createDiv();
                 const buttons = createDiv();
 
+                setClassName(fragment, 'cll');
+                video._innerContainer = fragment;
+
                 const showVideo = () => {
                     hideNotice(video);
-                    createIframe(video, service);
+                    createIframe(video, service, serviceName);
                 };
 
                 if(loadBtnText){
@@ -494,7 +544,7 @@
                     load_button.textContent = loadBtnText;
                     setClassName(load_button, 'c-l-b');
 
-                    load_button.addEventListener('click', showVideo);
+                    load_button.addEventListener(CLICK_EVENT_SOURCE, showVideo);
                     appendChild(buttons, load_button)
                 }
 
@@ -503,12 +553,11 @@
                     load_all_button.textContent = loadAllBtnText;
                     setClassName(load_all_button, 'c-la-b');
 
-                    load_all_button.addEventListener('click', () => {
+                    load_all_button.addEventListener(CLICK_EVENT_SOURCE, () => {
                         showVideo();
-                        api.acceptService(serviceName);
 
-                        if(isFunction(onChangeCallback))
-                            onChangeCallback({servicesState, eventSource: 'click'});
+                        currentEventSource = CLICK_EVENT_SOURCE;
+                        api.acceptService(serviceName);
                     });
 
                     appendChild(buttons, load_all_button);
@@ -565,7 +614,7 @@
                 hidden && video._div.classList.add('c-h-n');
 
                 // Avoid reflow with fragment (only 1 appendChild)
-                appendChild(video._div, fragment);
+                video._div.prepend(fragment);
                 video._hasNotice = true;
             }
         });
@@ -582,7 +631,7 @@
         // get number of iframes of current service
         const videos = iframeDivs[serviceName];
 
-        if ('IntersectionObserver' in window) {
+        if ('IntersectionObserver' in win) {
             const observer = new IntersectionObserver((entries) => {
                 if(stopObserver){
                     observer.disconnect();
@@ -685,6 +734,13 @@
         showAllNotices(serviceName, service);
     };
 
+    const fireOnChangeCallback = () => {
+        isFunction(onChangeCallback) && onChangeCallback({
+            acceptedServices: [...servicesState].filter(([k, v]) => v === true).map(([k, v]) => k),
+            eventSource: currentEventSource
+        });
+    }
+
     const api = {
 
         /**
@@ -706,18 +762,18 @@
                     }
                 }
 
-                changed && isFunction(onChangeCallback)
-                    && onChangeCallback({servicesState, eventSource: 'api'});
+                changed && fireOnChangeCallback();
 
             }else if(serviceNames.includes(serviceName)){
                 if(!servicesState.get(serviceName)){
                     servicesState.set(serviceName, true);
                     acceptHelper(serviceName, services[serviceName]);
 
-                    isFunction(onChangeCallback)
-                        && onChangeCallback({servicesState, eventSource: 'api'});
+                    fireOnChangeCallback();
                 }
             }
+
+            currentEventSource = API_EVENT_SOURCE;
         },
 
         /**
@@ -734,30 +790,68 @@
                 let changed = false;
 
                 for(const name of serviceNames){
+                    rejectHelper(name, services[name]);
+
                     if(servicesState.get(name)){
                         servicesState.set(name, false);
-                        rejectHelper(name, services[name]);
                         changed = true;
                     }
                 }
 
-                changed && isFunction(onChangeCallback)
-                    && onChangeCallback({servicesState, eventSource: 'api'});
+                changed && fireOnChangeCallback();
 
             }else if(serviceNames.includes(serviceName)){
+
+                rejectHelper(serviceName, services[serviceName]);
+
                 if(servicesState.get(serviceName)){
                     servicesState.set(serviceName, false);
-                    rejectHelper(serviceName, services[serviceName]);
 
-                    isFunction(onChangeCallback)
-                        && onChangeCallback({servicesState, eventSource: 'api'});
+                    fireOnChangeCallback();
                 }
             }
+        },
+
+        /**
+         * Check if a property/element is defined,
+         * if it's not then check again; repeat until maxTimeout reached.
+         *
+         * Useful when trying to use API from external scripts,
+         * or when you need to make sure a dom element exists
+         * (e.g. dynamically generated iframe).
+         *
+         * @param {object} config
+         * @param {any} [config.parent]
+         * @param {string} [config.childProperty]
+         * @param {string} [config.childSelector]
+         * @param {number} [config.timeout]
+         * @param {number} [config.maxTimeout]
+         * @returns {Promise<boolean>}
+         */
+        childExists : async ({parent=win, childProperty, childSelector='iframe', timeout=1000, maxTimeout=15000}) => {
+
+            let nTimeouts = 1;
+
+            const child = childProperty
+                ? () => parent[childProperty]
+                : () => parent.querySelector(childSelector);
+
+            return new Promise(resolve => {
+                const checkChild = () => {
+                    if (child() || nTimeouts++ * timeout > maxTimeout)
+                        return resolve(child() !== undefined);
+                    else
+                        setTimeout(checkChild, timeout);
+                };
+
+                checkChild();
+            });
         },
 
         run : (_config) => {
 
             doc = document;
+            win = window;
 
             /**
              * Object with all services config.
