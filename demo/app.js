@@ -1,74 +1,17 @@
 
 const im = iframemanager();
 
-/**
- * @typedef {object} WaitConfig
- * @property {'script' | 'iframe'} type,
- * @property {any} obj
- * @property {string} [prop]
- * @property {string} [selector]
- */
-
-/**
- * Wait until a property on the window object is available
- * @param {WaitConfig} opts
- * @returns {Promise<boolean>}
- */
-const waitFor = async (opts) => {
-    const {obj, type, prop, selector} = opts;
-
-    const isIframe = type === 'iframe';
-
-    const timeout = isIframe
-        ? 100
-        : 10;
-
-    const maxWait = 500;
-
-    const objToCheck = prop
-        ? obj[prop]
-        : obj;
-
-    const isDefined = () => typeof
-        (isIframe
-            ? obj.querySelector(selector)
-            : objToCheck
-        ) !== 'undefined'
-
-    let nIntervals = 0;
-
-    return await new Promise(resolve => {
-        const interval = setInterval(() => {
-            const timedOut = !isIframe && ++nIntervals * timeout > maxWait;
-            if (isDefined() || timedOut) {
-                clearInterval(interval);
-                resolve(!timedOut);
-            }
-        }, timeout);
-    });
-};
 
 im.run({
 
     /**
      * @param {{
-     *  servicesState: Map<string, boolean>
+     *  acceptedServices: string[]
      *  eventSource: 'click' | 'api'
      * }}
      */
-    onChange: ({servicesState, eventSource}) => {
-        if(eventSource === 'api')
-            return;
-
-        const enabledServices = [...servicesState]
-            .filter(([k, v]) => v === true)
-            .map(([k, v]) => k);
-
-        console.log("www", enabledServices)
-
-        for(const [key, value] of servicesState){
-            console.log(key, value);
-        }
+    onChange: ({acceptedServices, eventSource}) => {
+        console.log(eventSource, acceptedServices)
     },
 
     currLang: 'en',
@@ -77,6 +20,7 @@ im.run({
     services : {
 
         youtube : {
+            category: 'analytics',
             embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
 
             iframe : {
@@ -86,7 +30,7 @@ im.run({
             languages : {
                 en : {
                     notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of youtube.com.',
-                    loadBtn: 'Load video',
+                    loadBtn: 'Load once',
                     loadAllBtn: "Don't ask again"
                 }
             }
@@ -110,7 +54,7 @@ im.run({
             languages : {
                 en : {
                     notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="#link_dailymotion" target="_blank">terms and conditions</a> of dailymotion.com.',
-                    loadBtn: 'Load video',
+                    loadBtn: 'Load once',
                     loadAllBtn: "Don't ask again"
                 }
             }
@@ -126,7 +70,43 @@ im.run({
             languages : {
                 en : {
                     notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="#link_twitch" target="_blank">terms and conditions</a> of twitch.com.',
-                    loadBtn: 'Load stream',
+                    loadBtn: 'Load once',
+                    loadAllBtn: "Don't ask again"
+                }
+            }
+        },
+
+        leaflet: {
+            /**
+             *
+             * @param {HTMLDivElement} div
+             */
+            onAccept: async (div) => {
+                const leafletLoaded = await CookieConsent.loadScript('https://unpkg.com/leaflet@1.9.3/dist/leaflet.js');
+                const leafletReady = leafletLoaded && await im.childExists({childProperty: 'L'});
+
+                if(!leafletReady)
+                    return;
+
+                const mapCoordinates = JSON.parse(div.dataset.mapCoordinates);
+                const markerCoordinates = (div.dataset.mapMarkers || '').split(';')
+                const map = L.map(div.lastElementChild.firstElementChild).setView(mapCoordinates, 13);
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+                for(const coordinates of markerCoordinates)
+                    coordinates && L.marker(JSON.parse(coordinates)).addTo(map);
+
+                div.classList.add('c-h-b');
+            },
+
+            onReject: (a) => {
+                console.log("must remove:", a);
+            },
+
+            languages : {
+                en : {
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="#link_twitch" target="_blank">terms and conditions</a> of twitch.com.',
+                    loadBtn: 'Load once',
                     loadAllBtn: "Don't ask again"
                 }
             }
@@ -135,20 +115,23 @@ im.run({
         twitter : {
 
             onAccept: async (div, setIframe) => {
-                const twttrLoaded = await CookieConsent.loadScript('https://platform.twitter.com/widgets.js');
-                const twttrReady = twttrLoaded && await waitFor({type: 'script', obj: window, prop: 'twttr'});
-                const tweet = twttrReady && await twttr.widgets.createTweet(div.dataset.id, div);
+                await CookieConsent.loadScript('https://platform.twitter.com/widgets.js');
+                await im.childExists({childProperty: 'twttr'});
+                const tweet = await twttr.widgets.createTweet(div.dataset.id, div.firstElementChild);
                 tweet && setIframe(tweet.firstChild);
             },
 
+            /**
+             * @param {HTMLIFrameElement} iframe
+             */
             onReject: (iframe) => {
-                iframe.parentNode.remove();
+                iframe && iframe.parentElement.remove();
             },
 
             languages : {
                 en : {
                     notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of twitter.com.',
-                    loadBtn: 'Load tweet',
+                    loadBtn: 'Load once',
                     loadAllBtn: "Don't ask again"
                 }
             }
@@ -164,7 +147,7 @@ im.run({
             languages : {
                 en : {
                     notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="#link_twitch" target="_blank">terms and conditions</a> of twitch.com.',
-                    loadBtn: 'Load post',
+                    loadBtn: 'Load once',
                     loadAllBtn: "Don't ask again"
                 }
             }
@@ -181,7 +164,262 @@ im.run({
             languages: {
                 en : {
                     notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://cloud.google.com/maps-platform/terms" target="_blank">terms and conditions</a> of Google Maps.',
-                    loadBtn: 'Load map',
+                    loadBtn: 'Load once',
+                    loadAllBtn: "Don't ask again"
+                }
+            }
+        },
+
+        googlemapsapi: {
+
+            iframe: {
+                onload : function(dataId, setThumbnail){
+                    console.log("loaded iframe with data-id=", dataId, setThumbnail);
+                }
+            },
+
+            onAccept: async (div, setIframe) => {
+
+                await CookieConsent.loadScript(`https://maps.googleapis.com/maps/api/js?key=AIzaSyBTHpW1rTjMeLwaVuUVsSyil-kxTIaE_t0`);
+                await im.childExists({childProperty: 'google'});
+
+                // The location of Uluru
+                const uluru = {
+                    lat: parseInt(div.dataset.mapsLat),
+                    lng: parseInt(div.dataset.mapsLng)
+                };
+
+                // The map, centered at Uluru
+                const map = new google.maps.Map(div.querySelector('.map'), {
+                    zoom: 4,
+                    center: uluru,
+                    styles: [
+                        {
+                            "featureType": "all",
+                            "elementType": "geometry.fill",
+                            "stylers": [
+                                {
+                                    "weight": "2.00"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "all",
+                            "elementType": "geometry.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#9c9c9c"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "all",
+                            "elementType": "labels.text",
+                            "stylers": [
+                                {
+                                    "visibility": "on"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "landscape",
+                            "elementType": "all",
+                            "stylers": [
+                                {
+                                    "color": "#f2f2f2"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "landscape",
+                            "elementType": "geometry.fill",
+                            "stylers": [
+                                {
+                                    "color": "#ffffff"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "landscape.man_made",
+                            "elementType": "geometry.fill",
+                            "stylers": [
+                                {
+                                    "color": "#ffffff"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "poi",
+                            "elementType": "all",
+                            "stylers": [
+                                {
+                                    "visibility": "off"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road",
+                            "elementType": "all",
+                            "stylers": [
+                                {
+                                    "saturation": -100
+                                },
+                                {
+                                    "lightness": 45
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road",
+                            "elementType": "geometry.fill",
+                            "stylers": [
+                                {
+                                    "color": "#eeeeee"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road",
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#7b7b7b"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road",
+                            "elementType": "labels.text.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#ffffff"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road.highway",
+                            "elementType": "all",
+                            "stylers": [
+                                {
+                                    "visibility": "simplified"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road.arterial",
+                            "elementType": "labels.icon",
+                            "stylers": [
+                                {
+                                    "visibility": "off"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "transit",
+                            "elementType": "all",
+                            "stylers": [
+                                {
+                                    "visibility": "off"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "water",
+                            "elementType": "all",
+                            "stylers": [
+                                {
+                                    "color": "#46bcec"
+                                },
+                                {
+                                    "visibility": "on"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "water",
+                            "elementType": "geometry.fill",
+                            "stylers": [
+                                {
+                                    "color": "#c8d7d4"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "water",
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#070707"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "water",
+                            "elementType": "labels.text.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#ffffff"
+                                }
+                            ]
+                        }
+                    ]
+                });
+
+                if(div.dataset.mapsMarker === ""){
+                    // The marker, positioned at Uluru
+                    const marker = new google.maps.Marker({
+                        position: uluru,
+                        map: map,
+                    });
+                }
+
+                if(div.dataset.mapsStreetview === ""){
+                    const panorama = new google.maps.StreetViewPanorama(div.querySelector('.map'), {
+                            position: uluru,
+                            pov: {
+                                heading: 34,
+                                pitch: 10,
+                            },
+                        }
+                    );
+
+                    map.setStreetView(panorama);
+                }
+
+                await im.childExists({parent: div});
+                setIframe(div.querySelector('iframe'));
+            },
+
+            onReject: (iframe) => {
+                // console.log("must remove:", iframe);
+            },
+
+            languages : {
+                en : {
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of twitter.com.',
+                    loadBtn: 'Load once',
+                    loadAllBtn: "Don't ask again"
+                }
+            }
+        },
+
+        instagram: {
+            onAccept: async (div, setIframe) => {
+                await CookieConsent.loadScript('https://www.instagram.com/embed.js');
+                await im.childExists({childProperty: 'instgrm'});
+                instgrm.Embeds.process();
+                await im.childExists({parent: div});
+                setIframe(div.querySelector('iframe'));
+            },
+
+            onReject: (iframe) => {
+                // console.log("remove iframe:", iframe);
+            },
+
+            languages: {
+                en : {
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://vimeo.com/terms" target="_blank">terms and conditions</a> of vimeo.com.',
+                    loadBtn: 'Load once',
                     loadAllBtn: "Don't ask again"
                 }
             }
@@ -204,7 +442,7 @@ im.run({
             languages: {
                 en : {
                     notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://vimeo.com/terms" target="_blank">terms and conditions</a> of vimeo.com.',
-                    loadBtn: 'Load video',
+                    loadBtn: 'Load once',
                     loadAllBtn: "Don't ask again"
                 }
             }
@@ -217,10 +455,5 @@ im.run({
 const acceptAll = document.getElementById('accept-all');
 const rejectAll = document.getElementById('reject-all');
 
-acceptAll.addEventListener('click', () => {
-    im.acceptService('all');
-});
-
-rejectAll.addEventListener('click', () => {
-    im.rejectService('all');
-});
+acceptAll.addEventListener('click', () => im.acceptService('all'));
+rejectAll.addEventListener('click', () => im.rejectService('all'));
