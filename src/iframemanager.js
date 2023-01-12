@@ -12,8 +12,6 @@
      * @property {string} _title
      * @property {string} _thumbnail
      * @property {string} _params
-     * @property {boolean} _thumbnailPreload
-     * @property {boolean} _autoscale
      * @property {HTMLDivElement} _div
      * @property {HTMLDivElement} _innerContainer
      * @property {HTMLDivElement} _placeholderDiv
@@ -72,20 +70,12 @@
          */
         doc,
 
+        config,
+
         /**
          * @type {Object.<string, IframeObj[]>}
          */
         iframeDivs = {},
-
-        /**
-         * @type {string[]}
-         */
-        preconnects = [],
-
-        /**
-         * @type {string[]}
-         */
-        preloads = [],
 
         stopObserver = false,
         currLang = '',
@@ -98,7 +88,7 @@
         /**
          * @type {string[]}
          */
-        serviceNames = [],
+        serviceNames,
 
         /**
          * @type {Map<string, boolean>}
@@ -124,15 +114,56 @@
     const getBrowserLang = () => navigator.language.slice(0, 2).toLowerCase();
 
     /**
+     * Create and return HTMLElement based on specified type
+     * @param {string} type
+     */
+    const createNode = (type) => doc.createElement(type);
+
+    /**
+     * @returns {HTMLDivElement}
+     */
+    const createDiv = () => createNode('div');
+
+    /**
+     * @returns {HTMLButtonElement}
+     */
+    const createButton = () => {
+        const btn = createNode('button');
+        btn.type = 'button';
+        return btn;
+    }
+
+    /**
+     * @param {HTMLElement} el
+     * @param {string} className
+     */
+    const setClassName = (el, className) => el.className = className;
+
+    /**
+     * @param {HTMLElement} parent
+     * @param {HTMLElement} child
+     */
+    const appendChild = (parent, child) => parent.appendChild(child);
+
+    /**
      * @returns {string[]}
      */
     const getKeys = obj => obj && Object.keys(obj) || [];
 
     /**
+     * @param {HTMLIFrameElement} iframe
+     * @param {Object.<string, string>} attrs
+     */
+    const setIframeAttributes = (iframe, attrs) => {
+        for(const key in attrs)
+            setAttribute(iframe, key, attrs[key])
+    }
+
+    /**
      * @param {HTMLDivElement} div
      * @returns {IframeObj}
      */
-    const getVideoProp = (div) => {
+    const getDivProps = (div) => {
 
         const dataset = div.dataset;
         const iframeAttrs = {};
@@ -143,6 +174,7 @@
             .map(attr => attr.slice(12));
 
         const placeholderDiv = div.querySelector('[data-placeholder]');
+        placeholderDiv && placeholderDiv.removeAttribute('data-visible');
         const placeholderClone = placeholderDiv && placeholderDiv.cloneNode(true);
 
         /**
@@ -156,8 +188,6 @@
             _title: dataset.title,
             _thumbnail: dataset.thumbnail,
             _params: dataset.params,
-            _thumbnailPreload: 'thumbnailpreload' in dataset,
-            _autoscale: 'autoscale' in dataset,
             _div: div,
             _innerContainer: null,
             _placeholderDiv: placeholderDiv,
@@ -171,7 +201,6 @@
     };
 
     /**
-     * Lazy load all thumbnails of the iframes relative to specified service
      * @param {string} serviceName
      * @param {string} thumbnailUrl
      */
@@ -197,7 +226,6 @@
 
 
     /**
-     * Set image as background
      * @param {string} url
      * @param {IframeObj} video
      */
@@ -217,22 +245,14 @@
 
         // Set custom thumbnail if provided
         if(isString(video._thumbnail)){
-            video._thumbnailPreload && preloadThumbnail(video._thumbnail);
             video._thumbnail !== '' && loadBackgroundImage(video._thumbnail);
         }else{
 
             if(isFunction(url)){
-
-                url(video._id, (src) => {
-                    preconnect(src);
-                    video._thumbnailPreload && preloadThumbnail(src);
-                    loadBackgroundImage(src);
-                });
+                url(video._id, (src) => loadBackgroundImage(src));
 
             }else if(isString(url)){
                 const src = url.replace(DATA_ID_PLACEHOLDER, video._id);
-                preconnect(src);
-                video._thumbnailPreload && preloadThumbnail(src);
                 loadBackgroundImage(src);
             }
         }
@@ -243,9 +263,8 @@
      * Create iframe and append it into the specified div
      * @param {IframeObj} video
      * @param {Service} service
-     * @param {string} serviceName
      */
-    const createIframe = (video, service, serviceName) => {
+    const createIframe = (video, service) => {
 
         // Create iframe only if doesn't alredy have one
         if(video._hasIframe)
@@ -267,19 +286,17 @@
             service.onAccept(video._div, (iframe) => {
 
                 if(!(iframe instanceof HTMLIFrameElement))
-                    return;
+                    return false;
 
                 /**
                  * Add global internal attributes
                  */
-                for(const key in iframeProps)
-                    setAttribute(iframe, key, iframeProps[key])
+                setIframeAttributes(iframe, iframeProps);
 
                 /**
                  * Add all data-attr-* attributes (iframe specific)
                  */
-                for(const attr in video._iframeAttributes)
-                    setAttribute(iframe, attr, video._iframeAttributes[attr])
+                setIframeAttributes(iframe, video._iframeAttributes);
 
                 video._iframe = iframe;
                 video._hasIframe = true;
@@ -321,16 +338,12 @@
         /**
          * Add global internal attributes
          */
-        for(const key in iframeProps){
-            setAttribute(video._iframe, key, iframeProps[key])
-        }
+        setIframeAttributes(video._iframe, iframeProps);
 
         /**
          * Add all data-attr-* attributes (iframe specific)
          */
-        for(const attr in video._iframeAttributes){
-            setAttribute(video._iframe, attr, video._iframeAttributes[attr])
-        }
+        setIframeAttributes(video._iframe, video._iframeAttributes);
 
         video._iframe.src = src;
 
@@ -432,81 +445,6 @@
     };
 
     /**
-     * Add link rel="preconnect"
-     * @param {string} _url
-     */
-    const preconnect = (_url) => {
-        const url = _url.split('://');
-        const protocol = url[0];
-
-        // if valid protocol
-        if(
-            protocol === 'http' ||
-            protocol === 'https'
-        ){
-            const domain = url[1] && url[1].split('/')[0];
-
-            // if not current domain
-            if(domain && domain !== location.hostname){
-                if(preconnects.indexOf(domain) === -1){
-                    const link = createNode('link');
-                    link.rel = 'preconnect';
-                    link.href = `${protocol}://${domain}`;
-                    appendChild(doc.head, link);
-                    preconnects.push(domain);
-                }
-            }
-        }
-    };
-
-    /**
-     * Add link rel="preload"
-     * @param {string} url
-     */
-    const preloadThumbnail = (url) => {
-        if(url && preloads.indexOf(url) === -1){
-            const link = createNode('link');
-            link.rel = 'preload';
-            link.as = 'image';
-            link.href = url;
-            appendChild(doc.head, link);
-            preloads.push(url);
-        }
-    }
-
-    /**
-     * Create and return HTMLElement based on specified type
-     * @param {string} type
-     */
-    const createNode = (type) => doc.createElement(type);
-
-    /**
-     * @returns {HTMLDivElement}
-     */
-    const createDiv = () => createNode('div');
-
-    /**
-     * @returns {HTMLButtonElement}
-     */
-    const createButton = () => {
-        const btn = createNode('button');
-        btn.type = 'button';
-        return btn;
-    }
-
-    /**
-     * @param {HTMLElement} el
-     * @param {string} className
-     */
-    const setClassName = (el, className) => el.className = className;
-
-    /**
-     * @param {HTMLElement} parent
-     * @param {HTMLElement} child
-     */
-    const appendChild = (parent, child) => parent.appendChild(child);
-
-    /**
      * Create all notices relative to the specified service
      * @param {string} serviceName
      * @param {Service} service
@@ -520,10 +458,10 @@
 
         videos.forEach(video => {
 
-            if(!video._hasNotice){
-                const loadBtnText = languages[currLang].loadBtn;
-                const noticeText = languages[currLang].notice;
-                const loadAllBtnText = languages[currLang].loadAllBtn;
+            if(!video._hasNotice && languages){
+                const loadBtnText = languages[currLang]?.loadBtn;
+                const noticeText = languages[currLang]?.notice;
+                const loadAllBtnText = languages[currLang]?.loadAllBtn;
 
                 const fragment = doc.createElement('div');
                 const notice = createDiv();
@@ -536,7 +474,7 @@
 
                 const showVideo = () => {
                     hideNotice(video);
-                    createIframe(video, service, serviceName);
+                    createIframe(video, service);
                 };
 
                 if(loadBtnText){
@@ -599,9 +537,10 @@
                 setClassName(notice, 'c-nt');
                 setClassName(buttons,  'c-n-a');
 
-
                 appendChild(notice_text_container, span);
-                appendChild(notice_text_container, buttons);
+
+                if(loadBtnText || loadAllBtnText)
+                    appendChild(notice_text_container, buttons);
 
                 appendChild(innerDiv, notice_text_container);
                 appendChild(notice, innerDiv);
@@ -736,7 +675,7 @@
 
     const fireOnChangeCallback = () => {
         isFunction(onChangeCallback) && onChangeCallback({
-            acceptedServices: [...servicesState].filter(([k, v]) => v === true).map(([k, v]) => k),
+            state: api.getState(),
             eventSource: currentEventSource
         });
     }
@@ -744,11 +683,9 @@
     const api = {
 
         /**
-         * 1. Set cookie (if not alredy set)
-         * 2. show iframes (relative to the specified service)
          * @param {string} serviceName
          */
-        acceptService : (serviceName) => {
+        acceptService: (serviceName) => {
             stopObserver = false;
 
             if(serviceName === 'all'){
@@ -777,12 +714,9 @@
         },
 
         /**
-         * 1. set cookie
-         * 2. hide all notices
-         * 3. how iframes (relative to the specified service)
          * @param {string} serviceName
          */
-        rejectService : (serviceName) => {
+        rejectService: (serviceName) => {
 
             if(serviceName === 'all'){
                 stopObserver = true;
@@ -828,7 +762,7 @@
          * @param {number} [config.maxTimeout]
          * @returns {Promise<boolean>}
          */
-        childExists : async ({parent=win, childProperty, childSelector='iframe', timeout=1000, maxTimeout=15000}) => {
+        childExists: async ({parent=win, childProperty, childSelector='iframe', timeout=1000, maxTimeout=15000}) => {
 
             let nTimeouts = 1;
 
@@ -848,17 +782,27 @@
             });
         },
 
-        run : (_config) => {
+        getState: () => ({
+            services: new Map(servicesState),
+            acceptedServices: [...servicesState]
+                .filter(([name, value]) => !!value)
+                .map(([name]) => name)
+        }),
+
+        getConfig: () => config,
+
+        run: (_config) => {
 
             doc = document;
             win = window;
+            config = _config;
 
             /**
              * Object with all services config.
              */
-            services = _config.services;
+            services = config.services;
 
-            onChangeCallback = _config.onChange;
+            onChangeCallback = config.onChange;
 
             /**
              * Array containing the names of all services
@@ -869,13 +813,13 @@
                 return;
 
             // Set curr lang
-            currLang = _config.currLang;
+            currLang = config.currLang;
             const languages = services[serviceNames[0]].languages;
 
-            if(_config.autoLang === true){
+            if(config.autoLang === true){
                 currLang = getValidatedLanguage(getBrowserLang(), languages);
-            }else if(isString(_config.currLang)){
-                currLang = getValidatedLanguage(_config.currLang, languages);
+            }else if(isString(config.currLang)){
+                currLang = getValidatedLanguage(config.currLang, languages);
             }
 
             // for each service
@@ -885,17 +829,10 @@
                 iframeDivs[serviceName] = [];
 
                 /**
-                 * iframes/divs in the dom that have data-service value as current service name
-                 */
-                /**
                  * @type {NodeListOf<HTMLDivElement>}
                  */
                 const foundDivs = doc.querySelectorAll(`div[data-service="${serviceName}"]`);
 
-
-                /**
-                 * number of iframes with current service
-                 */
                 const nDivs = foundDivs.length;
 
                 // if no iframes found => go to next service
@@ -906,7 +843,7 @@
                 // add each iframe to array of iframes of the current service
                 for(let j=0; j<nDivs; j++){
                     foundDivs[j].dataset.index = j;
-                    iframeDivs[serviceName].push(getVideoProp(foundDivs[j]));
+                    iframeDivs[serviceName].push(getDivProps(foundDivs[j]));
                 }
 
                 const currService = services[serviceName];

@@ -43,6 +43,7 @@ div[data-service] .cll input{
     overflow: hidden;
     -webkit-appearance: none;
     appearance: none;
+    display: revert;
 }
 
 div[data-service]{
@@ -204,7 +205,10 @@ div[data-service] .cll .c-n-t{
     line-height: 1.4em;
     max-width: 420px;
     margin: 0 auto;
-    margin-bottom: 20px;
+}
+
+div[data-service] .cll .c-n-t + div{
+    margin-top: 20px;
 }
 
 div[data-service] .cll .c-n-t,
