@@ -290,11 +290,59 @@ Note: `thumbnailUrl` can be static string, dynamic string or a function:
     }
     ```
 
+## Custom Widgets
+Some services (e.g. twitter) have their own markup + API to generate the iframe.
+
+1. Place the markup inside a special `data-placeholder` div. Remove any `script` tag that comes with the markup. Example:
+
+    ```html
+    <div
+        data-service="twitter-tweet"
+        style="width: 300px; height: 501px">
+
+        <div data-placeholder>
+            <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Sunsets don&#39;t get much better than this one over <a href="https://twitter.com/GrandTetonNPS?ref_src=twsrc%5Etfw">@GrandTetonNPS</a>. <a href="https://twitter.com/hashtag/nature?src=hash&amp;ref_src=twsrc%5Etfw">#nature</a> <a href="https://twitter.com/hashtag/sunset?src=hash&amp;ref_src=twsrc%5Etfw">#sunset</a> <a href="http://t.co/YuKy2rcjyU">pic.twitter.com/YuKy2rcjyU</a></p>&mdash; US Department of the Interior (@Interior) <a href="https://twitter.com/Interior/status/463440424141459456?ref_src=twsrc%5Etfw">May 5, 2014</a></blockquote>
+        </div>
+
+    </div>
+    ```
+
+2. [WIP]
+3. ?
+
+
+
+It is highly recommended to set a fixed `width` and `height` to the main `data-service` div, to avoid the (awful) content jump effect when the iframe is loaded.
+
+
+
+## Placeholder for non-js browsers
+You can set a placeholder visible only if javascript is disabled via a special div:
+```html
+<div data-placeholder data-visible></div>
+```
+
+Example:
+```html
+<div
+    data-service="youtube"
+    data-id="5b35haQV7tU"
+    data-autoscale>
+
+    <div data-placeholder data-visible>
+        <p>I'm visible only if js is disabled</p>
+    </div>
+
+</div>
+```
+
 ## APIs
-The plugin exposes 3 main methods:
+The plugin exposes the following methods:
 - `.run(<config_object>)`
 - `.acceptService(<service_name>)`
 - `.rejectService(<service_name>)`
+- `.getState()` [v1.2.0+]
+- `.getConfig()` [v1.2.0+]
 
 Example usage:
 
@@ -310,6 +358,15 @@ im.rejectService('youtube');
 
 // reject all services (for example when user opts out of cookies)
 im.rejectService('all');
+
+// get entire config object
+const config = im.getConfig();
+
+// get current state (enabled/disabled services)
+const state = im.getState();
+
+// state.services: Map<string, boolean>
+// state.acceptedServices: string[]
 ```
 
 Both `acceptService` and `rejectService` work the same way:
