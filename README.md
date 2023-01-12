@@ -36,6 +36,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
     - [vimeo](#configuration-examples)
     - [twitch](#configuration-examples)
     - [google maps](#configuration-examples)
+- [**Usage with CookieConsent**](#todo)
 - [**License**](#license)
 
 ## Features
@@ -209,6 +210,13 @@ All available options for the config. object:
     currLang: 'en',     // current language of the notice (must also be defined in the "languages" object below)
     autoLang: false,    // if enabled => use current client's browser language
                         // instead of currLang [OPTIONAL]
+
+    // callback fired when state changes (a new service is accepted/rejected)
+    onChange: ({state, eventSource}) => {
+        // state.services: Map<string, boolean>
+        // state.acceptedServices: string[]
+        // eventSource: 'api' | 'click'
+    }
 
     services : {
         myservice : {
@@ -586,8 +594,43 @@ Both `acceptService` and `rejectService` work the same way:
     </p>
     </details>
 
+## Usage with CookieConsent [v1.2.0+]
+You can use the `onChange` callback to detect when an iframe is loaded by the `loadAllBtn` button click event and notify CookieConsent to also update its state.
 
+Example:
+```javascript
+im.run({
+    currLang: 'en',
 
+    onChange: ({state, eventSource}) => {
+
+        if(eventSource === 'click') {
+            CookieConsent.acceptService(state.acceptedServices);    // CookieConsent v3
+        }
+
+    },
+
+    services: {
+        youtube: {
+            embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
+
+            thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg',
+
+            iframe: {
+                allow: 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
+            },
+
+            languages: {
+                en: {
+                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of youtube.com.',
+                    loadBtn: 'Load video',
+                    loadAllBtn: "Don't ask again"
+                }
+            }
+        }
+    }
+});
+```
 
 ### Available `data-ratio`
 
