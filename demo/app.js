@@ -1,11 +1,10 @@
-
 const im = iframemanager();
-
+const MAPS_API_KEY = ''
 
 im.run({
 
-    onChange: ({state, eventSource}) => {
-        console.log(state, eventSource)
+    onChange: ({changedServices, eventSource}) => {
+        console.log(changedServices, eventSource)
     },
 
     currLang: 'en',
@@ -174,7 +173,7 @@ im.run({
 
             onAccept: async (div, setIframe) => {
 
-                await CookieConsent.loadScript(`https://maps.googleapis.com/maps/api/js?key=AIzaSyBTHpW1rTjMeLwaVuUVsSyil-kxTIaE_t0`);
+                await CookieConsent.loadScript(`https://maps.googleapis.com/maps/api/js?key=${MAPS_API_KEY}`);
                 await im.childExists({childProperty: 'google'});
 
                 // The location of Uluru
