@@ -36,7 +36,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
     - [vimeo](#configuration-examples)
     - [twitch](#configuration-examples)
     - [google maps](#configuration-examples)
-- [**Usage with CookieConsent**](#todo)
+- [**Usage with CookieConsent**](#usage-with-cookieconsent-v120)
 - [**License**](#license)
 
 ## Features
@@ -213,9 +213,10 @@ All available options for the config. object:
 
     // callback fired when state changes (a new service is accepted/rejected)
     onChange: ({state, eventSource}) => {
-        // state.services: Map<string, boolean>
-        // state.acceptedServices: string[]
-        // eventSource: 'api' | 'click'
+        // changedServices: string[]
+        // eventSource.type: 'api' | 'click'
+        // eventSource.service: string
+        // eventSource.action: 'accept' | 'reject'
     }
 
     services : {
@@ -602,12 +603,21 @@ Example:
 im.run({
     currLang: 'en',
 
-    onChange: ({state, eventSource}) => {
+    onChange: ({changedServices, eventSource}) => {
 
-        if(eventSource === 'click') {
-            CookieConsent.acceptService(state.acceptedServices);    // CookieConsent v3
+        if(eventSource.type === 'click') {
+
+            /**
+             * Retrieve array of already accepted services
+             * and add the new service
+             */
+            const servicesToAccept = [
+                ...CookieConsent.getUserPreferences().acceptedServices, //cookieconsent v3
+                ...changedServices
+            ];
+
+            CookieConsent.acceptService(servicesToAccept, 'analytics');
         }
-
     },
 
     services: {
