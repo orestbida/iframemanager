@@ -139,7 +139,7 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
                     services : {
                         youtube : {
                             embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
-                            thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg'
+                            thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg',
                             iframe : {
                                 allow : 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;'
                             },
@@ -217,7 +217,7 @@ All available options for the config. object:
         // eventSource.type: 'api' | 'click'
         // eventSource.service: string
         // eventSource.action: 'accept' | 'reject'
-    }
+    },
 
     services : {
         myservice : {
@@ -612,7 +612,7 @@ im.run({
              * and add the new service
              */
             const servicesToAccept = [
-                ...CookieConsent.getUserPreferences().acceptedServices, //cookieconsent v3
+                ...CookieConsent.getUserPreferences().acceptedServices['analytics'], //cookieconsent v3
                 ...changedServices
             ];
 
