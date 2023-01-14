@@ -57,8 +57,8 @@
     const API_EVENT_SOURCE = 'api';
     const CLICK_EVENT_SOURCE = 'click';
     const DATA_ID_PLACEHOLDER = '{data-id}';
-    const ACCEPT_ACTION = 'ACCEPT';
-    const REJECT_ACTION = 'REJECT';
+    const ACCEPT_ACTION = 'accept';
+    const REJECT_ACTION = 'reject';
 
     let
 
