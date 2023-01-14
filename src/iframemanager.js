@@ -57,6 +57,8 @@
     const API_EVENT_SOURCE = 'api';
     const CLICK_EVENT_SOURCE = 'click';
     const DATA_ID_PLACEHOLDER = '{data-id}';
+    const ACCEPT_ACTION = 'ACCEPT';
+    const REJECT_ACTION = 'REJECT';
 
     let
 
@@ -555,6 +557,8 @@
                 // Avoid reflow with fragment (only 1 appendChild)
                 video._div.prepend(fragment);
                 video._hasNotice = true;
+
+                setTimeout(()=> video._div.classList.add('c-an'), 20);
             }
         });
     };
@@ -673,10 +677,19 @@
         showAllNotices(serviceName, service);
     };
 
-    const fireOnChangeCallback = () => {
+    /**
+     * @param {string} serviceName
+     * @param {'accept' | 'reject'} action
+     * @param {string[]} changedServices
+     */
+    const fireOnChangeCallback = (serviceName, action, changedServices) => {
         isFunction(onChangeCallback) && onChangeCallback({
-            state: api.getState(),
-            eventSource: currentEventSource
+            eventSource: {
+                type: currentEventSource,
+                service: serviceName,
+                action
+            },
+            changedServices
         });
     }
 
@@ -687,6 +700,7 @@
          */
         acceptService: (serviceName) => {
             stopObserver = false;
+            const changedServices = [];
 
             if(serviceName === 'all'){
                 let changed = false;
@@ -695,18 +709,18 @@
                     if(!servicesState.get(name)){
                         servicesState.set(name, true);
                         acceptHelper(name, services[name]);
-                        changed = true;
+                        changedServices.push(name);
                     }
                 }
 
-                changed && fireOnChangeCallback();
+                changedServices.length > 0 && fireOnChangeCallback(serviceName, ACCEPT_ACTION, changedServices);
 
             }else if(serviceNames.includes(serviceName)){
                 if(!servicesState.get(serviceName)){
                     servicesState.set(serviceName, true);
                     acceptHelper(serviceName, services[serviceName]);
-
-                    fireOnChangeCallback();
+                    changedServices.push(serviceName);
+                    fireOnChangeCallback(serviceName, ACCEPT_ACTION, changedServices);
                 }
             }
 
@@ -718,21 +732,21 @@
          */
         rejectService: (serviceName) => {
 
+            const changedServices = [];
+
             if(serviceName === 'all'){
                 stopObserver = true;
-
-                let changed = false;
 
                 for(const name of serviceNames){
                     rejectHelper(name, services[name]);
 
                     if(servicesState.get(name)){
                         servicesState.set(name, false);
-                        changed = true;
+                        changedServices.push(name);
                     }
                 }
 
-                changed && fireOnChangeCallback();
+                changedServices.length > 0 && fireOnChangeCallback(serviceName, REJECT_ACTION, changedServices);
 
             }else if(serviceNames.includes(serviceName)){
 
@@ -740,8 +754,9 @@
 
                 if(servicesState.get(serviceName)){
                     servicesState.set(serviceName, false);
+                    changedServices.push(serviceName);
 
-                    fireOnChangeCallback();
+                    fireOnChangeCallback(serviceName, REJECT_ACTION, changedServices);
                 }
             }
         },
