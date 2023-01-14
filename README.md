@@ -212,7 +212,7 @@ All available options for the config. object:
                         // instead of currLang [OPTIONAL]
 
     // callback fired when state changes (a new service is accepted/rejected)
-    onChange: ({state, eventSource}) => {
+    onChange: ({changedServices, eventSource}) => {
         // changedServices: string[]
         // eventSource.type: 'api' | 'click'
         // eventSource.service: string
