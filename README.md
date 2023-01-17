@@ -302,11 +302,14 @@ Note: `thumbnailUrl` can be static string, dynamic string or a function:
 ## Custom Widgets
 Some services (e.g. twitter) have their own markup + API to generate the iframe.
 
+Note: this is an example with twitter's widget. Each widget/service will have a slightly different implementation.
+
 1. Place the markup inside a special `data-placeholder` div. Remove any `script` tag that comes with the markup. Example:
 
     ```html
     <div
-        data-service="twitter-tweet"
+        data-service="twitter"
+        data-widget
         style="width: 300px; height: 501px">
 
         <div data-placeholder>
@@ -316,13 +319,33 @@ Some services (e.g. twitter) have their own markup + API to generate the iframe.
     </div>
     ```
 
-2. [WIP]
-3. ?
+2. Create a new service and dynamically load and initialize the widget inside the `onAccept` callback:
 
+    ```javascript
+    im.run({
+        services: {
+            twitter: {
+                onAccept: async (div, setIframe) => {
+                    // Using cookieconsent v3
+                    await CookieConsent.loadScript('https://platform.twitter.com/widgets.js');
+
+                    // Make sure the "window.twttr" property exists
+                    await im.childExists({childProperty: 'twttr'}) && await twttr.widgets.load(div);
+
+                    // Make sure the "iframe" element exists
+                    await im.childExists({parent: div}) && setIframe(div.querySelector('iframe'));
+                },
+
+                onReject: (iframe) => {
+                    iframe && iframe.parentElement.remove();
+                }
+            }
+        }
+    })
+    ```
 
 
 It is highly recommended to set a fixed `width` and `height` to the main `data-service` div, to avoid the (awful) content jump effect when the iframe is loaded.
-
 
 
 ## Placeholder for non-js browsers
@@ -621,23 +644,7 @@ im.run({
     },
 
     services: {
-        youtube: {
-            embedUrl: 'https://www.youtube-nocookie.com/embed/{data-id}',
-
-            thumbnailUrl: 'https://i3.ytimg.com/vi/{data-id}/hqdefault.jpg',
-
-            iframe: {
-                allow: 'accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen;',
-            },
-
-            languages: {
-                en: {
-                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of youtube.com.',
-                    loadBtn: 'Load video',
-                    loadAllBtn: "Don't ask again"
-                }
-            }
-        }
+        // ...
     }
 });
 ```
