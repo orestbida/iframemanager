@@ -1,97 +1,153 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <title>Test youtube videos cookie blocker</title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <meta name="description" content="A page's description, usually one or two sentences."/>
+
+        <link rel="stylesheet" href="../src/iframemanager.css">
+        <link rel="stylesheet" href="./assets/fonts.css">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" media="print" onload="this.media='all'">
+
         <style>
+
+            * {
+                padding: 0;
+                margin: 0;
+            }
+
             body{
-                max-width: 900px;
+                max-width: 910px;
                 margin: 0 auto;
                 padding: 1em;
                 font-family: sans-serif;
                 line-height: 1.2;
             }
 
-            *{
-                padding: 0;
-                margin: 0;
+            /* Customize twitter service colors */
+            div[data-service="youtube"]{
+                --im-btn-bg: rgba(255, 45, 45, 0.85);
+                --im-btn-hover-bg: rgba(255, 45, 45, 0.65);
+                --im-link-color: #fa6363;
+                --im-link-hover-color: #c54747;
+                --im-btn-active-box-shadow: 0 0 0 4px rgba(250, 24, 24, 0.15);
+                --im-overlay-bg: linear-gradient(14deg, rgba(250, 24, 24, 0.15) 0%, rgba(206,220,233,0.118) 100%)
+            }
+
+            /* Customize twitter service colors */
+            div[data-service="twitter"]{
+                --im-btn-bg: #1DA1F2;
+            }
+
+            /* Customize leaflet service colors */
+            div[data-service="leaflet"] {
+                --im-btn-bg: #87C148;
+                --im-btn-hover-bg: #699040;
+                --im-link-color: #ACDD5A;
+                --im-link-hover-color: #7cb241;
+                --im-btn-active-box-shadow: 0 0 0 4px rgba(93, 250, 24, .15);
+            }
+
+            /* Add custom twitter icon */
+            div[data-service="twitter"] .c-n-c .c-l-b::before{
+                border: none!important; /* remove default "play" arrow icon */
+                height: 15px;
+                width: 15px;
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAATZJREFUOE+lk78rRWEcxj/PJhmUMhhkkMEgGyZSlCR27qRYFItRXWVQJsVm8A8w3GSQUpTcYlCUzXAzKPEnPHp1zunc0znXkW+9y/s+30/P98cr/hkqk2+7E1gA2oG6pIeQZ3v6B2B7T9JmHsz2LHAA9KXeq8AUsCTbE8AVcAGsS3pJg2zXgLkM/Bm4BL7SgKB5B3aBm5RNF5RZlbQdl3AHjGSET8AtsFIAGJVUDw76gS0gwCplmhppuiR9xg7OgZk/JDck9QZ9DJgEdoCxkpCapPk0YBA4jJJ7gIFfQOOSrhNAtAvLwFEJB/uSNmJd0ybaDk5CGWvAcA7sMeyEpEYTwHY3EJqyCCT0DOAUWJX0kb4PYwzzD3tQFCfAsaSzPEFSgu0OYCg6bcAb8CrpvlVfSv3GVoBvLzlh7eQqydQAAAAASUVORK5CYII=')
+            }
+
+            /* Custom leaflet icon */
+            div[data-service="leaflet"] .c-l-b::before{
+                border: none!important; /* remove "play" arrow icon */
+                height: 15px;
+                width: 15px;
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAyCAYAAAAayliMAAAD7ElEQVRoge2aW4hVVQCGvy0zpdFYKjaWMpZOlKFhXoYQmfHB0B4UtASxlzHUARWcYLrRS2/VgyMWqV0eDDJI8EL0kASDl0KQmnnwYYamNGwQDMmh8Ubo/D2sfXDPmb3XWvty5syDP2zO3uvyr/9fa+112wfuo7oISjeSqqnDFwuA9cBG4EAQBHtrqizIhaeAF4EWYAXwTCRuFsB4MlALPAcsBpaFv/NJ1liHJXIsUAe8ACzFCF4IzEmR/2EYWwM1GLEtQDOwBJieg29iibSSmAS8BKwNfxsK5K6FyhloArYC64BpObmGMaNlUBY+AYo38ArwLuYFLAL9mHdlRkxcAMUZWAV0YkaRovAV8B1wJCF+GMJmyIGpYSE/UKz4Y0ArsNqS5s6IJ0lpr5WSBlU89oX8sx3pvoHsLdAG/Ag8kjF/EtqB7eF9hyPt0IinFDXfXoFavyapJVLGAkl3HXk+gPQt8BqwJ2UeF7owM/CpSNhHuLX9PeLJo+YXSvqv4Jp/I6acXR75bkrakNbA6QKFn5PUGFPGcs/8/ZKa0hjYVqD4txLKmCvpqifHCUn1vgYekPRbAcJ/kfRsQhn1ki6k4NqvcAPm8xJvAp72SGfD25jVZ19MXD3wM2bz4otfR4VYWqArR633Sppn4X5S0l8ZeBeVWsBlYH4O8V9ahCNpqaR/MvD2SaqRZxdqTtGsUXQAWyzxbcA5YEoG7rNE1kGu1WhLhgI2At8mxNUDXwMrM/CWcDw2NKGZz6ds3jWWLrNd0o0MXSaKS5LqSpwuAw2ShlKQv5ogfJmknpzCS/g4yu0y4DsrStLOmPyNkr4vSHgJi5TCwHpP0t1l+R6VWdMXjcPlGl0GWj1IT0TSB5LelHSrAuKlstpXaMA2Crk2KwOYEQfMnvgzYLYjT1Z0At1xETYDDzpI1wDXgMPABkfaPOgF3kuKtBkoP4eJYjNwGbgCPJZNlzfagNtJkTYDdxLCuzBnNX9iTt4qiR3AGVsC21LiVkJ4A/AhlRf/PrDPlcjWAv8mhDdmUZMS72D2xU7YDFwvRksq3MYcHBz1zWDrQldzy0mHU5iNk7d4sBvoxoz1lcZFzHyyIkt5ti70POF3qArhJ+BTzDwynJUkycAU4FB4L+AgZl5oAubinuTiMAD0ACcxB8K/Z+AYhSQDn3Pve1Ub8EV4PwF4ArNkmIk5t58OTAYeCvnuYobgQcxENwD8gTnrT5yQciOySNocWUC9Xr6AGk9XnIHHZQ5apfhjv3F1xRn4JBS/p9rifA1E/2owM+yvZzHfbcc9giAYMQ/swow4a6ukJxOiBl7GfBYd6xk4F6IG9mLG5/sYS/wPVjpXYPzhT9AAAAAASUVORK5CYII=');
+            }
+
+            /* Instagram embed tweaks/fix */
+            .instagram-media{
+                height: 100%!important;
+                width: 100%!important;
+                border: none!important;
+                margin: 0!important;
+                border-radius: 0!important;
+            }
+
+            /* Fix google maps embed */
+            div[data-service] .map {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                top: 0;
+            }
+
+            /* Fix leaflet map */
+            div[data-service] .leaflet-map{
+                height: 100%;
+            }
+
+            /* Tweak placeholder: visible when javascript is disabled */
+            div[data-service] [data-visible]{
+                border: 1px solid #000000;
+                background: #ffffff;
+                --im-color: black;
+                border-radius: 28px;
             }
         </style>
-        <link rel="stylesheet" href="../src/iframemanager.css">
-		<link rel="stylesheet" href="./assets/fonts.css">
+
     </head>
  <body>
-    <div id="_app">
+    <div id="app">
         <h1>This is a test page</h1>
         <br>
-		<p>Demo with youtube & dailymotion config.</p>
+        <p>Demo with youtube & dailymotion config.</p>
         <br>
         <br>
 
         <button id="accept-all">Accept all</button>
         <button id="reject-all">Reject all</button>
+
+        <br>
+        <br>
+        <h2>Youtube</h2>
         <br>
 
-		<h2>Simple example</h2>
-		<br>
-		<div
+        <div
             data-service="youtube"
-            data-ratio="9:16"
-            data-id="fJ9rUzIMcZQ">
+            data-id="5b35haQV7tU">
         </div>
 
-		<br>
-		<br>
-		<h2>Example with autoscale width (fill width of parent container)</h2>
-		<br>
-		<div
+        <br>
+        <br>
+        <h2>Youtube (autoscale)</h2>
+        <br>
+        <div
             data-service="youtube"
             data-id="fJ9rUzIMcZQ"
-			data-autoscale>
-        </div>
-		<br>
-
-        <div
-            data-service="twitter"
-            data-id="1404125474981298177"
-            data-customwidget
-            style="height: 518px;">
-        </div>
-
-        <div
-            data-service="twitter"
-            data-id="1429246345668304898"
-            data-customwidget
-            style="height: 285px;">
-        </div>
-
-        <div
-            data-service="twitter"
-            data-id="1429246345668304898"
-            data-customwidget
-            style="height: 285px;">
+            data-autoscale>
+            <div data-placeholder data-visible>
+                <a href="https://www.youtube.com/watch?v=fJ9rUzIMcZQ" target="_blank">Queen – Bohemian Rhapsody</a>
+            </div>
         </div>
 
         <br>
         <br>
-		<br>
-		<h2>Example with custom thumbnail + params (video starts muted at 21s)</h2>
-		<br>
+        <h2>Youtube (title, autoscale, thumbnail & params)</h2>
+        <br>
         <div
             data-service="youtube"
             data-id="861gfPVmgdc"
-			data-params="start=21&mute=1"
-			data-thumbnail="https://i.pinimg.com/originals/0a/4d/cb/0a4dcb92fa2d3c601b58d72720d6bec4.jpg"
-            data-thumbnailpreload
-            data-autoscale >
+            data-title="A better CGi Luke Skywalker"
+            data-params="?start=21&mute=1"
+            data-thumbnail="https://media.contentapi.ea.com/content/dam/star-wars-battlefront-2/images/2019/08/swbf2-refresh-hero-large-heroes-page-luke-skywalker-16x9-xl.jpg.adapt.crop16x9.1920w.jpg"
+            data-autoscale
+        >
         </div>
-		<br>
-		<br>
-		<h2>Daily motion video</h2>
-		<br>
+        <br>
+        <br>
+        <h2>Daily motion</h2>
+        <br>
         <div
             data-service="dailymotion"
             data-id="x81n4gf"
@@ -99,29 +155,9 @@
         </div>
 
         <br>
-
-        <div
-            data-service="facebook"
-            data-id="20531316728/posts/10154009990506729/"
-            data-title="facebook post"
-            style="height: 310px; max-width: 350px; width: 100%;"
-            data-customwidget
-            data-autoscale
-        ></div>
-
-        <div
-            data-service="facebook-post"
-            data-id="href=https://www.facebook.com/nokia/photos/a.338008237396/10157974130297397/&show_text=true&width=500"
-            data-title="nokia post"
-            style="height: 453px; max-width: 500px;"
-            data-customwidget
-            data-autoscale
-        ></div>
-
         <br>
-		<br>
-		<h2>Google Maps</h2>
-		<br>
+        <h2>Google Maps</h2>
+        <br>
         <div
             data-service="googlemaps"
             data-id="!1m18!1m12!1m3!1d2659.4482749804133!2d11.644969316034478!3d48.19798087922823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479e7499e2d4c67f%3A0x32f7f02c5e77043a!2sM%C3%BCnchner+Str.+123%2C+85774+Unterf%C3%B6hring%2C+Germany!5e0!3m2!1sen!2sin!4v1565347252768!5m2!1sen!2sin"
@@ -130,29 +166,199 @@
             data-autoscale
         ></div>
 
-        <!--
-        <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A//www.facebook.com/nokia/photos/a.338008237396/10157974130297397/&show_text=true&width=500" width="500" height="453" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
-
-
-        <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A//www.facebook.com/marsel.bida.12/videos/242627174439550/&show_text=true&width=267&t=21" width="267" height="591" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
-        <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A//www.facebook.com/HackingTricks/posts/1730338337164763&show_text=true&width=500" width="500" height="589" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
-            -->
-        <br>
-		<br>
-		<h2>Twitch channel embed</h2>
-		<br>
-		<div
-        data-service="twitch"
-        data-id="channel=bdougieYO"
-        data-title="Twitch channel stream"
-        data-autoscale></div>
         <br>
         <br>
+        <h2>Twitter tweets</h2>
+        <br>
+        <div
+            data-service="twitter"
+            data-id="1404125474981298177"
+            data-title="Just released this helper plugin ..."
+            data-widget
+            style="height: 518px;">
+            <div data-placeholder data-visible>
+                <p>Javascript is disabled! Click <a href="#">here</a> to view the original tweet!</p>
+            </div>
+        </div>
+
+        <div
+            data-service="twitter"
+            data-id="1429246345668304898"
+            data-widget
+            style="height: 285px;">
+
+            <div data-placeholder data-visible>
+                Hi World!
+            </div>
+        </div>
+        <div
+            data-service="twitter"
+            data-id="1429246345668304898"
+            data-widget
+            style="height: 285px;">
+            <div data-placeholder data-visible>
+                Hi World!
+            </div>
+        </div>
+        <div
+            data-service="twitter"
+            data-id="1429246345668304898"
+            data-widget
+            style="height: 285px;">
+        </div>
+        <div
+            data-service="twitter"
+            data-id="1429246345668304898"
+            data-widget
+            style="height: 285px;">
+        </div>
+
+        <div
+            data-service="twitter"
+            data-id="1429246345668304898"
+            data-widget
+            style="height: 285px;">
+            <div data-placeholder data-visible>
+                Hi World!
+            </div>
+        </div>
+        <br>
+        <br>
+        <h2>Facebook post</h2>
+        <br>
+        <div
+            data-service="facebook-post"
+            data-id="href=https://www.facebook.com/nokia/photos/a.338008237396/10157974130297397/&show_text=true&width=500"
+            data-title="Nokia expands 5G network"
+            data-iframe-allow="clipboard-write; encrypted-media; picture-in-picture; web-share"
+            style="height: 455px; max-width: 500px;"
+            data-widget
+            data-autoscale
+        ></div>
 
         <br>
-        <h1>Ciao</h1>
+        <br>
+        <h2>Twitch</h2>
+        <br>
+        <div
+            data-service="twitch"
+            data-id="channel=bdougieYO"
+            data-title="Twitch channel stream"
+            data-autoscale></div>
+        <br>
+        <br>
 
-    <script defer src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v3.0.0-rc.9/dist/cookieconsent.umd.js"></script>
+        <h2>Vimeo</h2>
+        <br>
+        <div
+            data-service="vimeo"
+            data-id="776749483"
+            data-title="Apple “Escape From The Office”"
+            data-autoscale
+        ></div>
+        <br>
+        <br>
+
+        <h2>Instagram (JS API)</h2>
+        <br>
+
+        <div
+            data-service="instagram"
+            style="height: 641px; width: 328px;"
+            data-widget
+        >
+            <div data-placeholder data-visible>
+                <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/p/Cm4lIP_v5Z3/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/p/Cm4lIP_v5Z3/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">View this post on Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/p/Cm4lIP_v5Z3/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px; text-decoration:none;" target="_blank">A post shared by Adele (@adele)</a></p></div></blockquote>
+            </div>
+        </div>
+        <br>
+        <br>
+
+        <h2>Google Maps (JS API)</h2>
+        <br>
+
+        <div
+            data-service="googlemapsapi"
+            data-title="Australia ftw"
+            data-maps-lat="42.345573"
+            data-maps-lng="-71.098326"
+            data-maps-marker
+            data-autoscale
+        >
+            <div data-placeholder>
+                <div class="map"></div>
+            </div>
+        </div>
+
+        <br>
+        <br>
+
+        <div
+            data-service="googlemapsapi"
+            data-maps-lat="-25.344"
+            data-maps-lng="31.031"
+            data-maps-marker
+            data-iframe-sds="ciao"
+        >
+            <div data-placeholder>
+                <div class="map"></div>
+            </div>
+        </div>
+        <div
+            data-service="googlemapsapi"
+            data-maps-lat="42.345573"
+            data-maps-lng="-71.098326"
+            data-maps-marker
+            data-iframe-sds="ciao"
+        >
+            <div data-placeholder>
+                <div class="map"></div>
+            </div>
+        </div>
+        <div
+            data-service="googlemapsapi"
+            data-maps-lat="21.344"
+            data-maps-lng="21.031"
+            data-maps-marker
+            data-iframe-tabindex="0"
+            data-iframe-aria-hidden="false"
+        >
+            <div data-placeholder>
+                <div class="map"></div>
+            </div>
+        </div>
+
+        <br>
+        <br>
+
+        <h2>Leaflet (JS API)</h2>
+        <br>
+
+        <div
+            data-service="leaflet"
+            data-map-coordinates="[46.5, -0.09]"
+            data-map-markers="[46.5, -0.09];[46.504, -0.081];[46.492, -0.096]"
+            data-autoscale
+        >
+            <div data-placeholder>
+                <div class="leaflet-map"></div>
+            </div>
+        </div>
+
+        <div data-service="leaflet" data-map-coordinates="[51.505, -0.09]">
+            <div data-placeholder>
+                <div class="leaflet-map"></div>
+            </div>
+        </div>
+
+
+        <br>
+        <br>
+
+    </div>
+
+
+    <script defer src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v3.0.0-rc.12/dist/cookieconsent.umd.js"></script>
     <script defer src="../dist/iframemanager.js"></script>
     <script defer src="app.js"></script>
  </body>

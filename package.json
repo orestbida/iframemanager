@@ -1,6 +1,6 @@
 {
   "name": "@orestbida/iframemanager",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "GDPR friendly iframe manager written in vanilla js",
   "main": "dist/iframemanager.js",
   "files": [
@@ -30,9 +30,9 @@
   "homepage": "https://github.com/orestbida/iframemanager#readme",
   "devDependencies": {
     "cssnano": "^5.1.14",
-    "postcss": "^8.4.19",
-    "postcss-cli": "^10.0.0",
-    "postcss-custom-properties": "^12.1.10",
-    "terser": "^5.15.1"
+    "postcss": "^8.4.21",
+    "postcss-cli": "^10.1.0",
+    "postcss-custom-properties": "^12.1.11",
+    "terser": "^5.16.1"
   }
 }
