@@ -644,7 +644,7 @@
                 // if doesn't have iframe => create it
                 if(videos[i]._hasIframe){
                     if(isFunction(service.onReject)){
-                        service.onReject(videos[i]._iframe);
+                        service.onReject(videos[i]._iframe || videos[i]._div);
                         videos[i]._hasIframe = false;
                     }else{
                         removeIframe(videos[i]);
