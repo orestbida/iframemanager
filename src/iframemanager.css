@@ -269,6 +269,7 @@ div[data-service].c-h-n .cll .c-t-cn{
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
+    transition-duration: .2s;
 }
 
 div[data-service] .cll iframe{
@@ -350,11 +351,6 @@ div[data-service][data-ratio="9:20"]::before{
     padding-top: 222.222222%;
 }
 
-div[data-widget]{
-    vertical-align: top;
-    min-width: 296px;
-}
-
 div[data-widget]::before {
     display: none;
 }
@@ -404,7 +400,7 @@ div[data-service] [data-placeholder][data-visible]{
     animation-delay: .4s;
 }
 
-div[data-service].c-h-b [data-placeholder]{
+div[data-service].show-ph [data-placeholder]{
     opacity: 1;
     visibility: visible;
 }

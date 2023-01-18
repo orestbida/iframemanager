@@ -21,6 +21,8 @@
      * @property {boolean} _hasIframe
      * @property {boolean} _hasNotice
      * @property {boolean} _showNotice
+     * @property {boolean} _dataWidget
+     * @property {boolean} _dataPlaceholderVisible
      * @property {Object.<string, string>} _iframeAttributes
      */
 
@@ -59,6 +61,10 @@
     const DATA_ID_PLACEHOLDER = '{data-id}';
     const ACCEPT_ACTION = 'accept';
     const REJECT_ACTION = 'reject';
+
+    const HIDE_NOTICE_CLASS = 'c-h-n';
+    const HIDE_LOADER_CLASS = 'c-h-b';
+    const SHOW_PLACEHOLDER_CLASS = 'show-ph';
 
     let
 
@@ -142,6 +148,13 @@
     const setClassName = (el, className) => el.className = className;
 
     /**
+     * @param {HTMLElement} el
+     * @param {string} className
+     * @returns
+     */
+    const addClass = (el, className) => el.classList.add(className);
+
+    /**
      * @param {HTMLElement} parent
      * @param {HTMLElement} child
      */
@@ -176,8 +189,9 @@
             .map(attr => attr.slice(12));
 
         const placeholderDiv = div.querySelector('[data-placeholder]');
-        placeholderDiv && placeholderDiv.removeAttribute('data-visible');
-        const placeholderClone = placeholderDiv && placeholderDiv.cloneNode(true);
+        const dataVisible = placeholderDiv?.hasAttribute('data-visible');
+        dataVisible && placeholderDiv.removeAttribute('data-visible');
+        const placeholderClone = placeholderDiv?.cloneNode(true);
 
         /**
          * Get all "data-iframe-* attributes
@@ -197,7 +211,9 @@
             _backgroundDiv: null,
             _hasIframe: false,
             _hasNotice: false,
-            _showNotice : true,
+            _showNotice: true,
+            _dataWidget: 'widget' in dataset,
+            _dataPlaceholderVisible: dataVisible,
             _iframeAttributes: iframeAttrs
         };
     };
@@ -206,19 +222,19 @@
      * @param {string} serviceName
      * @param {string} thumbnailUrl
      */
-    const lazyLoadThumnails = (serviceName, thumbnailUrl) => {
+    const lazyLoadThumbnails = (serviceName, thumbnailUrl) => {
 
         const videos = iframeDivs[serviceName];
 
         if ('IntersectionObserver' in win) {
             const thumbnailObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
+                for(const entry of entries){
                     if(entry.isIntersecting){
                         // true index of the video in the array relative to current service
                         loadThumbnail(thumbnailUrl, videos[entry.target.dataset.index]);
                         thumbnailObserver.unobserve(entry.target);
                     }
-                });
+                }
             });
 
             for(const video of videos)
@@ -237,11 +253,7 @@
             video._backgroundDiv.style.backgroundImage = `url('${src}')`;
 
             const img = new Image();
-
-            img.onload = () => {
-                video._backgroundDiv.classList.add('loaded');
-            };
-
+            img.onload = () => addClass(video._backgroundDiv, 'loaded');
             img.src = src;
         }
 
@@ -268,7 +280,7 @@
      */
     const createIframe = (video, service) => {
 
-        // Create iframe only if doesn't alredy have one
+        // Create iframe only if doesn't already have one
         if(video._hasIframe)
             return;
 
@@ -302,7 +314,13 @@
 
                 video._iframe = iframe;
                 video._hasIframe = true;
-                video._div.classList.add('c-h-b');
+
+                // Hide loading circle
+                addClass(video._div, HIDE_LOADER_CLASS);
+
+                // Show placeholder
+                (!video._dataPlaceholderVisible || video._dataWidget)
+                    && addClass(video._div, SHOW_PLACEHOLDER_CLASS);
             });
 
             return;
@@ -310,7 +328,10 @@
 
         video._iframe = createNode('iframe');
 
-        const iframeParams = video._params || (service.iframe && service.iframe.params);
+        /**
+         * @type {string}
+         */
+        const iframeParams = video._params || service?.iframe.params;
 
         // Replace data-id with valid resource id
         const embedUrl = service.embedUrl || '';
@@ -319,22 +340,19 @@
         video._title && (video._iframe.title = video._title);
 
         // Add parameters to src
-        if(iframeParams){
-            if (iframeParams.substring(0, 3) === 'ap:'){
-                src += iframeParams.substring(3);
-            }else{
-                src += '?' + iframeParams;
-            }
+        if(isString(iframeParams)){
+            src += iframeParams.slice(0, 1) === '?'
+                ? iframeParams
+                : `?${iframeParams}`
         }
 
         // When iframe is loaded => hide background image
         video._iframe.onload = () => {
-            video._div.classList.add('c-h-b');
+            addClass(video._div, HIDE_LOADER_CLASS);
             video._iframe.onload = undefined;
 
-            iframeProps
-            && isFunction(iframeProps.onload)
-            && iframeProps.onload(video._id, video._iframe);
+            isFunction(iframeProps?.onload)
+                && iframeProps.onload(video._id, video._iframe);
         };
 
         /**
@@ -372,11 +390,11 @@
     };
 
     /**
-     * Remove necessary classes to hide notice
+     * Add necessary classes to hide notice
      * @param {IframeObj} video
      */
     const hideNotice = (video) => {
-        video._div.classList.add('c-h-n');
+        addClass(video._div, HIDE_NOTICE_CLASS);
         video._showNotice = false;
     };
 
@@ -385,7 +403,11 @@
      * @param {IframeObj} video
      */
     const showNotice = (video) => {
-        video._div.classList.remove('c-h-n', 'c-h-b');
+        video._div.classList.remove(
+            HIDE_NOTICE_CLASS,
+            HIDE_LOADER_CLASS,
+            SHOW_PLACEHOLDER_CLASS
+        );
         video._showNotice = true;
     };
 
@@ -491,7 +513,7 @@
                 if(loadAllBtnText){
                     const load_all_button = createButton()
                     load_all_button.textContent = loadAllBtnText;
-                    setClassName(load_all_button, 'c-la-b');
+                    setClassName(load_all_button, loadBtnText ? 'c-la-b' : 'c-l-b');
 
                     load_all_button.addEventListener(CLICK_EVENT_SOURCE, () => {
                         showVideo();
@@ -552,13 +574,13 @@
                 (service.thumbnailUrl || video._thumbnail) && appendChild(fragment, ytVideoBackground);
                 appendChild(fragment, loaderBg);
 
-                hidden && video._div.classList.add('c-h-n');
+                hidden && addClass(video._div, HIDE_NOTICE_CLASS);
 
                 // Avoid reflow with fragment (only 1 appendChild)
                 video._div.prepend(fragment);
                 video._hasNotice = true;
 
-                setTimeout(()=> video._div.classList.add('c-an'), 20);
+                setTimeout(()=> addClass(video._div, 'c-an'), 20);
             }
         });
     };
@@ -886,7 +908,7 @@
                     createAllNotices(serviceName, currService, false);
                 }
 
-                lazyLoadThumnails(serviceName, currService.thumbnailUrl);
+                lazyLoadThumbnails(serviceName, currService.thumbnailUrl);
             }
         }
     };
