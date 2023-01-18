@@ -74,7 +74,7 @@ im.run({
              *
              * @param {HTMLDivElement} div
              */
-            onAccept: async (div) => {
+            onAccept: async (div, setIframe) => {
                 const leafletLoaded = await CookieConsent.loadScript('https://unpkg.com/leaflet@1.9.3/dist/leaflet.js');
                 const leafletReady = leafletLoaded && await im.childExists({childProperty: 'L'});
 
@@ -89,11 +89,17 @@ im.run({
                 for(const coordinates of markerCoordinates)
                     coordinates && L.marker(JSON.parse(coordinates)).addTo(map);
 
-                div.classList.add('c-h-b');
+                // Manually toggle show placeholder
+                div.classList.add('show-ph');
             },
 
-            onReject: (a) => {
-                console.log("must remove:", a);
+            /**
+             *
+             * @param {HTMLDivElement} serviceDiv
+             */
+            onReject: (serviceDiv) => {
+                // remove: div[data-service] > div[placeholder] > div.leaflet-map
+                serviceDiv.lastElementChild.firstElementChild.remove();
             },
 
             languages : {
@@ -114,11 +120,8 @@ im.run({
                 tweet && setIframe(tweet.firstChild);
             },
 
-            /**
-             * @param {HTMLIFrameElement} iframe
-             */
             onReject: (iframe) => {
-                iframe && iframe.parentElement.remove();
+                iframe?.parentElement.remove();
             },
 
             languages : {
@@ -165,12 +168,6 @@ im.run({
 
         googlemapsapi: {
 
-            iframe: {
-                onload : function(dataId, setThumbnail){
-                    console.log("loaded iframe with data-id=", dataId, setThumbnail);
-                }
-            },
-
             onAccept: async (div, setIframe) => {
 
                 await CookieConsent.loadScript(`https://maps.googleapis.com/maps/api/js?key=${MAPS_API_KEY}`);
@@ -209,12 +206,11 @@ im.run({
                     map.setStreetView(panorama);
                 }
 
-                await im.childExists({parent: div});
-                setIframe(div.querySelector('iframe'));
+                await im.childExists({parent: div}) && setIframe(div.querySelector('iframe'));
             },
 
             onReject: (iframe) => {
-                // console.log("must remove:", iframe);
+                iframe?.parentElement?.parentElement?.remove();
             },
 
             languages : {
@@ -229,14 +225,12 @@ im.run({
         instagram: {
             onAccept: async (div, setIframe) => {
                 await CookieConsent.loadScript('https://www.instagram.com/embed.js');
-                await im.childExists({childProperty: 'instgrm'});
-                instgrm.Embeds.process();
-                await im.childExists({parent: div});
-                setIframe(div.querySelector('iframe'));
+                await im.childExists({childProperty: 'instgrm'}) && instgrm.Embeds.process();
+                await im.childExists({parent: div}) && setIframe(div.querySelector('iframe'));
             },
 
             onReject: (iframe) => {
-                // console.log("remove iframe:", iframe);
+                iframe?.remove();
             },
 
             languages: {

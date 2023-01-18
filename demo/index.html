@@ -6,13 +6,16 @@
         <meta name="description" content="A page's description, usually one or two sentences."/>
 
         <link rel="stylesheet" href="../src/iframemanager.css">
+        <link rel="stylesheet" href="./assets/fonts.css">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" media="print" onload="this.media='all'">
 
         <style>
 
-        </style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
 
-        <style>
             body{
                 max-width: 910px;
                 margin: 0 auto;
@@ -21,34 +24,81 @@
                 line-height: 1.2;
             }
 
-            * {
-                padding: 0;
-                margin: 0;
+            /* Customize twitter service colors */
+            div[data-service="youtube"]{
+                --im-btn-bg: rgba(255, 45, 45, 0.85);
+                --im-btn-hover-bg: rgba(255, 45, 45, 0.65);
+                --im-link-color: #fa6363;
+                --im-link-hover-color: #c54747;
+                --im-btn-active-box-shadow: 0 0 0 4px rgba(250, 24, 24, 0.15);
+                --im-overlay-bg: linear-gradient(14deg, rgba(250, 24, 24, 0.15) 0%, rgba(206,220,233,0.118) 100%)
             }
 
-            .leaflet-map{
-                height: 100%;
+            /* Customize twitter service colors */
+            div[data-service="twitter"]{
+                --im-btn-bg: #1DA1F2;
             }
 
-            div[data-service="youtube"] {
-                vertical-align: top;
+            /* Customize leaflet service colors */
+            div[data-service="leaflet"] {
+                --im-btn-bg: #87C148;
+                --im-btn-hover-bg: #699040;
+                --im-link-color: #ACDD5A;
+                --im-link-hover-color: #7cb241;
+                --im-btn-active-box-shadow: 0 0 0 4px rgba(93, 250, 24, .15);
             }
 
-            div[data-service="twitter"] .c-n-c .c-l-b{
-                background-color: #1DA1F2;
-            }
-
+            /* Add custom twitter icon */
             div[data-service="twitter"] .c-n-c .c-l-b::before{
-                border: none!important;
+                border: none!important; /* remove default "play" arrow icon */
                 height: 15px;
                 width: 15px;
                 background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAATZJREFUOE+lk78rRWEcxj/PJhmUMhhkkMEgGyZSlCR27qRYFItRXWVQJsVm8A8w3GSQUpTcYlCUzXAzKPEnPHp1zunc0znXkW+9y/s+30/P98cr/hkqk2+7E1gA2oG6pIeQZ3v6B2B7T9JmHsz2LHAA9KXeq8AUsCTbE8AVcAGsS3pJg2zXgLkM/Bm4BL7SgKB5B3aBm5RNF5RZlbQdl3AHjGSET8AtsFIAGJVUDw76gS0gwCplmhppuiR9xg7OgZk/JDck9QZ9DJgEdoCxkpCapPk0YBA4jJJ7gIFfQOOSrhNAtAvLwFEJB/uSNmJd0ybaDk5CGWvAcA7sMeyEpEYTwHY3EJqyCCT0DOAUWJX0kb4PYwzzD3tQFCfAsaSzPEFSgu0OYCg6bcAb8CrpvlVfSv3GVoBvLzlh7eQqydQAAAAASUVORK5CYII=')
             }
+
+            /* Custom leaflet icon */
+            div[data-service="leaflet"] .c-l-b::before{
+                border: none!important; /* remove "play" arrow icon */
+                height: 15px;
+                width: 15px;
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAyCAYAAAAayliMAAAD7ElEQVRoge2aW4hVVQCGvy0zpdFYKjaWMpZOlKFhXoYQmfHB0B4UtASxlzHUARWcYLrRS2/VgyMWqV0eDDJI8EL0kASDl0KQmnnwYYamNGwQDMmh8Ubo/D2sfXDPmb3XWvty5syDP2zO3uvyr/9fa+112wfuo7oISjeSqqnDFwuA9cBG4EAQBHtrqizIhaeAF4EWYAXwTCRuFsB4MlALPAcsBpaFv/NJ1liHJXIsUAe8ACzFCF4IzEmR/2EYWwM1GLEtQDOwBJieg29iibSSmAS8BKwNfxsK5K6FyhloArYC64BpObmGMaNlUBY+AYo38ArwLuYFLAL9mHdlRkxcAMUZWAV0YkaRovAV8B1wJCF+GMJmyIGpYSE/UKz4Y0ArsNqS5s6IJ0lpr5WSBlU89oX8sx3pvoHsLdAG/Ag8kjF/EtqB7eF9hyPt0IinFDXfXoFavyapJVLGAkl3HXk+gPQt8BqwJ2UeF7owM/CpSNhHuLX9PeLJo+YXSvqv4Jp/I6acXR75bkrakNbA6QKFn5PUGFPGcs/8/ZKa0hjYVqD4txLKmCvpqifHCUn1vgYekPRbAcJ/kfRsQhn1ki6k4NqvcAPm8xJvAp72SGfD25jVZ19MXD3wM2bz4otfR4VYWqArR633Sppn4X5S0l8ZeBeVWsBlYH4O8V9ahCNpqaR/MvD2SaqRZxdqTtGsUXQAWyzxbcA5YEoG7rNE1kGu1WhLhgI2At8mxNUDXwMrM/CWcDw2NKGZz6ds3jWWLrNd0o0MXSaKS5LqSpwuAw2ShlKQv5ogfJmknpzCS/g4yu0y4DsrStLOmPyNkr4vSHgJi5TCwHpP0t1l+R6VWdMXjcPlGl0GWj1IT0TSB5LelHSrAuKlstpXaMA2Crk2KwOYEQfMnvgzYLYjT1Z0At1xETYDDzpI1wDXgMPABkfaPOgF3kuKtBkoP4eJYjNwGbgCPJZNlzfagNtJkTYDdxLCuzBnNX9iTt4qiR3AGVsC21LiVkJ4A/AhlRf/PrDPlcjWAv8mhDdmUZMS72D2xU7YDFwvRksq3MYcHBz1zWDrQldzy0mHU5iNk7d4sBvoxoz1lcZFzHyyIkt5ti70POF3qArhJ+BTzDwynJUkycAU4FB4L+AgZl5oAubinuTiMAD0ACcxB8K/Z+AYhSQDn3Pve1Ub8EV4PwF4ArNkmIk5t58OTAYeCvnuYobgQcxENwD8gTnrT5yQciOySNocWUC9Xr6AGk9XnIHHZQ5apfhjv3F1xRn4JBS/p9rifA1E/2owM+yvZzHfbcc9giAYMQ/swow4a6ukJxOiBl7GfBYd6xk4F6IG9mLG5/sYS/wPVjpXYPzhT9AAAAAASUVORK5CYII=');
+            }
+
+            /* Instagram embed tweaks/fix */
+            .instagram-media{
+                height: 100%!important;
+                width: 100%!important;
+                border: none!important;
+                margin: 0!important;
+                border-radius: 0!important;
+            }
+
+            /* Fix google maps embed */
+            div[data-service] .map {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                top: 0;
+            }
+
+            /* Fix leaflet map */
+            div[data-service] .leaflet-map{
+                height: 100%;
+            }
+
+            /* Tweak placeholder: visible when javascript is disabled */
+            div[data-service] [data-visible]{
+                border: 1px solid #000000;
+                background: #ffffff;
+                --im-color: black;
+                border-radius: 28px;
+            }
         </style>
-        <link rel="stylesheet" href="./assets/fonts.css">
+
     </head>
  <body>
-    <div id="_app">
+    <div id="app">
         <h1>This is a test page</h1>
         <br>
         <p>Demo with youtube & dailymotion config.</p>
@@ -89,9 +139,10 @@
             data-service="youtube"
             data-id="861gfPVmgdc"
             data-title="A better CGi Luke Skywalker"
-            data-params="start=21&mute=1"
+            data-params="?start=21&mute=1"
             data-thumbnail="https://media.contentapi.ea.com/content/dam/star-wars-battlefront-2/images/2019/08/swbf2-refresh-hero-large-heroes-page-luke-skywalker-16x9-xl.jpg.adapt.crop16x9.1920w.jpg"
-            data-autoscale >
+            data-autoscale
+        >
         </div>
         <br>
         <br>
@@ -207,31 +258,9 @@
         ></div>
         <br>
         <br>
-        <h2>Instagram</h2>
+
+        <h2>Instagram (JS API)</h2>
         <br>
-
-        <style>
-            .instagram-media{
-                height: 100%!important;
-                width: 100%!important;
-                border: none!important;
-                margin: 0!important;
-                border-radius: 0!important;
-            }
-
-            div[data-service] [data-visible]{
-                border: 1px solid #000000;
-                background: #ffffff;
-                --im-color: black;
-                border-radius: 28px;
-            }
-
-            [data-service="instagram"] iframe {
-                margin: 0!important;
-                border-radius: 0px!important;
-                width: 100%!important;
-            }
-        </style>
 
         <div
             data-service="instagram"
@@ -245,16 +274,8 @@
         <br>
         <br>
 
-        <style>
-            div[data-service] .map,
-            div[data-service] .pano {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                top: 0;
-            }
-        </style>
+        <h2>Google Maps (JS API)</h2>
+        <br>
 
         <div
             data-service="googlemapsapi"
@@ -308,20 +329,16 @@
         </div>
 
         <br>
+        <br>
 
-        <div
-            data-service="leaflet"
-            data-map-coordinates="[35.5, -0.09]"
-        >
-            <div data-placeholder>
-                <div class="leaflet-map"></div>
-            </div>
-        </div>
+        <h2>Leaflet (JS API)</h2>
+        <br>
 
         <div
             data-service="leaflet"
             data-map-coordinates="[46.5, -0.09]"
             data-map-markers="[46.5, -0.09];[46.504, -0.081];[46.492, -0.096]"
+            data-autoscale
         >
             <div data-placeholder>
                 <div class="leaflet-map"></div>
@@ -341,7 +358,7 @@
     </div>
 
 
-    <script defer src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v3.0.0-rc.9/dist/cookieconsent.umd.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v3.0.0-rc.12/dist/cookieconsent.umd.js"></script>
     <script defer src="../dist/iframemanager.js"></script>
     <script defer src="app.js"></script>
  </body>
