@@ -46,10 +46,9 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
 - Automatic/custom thumbnail [support *](#note)
 - Allows to integrate any service which uses iframes
 - Improves website **performance**:
-  - no `<iframe>` tags on first page load
-  - lazyloads thumbnails
-  - lazyloads iframes
-- Can be integrated with any cookie consent solution
+  - lazy-load thumbnails
+  - lazy-load iframes
+- Can be integrated with any consent solution
 
 ## Installation
 1. #### Download the [latest release](https://github.com/orestbida/iframemanager/releases/latest) or use via CDN:
@@ -185,6 +184,7 @@ All available options for  the `<div>` element:
 - `data-thumbnail` :    [String] path to custom thumbnail
 - `data-ratio` :        [String] custom aspect ratio ([Available values.](#available-data-ratio))[v1.1.0]
 - `data-autoscale` :    specify for **responsive iframe** (fill parent width + scale proportionally)
+- `data-widget` :       ignore the default aspect ratio; specify when implementing a custom widget with explicit width and height (twitter, facebook, instagram ...)[v1.2.0]
 
 ### How to set attributes on the `iframe` element
 You can set any attribute by using the following syntax:
@@ -300,7 +300,7 @@ Note: `thumbnailUrl` can be static string, dynamic string or a function:
     ```
 
 ## Custom Widgets
-Some services (e.g. twitter) have their own markup + API to generate the iframe.
+Some services (e.g. twitter) have their own markup and API to generate the iframe.
 
 Note: this is an example with twitter's widget. Each widget/service will have a slightly different implementation.
 
@@ -310,7 +310,8 @@ Note: this is an example with twitter's widget. Each widget/service will have a 
     <div
         data-service="twitter"
         data-widget
-        style="width: 300px; height: 501px">
+        style="width: 300px; height: 501px"
+    >
 
         <div data-placeholder>
             <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Sunsets don&#39;t get much better than this one over <a href="https://twitter.com/GrandTetonNPS?ref_src=twsrc%5Etfw">@GrandTetonNPS</a>. <a href="https://twitter.com/hashtag/nature?src=hash&amp;ref_src=twsrc%5Etfw">#nature</a> <a href="https://twitter.com/hashtag/sunset?src=hash&amp;ref_src=twsrc%5Etfw">#sunset</a> <a href="http://t.co/YuKy2rcjyU">pic.twitter.com/YuKy2rcjyU</a></p>&mdash; US Department of the Interior (@Interior) <a href="https://twitter.com/Interior/status/463440424141459456?ref_src=twsrc%5Etfw">May 5, 2014</a></blockquote>
@@ -629,6 +630,8 @@ im.run({
     onChange: ({changedServices, eventSource}) => {
 
         if(eventSource.type === 'click') {
+            // Retrieve all accepted services:
+            // const allAcceptedServices = im.getState().acceptedServices;
 
             /**
              * Retrieve array of already accepted services
@@ -648,6 +651,8 @@ im.run({
     }
 });
 ```
+
+Note: the above example assumes that all services belong to the `analytics` category.
 
 ### Available `data-ratio`
 
