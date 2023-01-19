@@ -1,0 +1,30 @@
+name: NPM Registry
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  push-to-npm-registry-as-latest:
+    if: "!github.event.release.prerelease"
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: JS-DevTools/npm-publish@v1
+      with:
+        token: ${{ secrets.NPM_TOKEN }}
+        access: public
+        tag: latest
+
+  push-to-npm-registry-as-next:
+    if: "github.event.release.prerelease"
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: JS-DevTools/npm-publish@v1
+      with:
+        token: ${{ secrets.NPM_TOKEN }}
+        access: public
+        tag: next
