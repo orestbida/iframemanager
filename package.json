@@ -1,6 +1,6 @@
 {
   "name": "@orestbida/iframemanager",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "GDPR friendly iframe manager written in vanilla js",
   "main": "dist/iframemanager.js",
   "files": [
