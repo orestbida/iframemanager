@@ -180,6 +180,7 @@ All available options for  the `<div>` element:
 
 - `data-service` :      [String, Required] name of the service (must also be defined in the config. object)
 - `data-id` :           [String, Required] unique id of the resource (example: video id)
+- `data-title` :        [String] notice title
 - `data-params` :       [String] iframe query parameters
 - `data-thumbnail` :    [String] path to custom thumbnail
 - `data-ratio` :        [String] custom aspect ratio ([Available values.](#available-data-ratio))[v1.1.0]
