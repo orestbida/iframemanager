@@ -1,5 +1,5 @@
 /*!
- * iframemanager v1.2.0
+ * iframemanager v1.2.1
  * Author Orest Bida
  * Released under the MIT License
  */
@@ -331,7 +331,7 @@
         /**
          * @type {string}
          */
-        const iframeParams = video._params || service?.iframe.params;
+        const iframeParams = video._params || service?.iframe?.params;
 
         // Replace data-id with valid resource id
         const embedUrl = service.embedUrl || '';
@@ -340,7 +340,7 @@
         video._title && (video._iframe.title = video._title);
 
         // Add parameters to src
-        if(isString(iframeParams)){
+        if(iframeParams && isString(iframeParams)){
             src += iframeParams.slice(0, 1) === '?'
                 ? iframeParams
                 : `?${iframeParams}`

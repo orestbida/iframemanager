@@ -405,6 +405,11 @@ div[data-service].show-ph [data-placeholder]{
     visibility: visible;
 }
 
+div[data-service].show-ph .cll .c-ld{
+    opacity: 0;
+    visibility: hidden;
+}
+
 div.c-an .cll .c-n-t,
 div.c-an .cll .c-bg,
 div.c-an .cll .c-bg::before,
