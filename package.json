@@ -29,10 +29,10 @@
   },
   "homepage": "https://github.com/orestbida/iframemanager#readme",
   "devDependencies": {
-    "cssnano": "^5.1.14",
+    "cssnano": "^6.0.0",
     "postcss": "^8.4.21",
     "postcss-cli": "^10.1.0",
-    "postcss-custom-properties": "^12.1.11",
-    "terser": "^5.16.3"
+    "postcss-custom-properties": "^13.1.4",
+    "terser": "^5.16.8"
   }
 }
