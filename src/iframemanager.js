@@ -386,7 +386,7 @@
      * @param {servicePropObj} serviceProp
      */
     const removeIframe = (serviceProp) => {
-        serviceProp._iframe.parentNode.removeChild(serviceProp._iframe);
+        serviceProp._iframe?.remove();
         serviceProp._hasIframe = false;
     };
 
@@ -649,9 +649,9 @@
                  */
                 if(serviceProps[i]._hasIframe){
                     if(isFunction(serviceConfig.onReject)){
-                        serviceConfig.onReject(serviceProps[i]._iframe || serviceProps[i]._div);
+                        serviceConfig.onReject(serviceProps[i]._iframe, serviceProps[i]._div, () => showNotice(serviceProps[i]));
                         serviceProps[i]._hasIframe = false;
-                    }else{
+                    } else {
                         removeIframe(serviceProps[i]);
                     }
                 }
