@@ -7,7 +7,7 @@
     'use strict';
 
     /**
-     * @typedef {Object} IframeObj
+     * @typedef {Object} servicePropObj
      * @property {string} _id
      * @property {string} _title
      * @property {string} _thumbnail
@@ -47,8 +47,9 @@
      */
 
     /**
-     * @typedef {Object} Service
+     * @typedef {Object} ServiceConfig
      * @property {string} embedUrl
+     * @property {string | () => string} [thumbnailUrl]
      * @property {IframeProp} [iframe]
      * @property {CookieStructure} cookie
      * @property {Object.<string, Language>} languages
@@ -81,15 +82,15 @@
         config,
 
         /**
-         * @type {Object.<string, IframeObj[]>}
+         * @type {Object.<string, servicePropObj[]>}
          */
-        iframeDivs = {},
+        allServiceProps = {},
 
         stopObserver = false,
         currLang = '',
 
         /**
-         * @type {Object.<string, Service>}
+         * @type {Object.<string, ServiceConfig>}
          */
         services = {},
 
@@ -175,20 +176,20 @@
     }
 
     /**
-     * @param {HTMLDivElement} div
-     * @returns {IframeObj}
+     * @param {HTMLDivElement} serviceDiv
+     * @returns {servicePropObj}
      */
-    const getDivProps = (div) => {
+    const getDivProps = (serviceDiv) => {
 
-        const dataset = div.dataset;
+        const dataset = serviceDiv.dataset;
         const iframeAttrs = {};
         const iframeAttrSelector = 'data-iframe-';
 
-        const iframeAttrNames = div.getAttributeNames()
+        const iframeAttrNames = serviceDiv.getAttributeNames()
             .filter(attr => attr.slice(0, 12) === iframeAttrSelector)
             .map(attr => attr.slice(12));
 
-        const placeholderDiv = div.querySelector('[data-placeholder]');
+        const placeholderDiv = serviceDiv.querySelector('[data-placeholder]');
         const dataVisible = placeholderDiv?.hasAttribute('data-visible');
         dataVisible && placeholderDiv.removeAttribute('data-visible');
         const placeholderClone = placeholderDiv?.cloneNode(true);
@@ -197,14 +198,14 @@
          * Get all "data-iframe-* attributes
          */
         for(const attrName of iframeAttrNames)
-            iframeAttrs[attrName] = div.getAttribute(iframeAttrSelector + attrName);
+            iframeAttrs[attrName] = serviceDiv.getAttribute(iframeAttrSelector + attrName);
 
         return {
             _id: dataset.id,
             _title: dataset.title,
             _thumbnail: dataset.thumbnail,
             _params: dataset.params,
-            _div: div,
+            _div: serviceDiv,
             _innerContainer: null,
             _placeholderDiv: placeholderDiv,
             _initialPlaceholderClone: placeholderClone,
@@ -224,49 +225,49 @@
      */
     const lazyLoadThumbnails = (serviceName, thumbnailUrl) => {
 
-        const videos = iframeDivs[serviceName];
+        const serviceProps = allServiceProps[serviceName];
 
         if ('IntersectionObserver' in win) {
             const thumbnailObserver = new IntersectionObserver((entries) => {
                 for(const entry of entries){
                     if(entry.isIntersecting){
-                        // true index of the video in the array relative to current service
-                        loadThumbnail(thumbnailUrl, videos[entry.target.dataset.index]);
+                        // index relative to the current service array
+                        loadThumbnail(thumbnailUrl, serviceProps[entry.target.dataset.index]);
                         thumbnailObserver.unobserve(entry.target);
                     }
                 }
             });
 
-            for(const video of videos)
-                thumbnailObserver.observe(video._div);
+            for(const serviceProp of serviceProps)
+                thumbnailObserver.observe(serviceProp._div);
         }
     };
 
 
     /**
      * @param {string} url
-     * @param {IframeObj} video
+     * @param {servicePropObj} serviceProp
      */
-    const loadThumbnail = (url, video) => {
+    const loadThumbnail = (url, serviceProp) => {
 
         const loadBackgroundImage = (src) => {
-            video._backgroundDiv.style.backgroundImage = `url('${src}')`;
+            serviceProp._backgroundDiv.style.backgroundImage = `url('${src}')`;
 
             const img = new Image();
-            img.onload = () => addClass(video._backgroundDiv, 'loaded');
+            img.onload = () => addClass(serviceProp._backgroundDiv, 'loaded');
             img.src = src;
         }
 
         // Set custom thumbnail if provided
-        if(isString(video._thumbnail)){
-            video._thumbnail !== '' && loadBackgroundImage(video._thumbnail);
+        if(isString(serviceProp._thumbnail)){
+            serviceProp._thumbnail !== '' && loadBackgroundImage(serviceProp._thumbnail);
         }else{
 
             if(isFunction(url)){
-                url(video._id, (src) => loadBackgroundImage(src));
+                url(serviceProp._id, (src) => loadBackgroundImage(src));
 
             }else if(isString(url)){
-                const src = url.replace(DATA_ID_PLACEHOLDER, video._id);
+                const src = url.replace(DATA_ID_PLACEHOLDER, serviceProp._id);
                 loadBackgroundImage(src);
             }
         }
@@ -275,29 +276,29 @@
 
     /**
      * Create iframe and append it into the specified div
-     * @param {IframeObj} video
-     * @param {Service} service
+     * @param {servicePropObj} serviceProp
+     * @param {ServiceConfig} serviceConfig
      */
-    const createIframe = (video, service) => {
+    const createIframe = (serviceProp, serviceConfig) => {
 
         // Create iframe only if doesn't already have one
-        if(video._hasIframe)
+        if(serviceProp._hasIframe)
             return;
 
-        video._hasIframe = true;
+        serviceProp._hasIframe = true;
 
-        if(video._placeholderDiv){
-            const newFreshPlaceholder = video._initialPlaceholderClone.cloneNode(true);
-            video._placeholderDiv.replaceWith(newFreshPlaceholder);
-            video._placeholderDiv = newFreshPlaceholder;
+        if(serviceProp._placeholderDiv){
+            const newFreshPlaceholder = serviceProp._initialPlaceholderClone.cloneNode(true);
+            serviceProp._placeholderDiv.replaceWith(newFreshPlaceholder);
+            serviceProp._placeholderDiv = newFreshPlaceholder;
         }
 
-        const iframeProps = service.iframe;
+        const iframeProps = serviceConfig.iframe;
 
-        if(isFunction(service.onAccept)){
+        if(isFunction(serviceConfig.onAccept)){
 
             // Let the onAccept method create the iframe
-            service.onAccept(video._div, (iframe) => {
+            serviceConfig.onAccept(serviceProp._div, (iframe) => {
 
                 if(!(iframe instanceof HTMLIFrameElement))
                     return false;
@@ -310,34 +311,34 @@
                 /**
                  * Add all data-attr-* attributes (iframe specific)
                  */
-                setIframeAttributes(iframe, video._iframeAttributes);
+                setIframeAttributes(iframe, serviceProp._iframeAttributes);
 
-                video._iframe = iframe;
-                video._hasIframe = true;
+                serviceProp._iframe = iframe;
+                serviceProp._hasIframe = true;
 
                 // Hide loading circle
-                addClass(video._div, HIDE_LOADER_CLASS);
+                addClass(serviceProp._div, HIDE_LOADER_CLASS);
 
                 // Show placeholder
-                (!video._dataPlaceholderVisible || video._dataWidget)
-                    && addClass(video._div, SHOW_PLACEHOLDER_CLASS);
+                (!serviceProp._dataPlaceholderVisible || serviceProp._dataWidget)
+                    && addClass(serviceProp._div, SHOW_PLACEHOLDER_CLASS);
             });
 
             return;
         }
 
-        video._iframe = createNode('iframe');
+        serviceProp._iframe = createNode('iframe');
 
         /**
          * @type {string}
          */
-        const iframeParams = video._params || service?.iframe?.params;
+        const iframeParams = serviceProp._params || serviceConfig.iframe?.params;
 
         // Replace data-id with valid resource id
-        const embedUrl = service.embedUrl || '';
-        let src = embedUrl.replace(DATA_ID_PLACEHOLDER, video._id);
+        const embedUrl = serviceConfig.embedUrl || '';
+        let src = embedUrl.replace(DATA_ID_PLACEHOLDER, serviceProp._id);
 
-        video._title && (video._iframe.title = video._title);
+        serviceProp._title && (serviceProp._iframe.title = serviceProp._title);
 
         // Add parameters to src
         if(iframeParams && isString(iframeParams)){
@@ -347,27 +348,27 @@
         }
 
         // When iframe is loaded => hide background image
-        video._iframe.onload = () => {
-            addClass(video._div, HIDE_LOADER_CLASS);
-            video._iframe.onload = undefined;
+        serviceProp._iframe.onload = () => {
+            addClass(serviceProp._div, HIDE_LOADER_CLASS);
+            serviceProp._iframe.onload = undefined;
 
             isFunction(iframeProps?.onload)
-                && iframeProps.onload(video._id, video._iframe);
+                && iframeProps.onload(serviceProp._id, serviceProp._iframe);
         };
 
         /**
          * Add global internal attributes
          */
-        setIframeAttributes(video._iframe, iframeProps);
+        setIframeAttributes(serviceProp._iframe, iframeProps);
 
         /**
          * Add all data-attr-* attributes (iframe specific)
          */
-        setIframeAttributes(video._iframe, video._iframeAttributes);
+        setIframeAttributes(serviceProp._iframe, serviceProp._iframeAttributes);
 
-        video._iframe.src = src;
+        serviceProp._iframe.src = src;
 
-        appendChild(video._innerContainer, video._iframe);
+        appendChild(serviceProp._innerContainer, serviceProp._iframe);
     };
 
     /**
@@ -382,33 +383,33 @@
 
     /**
      * Remove iframe HTMLElement from div
-     * @param {IframeObj} video
+     * @param {servicePropObj} serviceProp
      */
-    const removeIframe = (video) => {
-        video._iframe.parentNode.removeChild(video._iframe);
-        video._hasIframe = false;
+    const removeIframe = (serviceProp) => {
+        serviceProp._iframe.parentNode.removeChild(serviceProp._iframe);
+        serviceProp._hasIframe = false;
     };
 
     /**
      * Add necessary classes to hide notice
-     * @param {IframeObj} video
+     * @param {servicePropObj} serviceProp
      */
-    const hideNotice = (video) => {
-        addClass(video._div, HIDE_NOTICE_CLASS);
-        video._showNotice = false;
+    const hideNotice = (serviceProp) => {
+        addClass(serviceProp._div, HIDE_NOTICE_CLASS);
+        serviceProp._showNotice = false;
     };
 
     /**
      * Add necessary classes to show notice
-     * @param {IframeObj} video
+     * @param {servicePropObj} serviceProp
      */
-    const showNotice = (video) => {
-        video._div.classList.remove(
+    const showNotice = (serviceProp) => {
+        serviceProp._div.classList.remove(
             HIDE_NOTICE_CLASS,
             HIDE_LOADER_CLASS,
             SHOW_PLACEHOLDER_CLASS
         );
-        video._showNotice = true;
+        serviceProp._showNotice = true;
     };
 
     /**
@@ -471,18 +472,18 @@
     /**
      * Create all notices relative to the specified service
      * @param {string} serviceName
-     * @param {Service} service
+     * @param {ServiceConfig} serviceConfig
      * @param {boolean} hidden
      */
-    const createAllNotices = (serviceName, service, hidden) => {
+    const createAllNotices = (serviceName, serviceConfig, hidden) => {
 
         // get number of iframes of current service
-        const videos = iframeDivs[serviceName];
-        const languages = service.languages;
+        const serviceProps = allServiceProps[serviceName];
+        const languages = serviceConfig.languages;
 
-        videos.forEach(video => {
+        serviceProps.forEach(serviceProp => {
 
-            if(!video._hasNotice && languages){
+            if(!serviceProp._hasNotice && languages){
                 const loadBtnText = languages[currLang]?.loadBtn;
                 const noticeText = languages[currLang]?.notice;
                 const loadAllBtnText = languages[currLang]?.loadAllBtn;
@@ -494,11 +495,11 @@
                 const buttons = createDiv();
 
                 setClassName(fragment, 'cll');
-                video._innerContainer = fragment;
+                serviceProp._innerContainer = fragment;
 
                 const showVideo = () => {
-                    hideNotice(video);
-                    createIframe(video, service);
+                    hideNotice(serviceProp);
+                    createIframe(serviceProp, serviceConfig);
                 };
 
                 if(loadBtnText){
@@ -534,14 +535,14 @@
                 setClassName(notice_text, 'cc-text');
                 setClassName(ytVideoBackgroundInner, 'c-bg-i');
 
-                video._backgroundDiv = ytVideoBackgroundInner;
+                serviceProp._backgroundDiv = ytVideoBackgroundInner;
                 setClassName(loaderBg, 'c-ld');
 
-                if(!isString(video._thumbnail) || video._thumbnail !== ''){
+                if(!isString(serviceProp._thumbnail) || serviceProp._thumbnail !== ''){
                     setClassName(ytVideoBackground, 'c-bg');
                 }
 
-                const iframeTitle = video._title;
+                const iframeTitle = serviceProp._title;
                 const fragment_2 = doc.createDocumentFragment();
 
                 if(iframeTitle) {
@@ -571,30 +572,31 @@
 
                 appendChild(ytVideoBackground, ytVideoBackgroundInner);
                 appendChild(fragment, notice);
-                (service.thumbnailUrl || video._thumbnail) && appendChild(fragment, ytVideoBackground);
+                (serviceConfig.thumbnailUrl || serviceProp._thumbnail) && appendChild(fragment, ytVideoBackground);
                 appendChild(fragment, loaderBg);
 
-                hidden && addClass(video._div, HIDE_NOTICE_CLASS);
+                hidden && addClass(serviceProp._div, HIDE_NOTICE_CLASS);
 
                 // Avoid reflow with fragment (only 1 appendChild)
-                video._div.prepend(fragment);
-                video._hasNotice = true;
+                serviceProp._div.prepend(fragment);
+                serviceProp._hasNotice = true;
 
-                setTimeout(()=> addClass(video._div, 'c-an'), 20);
+                setTimeout(()=> addClass(serviceProp._div, 'c-an'), 20);
             }
         });
     };
 
     /**
-     * Hides all notices relative to the specified service
-     * and creates iframe with the video
+     * Hide notices for the specified service
+     * and then create iframes.
+     * 
      * @param {string} serviceName
-     * @param {Service} service
+     * @param {ServiceConfig} serviceConfig
      */
-    const hideAllNotices = (serviceName, service) => {
+    const hideAllNotices = (serviceName, serviceConfig) => {
 
         // get number of iframes of current service
-        const videos = iframeDivs[serviceName];
+        const serviceProps = allServiceProps[serviceName];
 
         if ('IntersectionObserver' in win) {
             const observer = new IntersectionObserver((entries) => {
@@ -611,8 +613,8 @@
                             const target = entries[i].target;
                             setTimeout(() => {
                                 const dataIndex = target.dataset.index;
-                                createIframe(videos[dataIndex], service);
-                                hideNotice(videos[dataIndex]);
+                                createIframe(serviceProps[dataIndex], serviceConfig);
+                                hideNotice(serviceProps[dataIndex]);
                             }, i*50);
                             observer.unobserve(target);
                         })(i);
@@ -620,83 +622,86 @@
                 }
             });
 
-            videos.forEach((video) => {
-                if(!video._hasIframe)
-                    observer.observe(video._div);
+            serviceProps.forEach((serviceProp) => {
+                if(!serviceProp._hasIframe)
+                    observer.observe(serviceProp._div);
             });
         }
     };
 
 
     /**
-     * Show all notices relative to the specified service
-     * and hides iframe with the video
+     * Show notices for the specified service
+     * and remove iframes.
+     * 
      * @param {string} serviceName
-     * @param {Service} service
+     * @param {ServiceConfig} serviceConfig
      */
-    const showAllNotices = (serviceName, service) => {
+    const showAllNotices = (serviceName, serviceConfig) => {
 
-        // get number of iframes of current service
-        const videos = iframeDivs[serviceName];
+        const serviceProps = allServiceProps[serviceName];
 
-        for(let i=0; i<videos.length; i++){
+        for(let i=0; i<serviceProps.length; i++){
             ((i) => {
-                // if doesn't have iframe => create it
-                if(videos[i]._hasIframe){
-                    if(isFunction(service.onReject)){
-                        service.onReject(videos[i]._iframe || videos[i]._div);
-                        videos[i]._hasIframe = false;
+
+                /**
+                 * Create iframe if it doesn't exist
+                 */
+                if(serviceProps[i]._hasIframe){
+                    if(isFunction(serviceConfig.onReject)){
+                        serviceConfig.onReject(serviceProps[i]._iframe || serviceProps[i]._div);
+                        serviceProps[i]._hasIframe = false;
                     }else{
-                        removeIframe(videos[i]);
+                        removeIframe(serviceProps[i]);
                     }
                 }
-                showNotice(videos[i]);
+
+                showNotice(serviceProps[i]);
             })(i);
         }
     };
 
     /**
      * Validate language (make sure it exists)
+     * 
      * @param {string} lang
-     * @param {Object} allLanguages
+     * @param {Object.<string, Object>} allLanguages
      * @returns {string} language
      */
     const getValidatedLanguage = (lang, allLanguages) => {
         if(lang in allLanguages){
             return lang;
         }else if(getKeys(allLanguages).length > 0){
-            if(currLang in allLanguages){
-                return currLang ;
-            }else{
-                return getKeys(allLanguages)[0];
-            }
+            return currLang in allLanguages
+                ? currLang
+                : getKeys(allLanguages)[0];
         }
     };
 
     /**
      * @param {string} serviceName
-     * @param {Service} service
+     * @param {ServiceConfig} serviceConfig
      */
-    const acceptHelper = (serviceName, service) => {
-        const { cookie } = service;
+    const acceptHelper = (serviceName, serviceConfig) => {
+        const { cookie } = serviceConfig;
 
         if(!getCookie(cookie.name))
             setCookie(cookie);
 
-        hideAllNotices(serviceName, service);
+        hideAllNotices(serviceName, serviceConfig);
     };
 
     /**
      * @param {string} serviceName
-     * @param {Service} service
+     * @param {ServiceConfig} serviceConfig
      */
-    const rejectHelper = (serviceName, service) => {
-        const { cookie } = service;
+    const rejectHelper = (serviceName, serviceConfig) => {
+        const { cookie } = serviceConfig;
 
         if(getCookie(cookie.name))
             eraseCookie(cookie);
 
-        showAllNotices(serviceName, service);
+        showAllNotices(serviceName, serviceConfig);
     };
 
     /**
@@ -725,7 +730,6 @@
             const changedServices = [];
 
             if(serviceName === 'all'){
-                let changed = false;
 
                 for(const name of serviceNames){
                     if(!servicesState.get(name)){
@@ -874,8 +878,8 @@
                 const cookieExists = getCookie(cookieName);
                 servicesState.set(serviceName, !!cookieExists);
 
-                // add new empty array of videos (with current service name as property)
-                iframeDivs[serviceName] = [];
+                // add new empty array of serviceProps (with current service name as property)
+                allServiceProps[serviceName] = [];
 
                 /**
                  * @type {NodeListOf<HTMLDivElement>}
@@ -892,7 +896,7 @@
                 // add each iframe to array of iframes of the current service
                 for(let j=0; j<nDivs; j++){
                     foundDivs[j].dataset.index = j;
-                    iframeDivs[serviceName].push(getDivProps(foundDivs[j]));
+                    allServiceProps[serviceName].push(getDivProps(foundDivs[j]));
                 }
 
                 // if cookie is not set => show notice
