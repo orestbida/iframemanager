@@ -862,6 +862,18 @@
             // for each service
             for(const serviceName of serviceNames){
 
+                const currService = services[serviceName];
+
+                /**
+                 * Use service's name as cookie name,
+                 * if no cookie.name is specified
+                 */
+                const cookieObj = (currService.cookie ||= {});
+                const cookieName = (cookieObj.name ||= `im_${serviceName}`);
+
+                const cookieExists = getCookie(cookieName);
+                servicesState.set(serviceName, !!cookieExists);
+
                 // add new empty array of videos (with current service name as property)
                 iframeDivs[serviceName] = [];
 
@@ -882,23 +894,6 @@
                     foundDivs[j].dataset.index = j;
                     iframeDivs[serviceName].push(getDivProps(foundDivs[j]));
                 }
-
-                const currService = services[serviceName];
-
-                /**
-                 * Use service's name as cookie name,
-                 * if no cookie.name is specified
-                 */
-                const { cookie } = currService;
-                !cookie && (currService.cookie = {});
-                const cookieObj = currService.cookie;
-
-                const cookieName = cookieObj.name || `im_${serviceName}`;
-                cookieObj.name = cookieName;
-
-                const cookieExists = getCookie(cookieName);
-
-                servicesState.set(serviceName, !!cookieExists);
 
                 // if cookie is not set => show notice
                 if(cookieExists){
