@@ -97,7 +97,7 @@ im.run({
              *
              * @param {HTMLDivElement} serviceDiv
              */
-            onReject: (serviceDiv) => {
+            onReject: (iframe, serviceDiv) => {
                 // remove: div[data-service] > div[placeholder] > div.leaflet-map
                 serviceDiv.lastElementChild.firstElementChild.remove();
             },
@@ -120,8 +120,10 @@ im.run({
                 tweet && setIframe(tweet.firstChild);
             },
 
-            onReject: (iframe) => {
-                iframe?.parentElement.remove();
+            onReject: async (iframe, serviceDiv, showNotice) => {
+                await im.childExists({parent: serviceDiv});
+                showNotice();
+                serviceDiv.querySelector('.twitter-tweet')?.remove();
             },
 
             languages : {
@@ -209,8 +211,10 @@ im.run({
                 await im.childExists({parent: div}) && setIframe(div.querySelector('iframe'));
             },
 
-            onReject: (iframe) => {
-                iframe?.parentElement?.parentElement?.remove();
+            onReject: async (iframe, serviceDiv, showNotice) => {
+                await im.childExists({parent: serviceDiv});
+                showNotice();
+                serviceDiv.querySelector('.map')?.remove();
             },
 
             languages : {
