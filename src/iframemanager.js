@@ -1,5 +1,5 @@
 /*!
- * iframemanager v1.2.2
+ * iframemanager v1.2.3
  * Author Orest Bida
  * Released under the MIT License
  */
@@ -86,7 +86,16 @@
          */
         allServiceProps = {},
 
-        stopObserver = false,
+        /**
+         * @type {Object.<string, IntersectionObserver>}
+         */
+        serviceObservers = {},
+
+        /**
+         * @type {Object.<string, boolean>}
+         */
+        stopServiceObserver = {},
+
         currLang = '',
 
         /**
@@ -589,7 +598,7 @@
     /**
      * Hide notices for the specified service
      * and then create iframes.
-     * 
+     *
      * @param {string} serviceName
      * @param {ServiceConfig} serviceConfig
      */
@@ -598,42 +607,52 @@
         // get number of iframes of current service
         const serviceProps = allServiceProps[serviceName];
 
-        if ('IntersectionObserver' in win) {
-            const observer = new IntersectionObserver((entries) => {
-                if(stopObserver){
-                    observer.disconnect();
-                    return;
-                }
-                for(let i=0; i<entries.length; ++i){
-                    if(entries[i].isIntersecting){
-                        ((i) => {
-                            /**
-                             * @type {HTMLDivElement}
-                             */
-                            const target = entries[i].target;
-                            setTimeout(() => {
+        const observeServiceDiv = (div, serviceName) => {
+
+            if(!serviceObservers[serviceName]) {
+                serviceObservers[serviceName] = new IntersectionObserver((entries) => {
+
+                    if(stopServiceObserver[serviceName]){
+                        serviceObservers[serviceName].disconnect();
+                        return;
+                    }
+
+                    for(let i=0; i<entries.length; ++i){
+                        if(entries[i].isIntersecting){
+                            ((i) => {
+                                /**
+                                 * @type {HTMLDivElement}
+                                 */
+                                const target = entries[i].target;
                                 const dataIndex = target.dataset.index;
                                 createIframe(serviceProps[dataIndex], serviceConfig);
-                                hideNotice(serviceProps[dataIndex]);
-                            }, i*50);
-                            observer.unobserve(target);
-                        })(i);
-                    }
-                }
-            });
 
-            serviceProps.forEach((serviceProp) => {
-                if(!serviceProp._hasIframe)
-                    observer.observe(serviceProp._div);
-            });
+                                setTimeout(() => {
+                                    hideNotice(serviceProps[dataIndex]);
+                                }, i*50);
+
+                                serviceObservers[serviceName].unobserve(target);
+                            })(i);
+                        }
+                    }
+
+                });
+            }
+
+            serviceObservers[serviceName].observe(div);
         }
+
+        serviceProps.forEach((serviceProp) => {
+            if(!serviceProp._hasIframe)
+                observeServiceDiv(serviceProp._div, serviceName);
+        });
     };
 
 
     /**
      * Show notices for the specified service
      * and remove iframes.
-     * 
+     *
      * @param {string} serviceName
      * @param {ServiceConfig} serviceConfig
      */
@@ -663,7 +682,7 @@
 
     /**
      * Validate language (make sure it exists)
-     * 
+     *
      * @param {string} lang
      * @param {Object.<string, Object>} allLanguages
      * @returns {string} language
@@ -726,12 +745,13 @@
          * @param {string} serviceName
          */
         acceptService: (serviceName) => {
-            stopObserver = false;
             const changedServices = [];
 
             if(serviceName === 'all'){
 
                 for(const name of serviceNames){
+                    stopServiceObserver[name] = false;
+
                     if(!servicesState.get(name)){
                         servicesState.set(name, true);
                         acceptHelper(name, services[name]);
@@ -742,6 +762,8 @@
                 changedServices.length > 0 && fireOnChangeCallback(serviceName, ACCEPT_ACTION, changedServices);
 
             }else if(serviceNames.includes(serviceName)){
+                stopServiceObserver[serviceName] = false;
+
                 if(!servicesState.get(serviceName)){
                     servicesState.set(serviceName, true);
                     acceptHelper(serviceName, services[serviceName]);
@@ -761,9 +783,9 @@
             const changedServices = [];
 
             if(serviceName === 'all'){
-                stopObserver = true;
 
                 for(const name of serviceNames){
+                    stopServiceObserver[name] = true;
                     rejectHelper(name, services[name]);
 
                     if(servicesState.get(name)){
@@ -775,7 +797,7 @@
                 changedServices.length > 0 && fireOnChangeCallback(serviceName, REJECT_ACTION, changedServices);
 
             }else if(serviceNames.includes(serviceName)){
-
+                stopServiceObserver[serviceName] = true;
                 rejectHelper(serviceName, services[serviceName]);
 
                 if(servicesState.get(serviceName)){
