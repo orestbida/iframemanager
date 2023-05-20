@@ -75,7 +75,7 @@ im.run({
              * @param {HTMLDivElement} div
              */
             onAccept: async (div, setIframe) => {
-                const leafletLoaded = await CookieConsent.loadScript('https://unpkg.com/leaflet@1.9.3/dist/leaflet.js');
+                const leafletLoaded = await loadScript('https://unpkg.com/leaflet@1.9.3/dist/leaflet.js');
                 const leafletReady = leafletLoaded && await im.childExists({childProperty: 'L'});
 
                 if(!leafletReady)
@@ -114,7 +114,7 @@ im.run({
         twitter : {
 
             onAccept: async (div, setIframe) => {
-                await CookieConsent.loadScript('https://platform.twitter.com/widgets.js');
+                await loadScript('https://platform.twitter.com/widgets.js');
                 await im.childExists({childProperty: 'twttr'});
                 const tweet = await twttr.widgets.createTweet(div.dataset.id, div.firstElementChild);
                 tweet && setIframe(tweet.firstChild);
@@ -172,7 +172,7 @@ im.run({
 
             onAccept: async (div, setIframe) => {
 
-                await CookieConsent.loadScript(`https://maps.googleapis.com/maps/api/js?key=${MAPS_API_KEY}`);
+                await loadScript(`https://maps.googleapis.com/maps/api/js?key=${MAPS_API_KEY}`);
                 await im.childExists({childProperty: 'google'});
 
                 // The location of Uluru
@@ -228,7 +228,7 @@ im.run({
 
         instagram: {
             onAccept: async (div, setIframe) => {
-                await CookieConsent.loadScript('https://www.instagram.com/embed.js');
+                await loadScript('https://www.instagram.com/embed.js');
                 await im.childExists({childProperty: 'instgrm'}) && instgrm.Embeds.process();
                 await im.childExists({parent: div}) && setIframe(div.querySelector('iframe'));
             },
@@ -278,3 +278,38 @@ const rejectAll = document.getElementById('reject-all');
 
 acceptAll.addEventListener('click', () => im.acceptService('all'));
 rejectAll.addEventListener('click', () => im.rejectService('all'));
+
+
+/**
+ * Dynamically load script (append to head)
+ * @param {string} src
+ * @returns {Promise<boolean>} promise
+ */
+function loadScript(src) {
+
+    /**
+     * @type {HTMLScriptElement}
+     */
+    let script = document.querySelector('script[src="' + src + '"]');
+
+    return new Promise((resolve) => {
+
+        if(script)
+            return resolve(true);
+
+        script = document.createElement('script');
+
+        script.onload = () => resolve(true);
+        script.onerror = () => {
+            /**
+             * Remove script from dom if error is thrown
+             */
+            script.remove();
+            resolve(false);
+        };
+
+        script.src = src;
+
+        document.head.appendChild(script);
+    });
+};
