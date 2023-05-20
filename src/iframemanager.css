@@ -22,12 +22,17 @@
 
 div[data-service],
 div[data-service] .cll,
-div[data-service] .cll span,
-div[data-service] .cll div,
-div[data-service] .cll iframe,
 div[data-service] .cll a,
-div[data-service] .cll button,
-div[data-service] .cll ::after,
+div[data-service] .cll button {
+    all: initial;
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    box-sizing: border-box;
+}
+
+div[data-service] .cll span,
+div[data-service] .cll iframe,
 div[data-service] .cll ::after,
 div[data-service]::before{
     all: unset;
@@ -195,7 +200,7 @@ div[data-service] .cll .c-n-t{
     margin: 0 auto;
 }
 
-div[data-service] .cll .c-n-t + div{
+div[data-service] .cll .c-n-a{
     margin-top: 20px;
 }
 
@@ -205,7 +210,10 @@ div[data-service] .cll .c-n-a{
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: 12px;
+}
+
+div[data-service] .cll .c-n-a button + button {
+    margin-left: 12px;
 }
 
 div[data-service] .cll .c-t-cn{
@@ -218,7 +226,6 @@ div[data-service] .cll .c-l-b{
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    gap: 8px;
     position: relative;
     padding: 1em;
     background: var(--im-btn-bg);
@@ -239,6 +246,7 @@ div[data-service] .cll .c-l-b::before{
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
+    margin-right: 8px;
 }
 
 div[data-service] .cll .c-la-b{

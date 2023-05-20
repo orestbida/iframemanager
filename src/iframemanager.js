@@ -199,9 +199,9 @@
             .map(attr => attr.slice(12));
 
         const placeholderDiv = serviceDiv.querySelector('[data-placeholder]');
-        const dataVisible = placeholderDiv?.hasAttribute('data-visible');
+        const dataVisible = placeholderDiv && placeholderDiv.hasAttribute('data-visible');
         dataVisible && placeholderDiv.removeAttribute('data-visible');
-        const placeholderClone = placeholderDiv?.cloneNode(true);
+        const placeholderClone = placeholderDiv && placeholderDiv.cloneNode(true);
 
         /**
          * Get all "data-iframe-* attributes
@@ -338,10 +338,12 @@
 
         serviceProp._iframe = createNode('iframe');
 
+        const iframeConfig = serviceConfig.iframe;
+
         /**
          * @type {string}
          */
-        const iframeParams = serviceProp._params || serviceConfig.iframe?.params;
+        const iframeParams = serviceProp._params || iframeConfig && iframeConfig.params;
 
         // Replace data-id with valid resource id
         const embedUrl = serviceConfig.embedUrl || '';
@@ -361,7 +363,7 @@
             addClass(serviceProp._div, HIDE_LOADER_CLASS);
             serviceProp._iframe.onload = undefined;
 
-            isFunction(iframeProps?.onload)
+            isFunction(iframeProps && iframeProps.onload)
                 && iframeProps.onload(serviceProp._id, serviceProp._iframe);
         };
 
@@ -395,7 +397,7 @@
      * @param {servicePropObj} serviceProp
      */
     const removeIframe = (serviceProp) => {
-        serviceProp._iframe?.remove();
+        serviceProp._iframe && serviceProp._iframe.remove();
         serviceProp._hasIframe = false;
     };
 
@@ -493,9 +495,10 @@
         serviceProps.forEach(serviceProp => {
 
             if(!serviceProp._hasNotice && languages){
-                const loadBtnText = languages[currLang]?.loadBtn;
-                const noticeText = languages[currLang]?.notice;
-                const loadAllBtnText = languages[currLang]?.loadAllBtn;
+                const lang = languages[currLang];
+                const loadBtnText = lang && lang.loadBtn;
+                const noticeText = lang && lang.notice;
+                const loadAllBtnText = lang && lang.loadAllBtn;
 
                 const fragment = doc.createElement('div');
                 const notice = createDiv();
@@ -893,9 +896,10 @@
                 /**
                  * Use service's name as cookie name,
                  * if no cookie.name is specified
+                 * @type {CookieStructure}
                  */
-                const cookieObj = (currService.cookie ||= {});
-                const cookieName = (cookieObj.name ||= `im_${serviceName}`);
+                const cookieObj = (currService.cookie = currService.cookie || {});
+                const cookieName = (cookieObj.name = cookieObj.name || `im_${serviceName}`);
 
                 const cookieExists = getCookie(cookieName);
                 servicesState.set(serviceName, !!cookieExists);
