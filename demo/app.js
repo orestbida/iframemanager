@@ -36,7 +36,7 @@ im.run({
             thumbnailUrl: async (id, setThumbnail) => {
                 const url = `https://api.dailymotion.com/video/${id}?fields=thumbnail_large_url`;
                 const response = await (await fetch(url)).json();
-                const thumbnailUrl = response?.thumbnail_large_url;
+                const thumbnailUrl = response.thumbnail_large_url;
                 thumbnailUrl && setThumbnail(thumbnailUrl);
             },
 
@@ -123,7 +123,7 @@ im.run({
             onReject: async (iframe, serviceDiv, showNotice) => {
                 await im.childExists({parent: serviceDiv});
                 showNotice();
-                serviceDiv.querySelector('.twitter-tweet')?.remove();
+                serviceDiv.querySelector('.twitter-tweet').remove();
             },
 
             languages : {
@@ -214,7 +214,7 @@ im.run({
             onReject: async (iframe, serviceDiv, showNotice) => {
                 await im.childExists({parent: serviceDiv});
                 showNotice();
-                serviceDiv.querySelector('.map')?.remove();
+                serviceDiv.querySelector('.map').remove();
             },
 
             languages : {
@@ -234,7 +234,7 @@ im.run({
             },
 
             onReject: (iframe) => {
-                iframe?.remove();
+                iframe && iframe.remove();
             },
 
             languages: {
@@ -256,7 +256,7 @@ im.run({
             thumbnailUrl: async (dataId, setThumbnail) => {
                 const url = `https://vimeo.com/api/v2/video/${dataId}.json`;
                 const response = await (await fetch(url)).json();
-                const thumbnailUrl = response[0]?.thumbnail_large;
+                const thumbnailUrl = response[0].thumbnail_large;
                 thumbnailUrl && setThumbnail(thumbnailUrl);
             },
 
