@@ -25,7 +25,8 @@ minify(code, {
         drop_console: true,
         passes: 3,
         ecma: 5
-    }
+    },
+    safari10: true
 }).then(output => {
     writeFileSync(distFile, output.code, {
         encoding: 'utf8'
