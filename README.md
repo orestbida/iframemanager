@@ -51,13 +51,18 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
 - Can be integrated with any consent solution
 
 ## Installation
-1. #### Download the [latest release](https://github.com/orestbida/iframemanager/releases/latest) or use via CDN:
+1. #### Download the [latest release](https://github.com/orestbida/iframemanager/releases/latest) or use via CDN/NPM:
 
     ```bash
     https://cdn.jsdelivr.net/gh/orestbida/iframemanager@1.2.5/dist/iframemanager.js
     https://cdn.jsdelivr.net/gh/orestbida/iframemanager@1.2.5/dist/iframemanager.css
     ```
+    using [`npm`](https://www.npmjs.com/package/@orestbida/iframemanager):
 
+    ```bash
+    npm i @orestbida/iframemanager
+    ```
+    
 2. #### Import script + stylesheet:
 
     ```html
