@@ -8,9 +8,8 @@
     "dist"
   ],
   "scripts": {
-    "build:css": "postcss ./src/iframemanager.css -o ./dist/iframemanager.css",
-    "build:js": "node terser.js",
-    "build": "npm run build:js && npm run build:css"
+    "dev": "rollup --config ./rollup.config.mjs --watch",
+    "build": "rollup --config ./rollup.config.mjs"
   },
   "repository": {
     "type": "git",
@@ -29,10 +28,12 @@
   },
   "homepage": "https://github.com/orestbida/iframemanager#readme",
   "devDependencies": {
+    "@rollup/plugin-eslint": "^9.0.4",
+    "@rollup/plugin-terser": "^0.4.3",
     "cssnano": "^6.0.1",
-    "postcss": "^8.4.23",
-    "postcss-cli": "^10.1.0",
+    "postcss-combine-duplicated-selectors": "^10.0.3",
     "postcss-custom-properties": "^13.1.5",
-    "terser": "^5.17.4"
+    "rollup": "^3.22.0",
+    "rollup-plugin-postcss": "^4.0.2"
   }
 }
