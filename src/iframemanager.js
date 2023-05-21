@@ -149,7 +149,7 @@
         const btn = createNode('button');
         btn.type = 'button';
         return btn;
-    }
+    };
 
     /**
      * @param {HTMLElement} el
@@ -181,8 +181,8 @@
      */
     const setIframeAttributes = (iframe, attrs) => {
         for(const key in attrs)
-            setAttribute(iframe, key, attrs[key])
-    }
+            setAttribute(iframe, key, attrs[key]);
+    };
 
     /**
      * @param {HTMLDivElement} serviceDiv
@@ -265,7 +265,7 @@
             const img = new Image();
             img.onload = () => addClass(serviceProp._backgroundDiv, 'loaded');
             img.src = src;
-        }
+        };
 
         // Set custom thumbnail if provided
         if(isString(serviceProp._thumbnail)){
@@ -355,7 +355,7 @@
         if(iframeParams && isString(iframeParams)){
             src += iframeParams.slice(0, 1) === '?'
                 ? iframeParams
-                : `?${iframeParams}`
+                : `?${iframeParams}`;
         }
 
         // When iframe is loaded => hide background image
@@ -390,7 +390,7 @@
     const setAttribute = (el, attrKey, attrValue) => {
         if(!disallowedProps.includes(attrKey))
             el.setAttribute(attrKey, attrValue);
-    }
+    };
 
     /**
      * Remove iframe HTMLElement from div
@@ -429,9 +429,9 @@
      * @returns {string} cookie value
      */
     const getCookie = (a) => {
-        return (a = doc.cookie.match(`(^|;)\\s*${a}\\s*=\\s*([^;]+)`))
-            ? a.pop()
-            : '';
+        a = doc.cookie.match(`(^|;)\\s*${a}\\s*=\\s*([^;]+)`);
+
+        return a ? a.pop() : '';
     };
 
     /**
@@ -520,11 +520,11 @@
                     setClassName(load_button, 'c-l-b');
 
                     load_button.addEventListener(CLICK_EVENT_SOURCE, showVideo);
-                    appendChild(buttons, load_button)
+                    appendChild(buttons, load_button);
                 }
 
                 if(loadAllBtnText){
-                    const load_all_button = createButton()
+                    const load_all_button = createButton();
                     load_all_button.textContent = loadAllBtnText;
                     setClassName(load_all_button, loadBtnText ? 'c-la-b' : 'c-l-b');
 
@@ -565,7 +565,7 @@
                 }
 
                 appendChild(notice_text, fragment_2);
-                notice && notice_text.insertAdjacentHTML('beforeend', noticeText || "");
+                notice && notice_text.insertAdjacentHTML('beforeend', noticeText || '');
                 appendChild(span, notice_text);
 
                 setClassName(notice_text_container, 'c-t-cn');
@@ -643,7 +643,7 @@
             }
 
             serviceObservers[serviceName].observe(div);
-        }
+        };
 
         serviceProps.forEach((serviceProp) => {
             if(!serviceProp._hasIframe)
@@ -740,7 +740,7 @@
             },
             changedServices
         });
-    }
+    };
 
     const api = {
 
@@ -851,7 +851,7 @@
         getState: () => ({
             services: new Map(servicesState),
             acceptedServices: [...servicesState]
-                .filter(([name, value]) => !!value)
+                .filter(([, value]) => !!value)
                 .map(([name]) => name)
         }),
 
