@@ -125,7 +125,7 @@
      * props. in the `iframe` element to avoid
      * potential issues
      */
-    const disallowedProps = ['onload', 'onerror', 'src'];
+    const disallowedProps = ['onload', 'onerror', 'src', 'params'];
 
     const isFunction = el => typeof el === 'function';
     const isString = el => typeof el === 'string';
