@@ -37,7 +37,8 @@
      * @property {string} domain
      * @property {string} sameSite
      * @property {number} expiration
-     */
+     * @property {IGetCookieCallback} acceptedCallback
+    */
 
     /**
      * @typedef {Object} Language
@@ -48,6 +49,7 @@
 
     /**
      * @typedef {Object} ServiceConfig
+     * @property {string} category
      * @property {string} embedUrl
      * @property {string | () => string} [thumbnailUrl]
      * @property {IframeProp} [iframe]
@@ -55,6 +57,9 @@
      * @property {Object.<string, Language>} languages
      * @property {Function} [onAccept]
      * @property {Function} [onReject]
+     * @property {Function} onGetCookie
+     * @property {Function} onSetCookie
+     * @property {Function} onEraseCookie
      */
 
     const API_EVENT_SOURCE = 'api';
@@ -424,30 +429,38 @@
     };
 
     /**
-     * Get cookie by name
-     * @param {string} a cookie name
-     * @returns {string} cookie value
+     * Gets the cookie value
+     * @param {string} serviceName
+     * @param {ServiceConfig} serviceConfig
+     * @returns {string}
      */
-    const getCookie = (a) => {
-        a = doc.cookie.match(`(^|;)\\s*${a}\\s*=\\s*([^;]+)`);
+    const getCookie = (serviceName, serviceConfig) => {
+        if (isFunction(serviceConfig.onGetCookie)) 
+            return serviceConfig.onGetCookie(serviceConfig.category, serviceName);
 
-        return a ? a.pop() : '';
+        const name = doc.cookie.match(`(^|;)\\s*${serviceConfig.cookie.name}\\s*=\\s*([^;]+)`);
+        return name ? name.pop() : '';
     };
 
     /**
-     * Set cookie based on given object
-     * @param {CookieStructure} cookie
+     * Creates the cookie
+     * @param {string} serviceName
+     * @param {ServiceConfig} serviceConfig
      */
-    const setCookie = (cookie) => {
+    const setCookie = (serviceName, serviceConfig) => {
+        if (isFunction(serviceConfig.onGetCookie)) {
+            serviceConfig.onSetCookie(serviceConfig.category, serviceName, serviceConfig.cookie);
+            return;
+        }
 
         const { hostname, protocol } = location;
-        const name = cookie.name;
+        const name = serviceConfig.cookie.name;
         const value = '1';
         const date = new Date();
-        const path = cookie.path || '/';
-        const expiration = (cookie.expiration || 182) * 86400000;
-        const sameSite = cookie.sameSite || 'Lax';
-        const domain = cookie.domain || hostname;
+        const path = serviceConfig.cookie.path || '/';
+        const expiration = (serviceConfig.cookie.expiration || 182) * 86400000;
+        const sameSite = serviceConfig.cookie.sameSite || 'Lax';
+        const domain = serviceConfig.cookie.domain || hostname;
 
         date.setTime(date.getTime() + expiration);
 
@@ -468,15 +481,20 @@
     };
 
     /**
-     * Delete cookie by name & path
-     * @param {CookieStructure} cookie
+     * Erases the cookie 
+     * @param {string} serviceName
+     * @param {ServiceConfig} serviceConfig
      */
-    const eraseCookie = (cookie) => {
-        const name = cookie.name;
-        const path = cookie.path || '/';
-        const domain = cookie.domain || location.hostname;
-        const expires = 'Thu, 01 Jan 1970 00:00:01 GMT';
+    const eraseCookie = (serviceName, serviceConfig) => {
+        if (isFunction(serviceConfig.onGetCookie)) {
+            serviceConfig.onGetCookie(serviceConfig.category, serviceName, serviceConfig.cookie);
+            return;
+        }
 
+        const name = serviceConfig.cookie.name;
+        const path = serviceConfig.cookie.path || '/';
+        const domain = serviceConfig.cookie.domain || location.hostname;
+        const expires = 'Thu, 01 Jan 1970 00:00:01 GMT';
         doc.cookie = `${name}=; Path=${path}; Domain=${domain}; Expires=${expires};`;
     };
 
@@ -705,10 +723,8 @@
      * @param {ServiceConfig} serviceConfig
      */
     const acceptHelper = (serviceName, serviceConfig) => {
-        const { cookie } = serviceConfig;
-
-        if(!getCookie(cookie.name))
-            setCookie(cookie);
+        if(!getCookie(serviceName, serviceConfig))
+            setCookie(serviceName, serviceConfig);
 
         hideAllNotices(serviceName, serviceConfig);
     };
@@ -718,10 +734,8 @@
      * @param {ServiceConfig} serviceConfig
      */
     const rejectHelper = (serviceName, serviceConfig) => {
-        const { cookie } = serviceConfig;
-
-        if(getCookie(cookie.name))
-            eraseCookie(cookie);
+        if(getCookie(serviceName, serviceConfig))
+            eraseCookie(serviceName, serviceConfig);
 
         showAllNotices(serviceName, serviceConfig);
     };
@@ -899,9 +913,9 @@
                  * @type {CookieStructure}
                  */
                 const cookieObj = (currService.cookie = currService.cookie || {});
-                const cookieName = (cookieObj.name = cookieObj.name || `im_${serviceName}`);
+                cookieObj.name = cookieObj.name || `im_${serviceName}`;
 
-                const cookieExists = getCookie(cookieName);
+                const cookieExists = getCookie(serviceName, currService);
                 servicesState.set(serviceName, !!cookieExists);
 
                 // add new empty array of serviceProps (with current service name as property)
