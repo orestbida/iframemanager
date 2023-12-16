@@ -37,8 +37,7 @@
      * @property {string} domain
      * @property {string} sameSite
      * @property {number} expiration
-     * @property {IGetCookieCallback} acceptedCallback
-    */
+     */
 
     /**
      * @typedef {Object} Language
