@@ -742,6 +742,16 @@
         });
     };
 
+    const clearObservers = () => {
+        for (const serviceName in serviceObservers) {
+            if (Object.hasOwnProperty.call(serviceObservers, serviceName)) {
+                const observer = serviceObservers[serviceName];
+
+                observer.disconnect();
+            }
+        }
+    };
+
     const api = {
 
         /**
@@ -856,6 +866,25 @@
         }),
 
         getConfig: () => config,
+
+        reset: () => {
+            clearObservers()
+
+            win = undefined
+            doc = undefined
+            config = undefined
+            services = undefined
+            onChangeCallback = undefined
+            allServiceProps = {}
+            serviceObservers = {}
+            stopServiceObserver = {}
+            currLang = ''
+            services = {}
+            serviceNames = undefined
+            servicesState = new Map()
+            currentEventSource = API_EVENT_SOURCE
+            onChangeCallback = undefined
+        },
 
         run: (_config) => {
 
