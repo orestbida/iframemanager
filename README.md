@@ -239,8 +239,9 @@ All available options for the config. object:
                 params: 'mute=1&start=21',     // iframe's url query parameters
 
                 // function run for each iframe configured with current service
-                onload: (dataId, setThumbnail) => {
+                onload: (dataId, iframe) => {
                     console.log(`loaded iframe with data-id=${dataId}`);
+                    console.log('iframe dom-element:', iframe);
                 }
             },
 
