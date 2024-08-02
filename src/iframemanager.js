@@ -47,8 +47,13 @@
      */
 
     /**
+     * @callback embedUrlCallback
+     * @return {string}
+     */
+
+    /**
      * @typedef {Object} ServiceConfig
-     * @property {string|Function<string>} embedUrl
+     * @property {string | embedUrlCallback} embedUrl
      * @property {string | () => string} [thumbnailUrl]
      * @property {IframeProp} [iframe]
      * @property {CookieStructure} cookie
