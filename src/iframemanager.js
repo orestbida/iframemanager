@@ -48,7 +48,7 @@
 
     /**
      * @typedef {Object} ServiceConfig
-     * @property {string} embedUrl
+     * @property {string|Function<string>} embedUrl
      * @property {string | () => string} [thumbnailUrl]
      * @property {IframeProp} [iframe]
      * @property {CookieStructure} cookie
@@ -346,7 +346,10 @@
         const iframeParams = serviceProp._params || iframeConfig && iframeConfig.params;
 
         // Replace data-id with valid resource id
-        const embedUrl = serviceConfig.embedUrl || '';
+        let embedUrl = serviceConfig.embedUrl || '';
+        if (isFunction(embedUrl)) {
+            embedUrl = String(embedUrl());
+        }
         let src = embedUrl.replace(DATA_ID_PLACEHOLDER, serviceProp._id);
 
         serviceProp._title && (serviceProp._iframe.title = serviceProp._title);
