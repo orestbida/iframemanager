@@ -10,6 +10,7 @@
     --im-btn-color: #fff;
     --im-btn-bg: rgba(0, 102, 219, 0.84);
     --im-btn-hover-bg: rgba(9, 80, 161, 0.89);
+    --im-btn-active-bg: rgba(9, 80, 161, 0.80);
     --im-btn-active-box-shadow: 0 0 0 .25em rgba(24, 104, 250, 0.24);
 
     --im-btn-s-color: var(--im-bg);
@@ -260,6 +261,10 @@ div[data-service] .cll .c-la-b:hover{
 
 div[data-service] .cll .c-l-b:hover{
     background: var(--im-btn-hover-bg);
+}
+
+div[data-service] .cll .c-l-b:active{
+    background: var(--im-btn-active-bg);
 }
 
 div[data-service] .cll .c-la-b:active{
