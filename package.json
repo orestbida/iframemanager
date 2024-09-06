@@ -28,12 +28,12 @@
   },
   "homepage": "https://github.com/orestbida/iframemanager#readme",
   "devDependencies": {
-    "@rollup/plugin-eslint": "^9.0.4",
-    "@rollup/plugin-terser": "^0.4.3",
-    "cssnano": "^6.0.1",
+    "@rollup/plugin-eslint": "^9.0.5",
+    "@rollup/plugin-terser": "^0.4.4",
+    "cssnano": "^7.0.6",
     "postcss-combine-duplicated-selectors": "^10.0.3",
-    "postcss-custom-properties": "^13.2.0",
-    "rollup": "^3.25.1",
+    "postcss-custom-properties": "^14.0.1",
+    "rollup": "^4.21.2",
     "rollup-plugin-postcss": "^4.0.2"
   }
 }
