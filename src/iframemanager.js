@@ -497,7 +497,7 @@
             if(!serviceProp._hasNotice && languages){
                 const lang = languages[currLang];
                 const loadBtnText = lang && lang.loadBtn;
-                const noticeText = lang && lang.notice;
+                const noticeText = lang && (lang.notice || '').replace(DATA_ID_PLACEHOLDER, serviceProp._id);
                 const loadAllBtnText = lang && lang.loadAllBtn;
 
                 const fragment = doc.createElement('div');
