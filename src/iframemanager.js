@@ -92,6 +92,11 @@
         serviceObservers = {},
 
         /**
+         * @type {Object.<string, IntersectionObserver>}
+         */
+        thumbnailObservers = {},
+
+        /**
          * @type {Object.<string, boolean>}
          */
         stopServiceObserver = {},
@@ -106,7 +111,7 @@
         /**
          * @type {string[]}
          */
-        serviceNames,
+        serviceNames = [],
 
         /**
          * @type {Map<string, boolean>}
@@ -237,18 +242,21 @@
         const serviceProps = allServiceProps[serviceName];
 
         if ('IntersectionObserver' in win) {
-            const thumbnailObserver = new IntersectionObserver((entries) => {
-                for(const entry of entries){
-                    if(entry.isIntersecting){
-                        // index relative to the current service array
-                        loadThumbnail(thumbnailUrl, serviceProps[entry.target.dataset.index]);
-                        thumbnailObserver.unobserve(entry.target);
+            ((serviceName) => {
+                thumbnailObservers[serviceName] = new IntersectionObserver((entries) => {
+                    for(const entry of entries){
+                        if(entry.isIntersecting){
+                            // index relative to the current service array
+                            loadThumbnail(thumbnailUrl, serviceProps[entry.target.dataset.index]);
+                            thumbnailObservers[serviceName].unobserve(entry.target);
+                        }
                     }
-                }
-            });
+                });
 
-            for(const serviceProp of serviceProps)
-                thumbnailObserver.observe(serviceProp._div);
+                for(const serviceProp of serviceProps) {
+                    thumbnailObservers[serviceName].observe(serviceProp._div);
+                }
+            })(serviceName);
         }
     };
 
@@ -743,11 +751,32 @@
     };
 
     const clearObservers = () => {
-        for (const serviceName in serviceObservers) {
-            if (Object.hasOwnProperty.call(serviceObservers, serviceName)) {
-                const observer = serviceObservers[serviceName];
+        for (const serviceName of serviceNames) {
+            serviceObservers[serviceName]?.disconnect();
+            thumbnailObservers[serviceName]?.disconnect();
 
-                observer.disconnect();
+            delete serviceObservers[serviceName];
+            delete thumbnailObservers[serviceName];
+        }
+
+        serviceObservers = {};
+        thumbnailObservers = {};
+        stopServiceObserver = {};
+    };
+
+    /**
+     * @param {HTMLDivElement} div
+     */
+    const resetDiv = (div) => {
+        if (!div.hasAttribute('data-service')) {
+            return;
+        }
+        div.removeAttribute('class');
+        div.removeAttribute('data-index');
+
+        for (const child of div.children) {
+            if (!child.hasAttribute('data-placeholder')) {
+                child.remove();
             }
         }
     };
@@ -867,26 +896,41 @@
 
         getConfig: () => config,
 
-        reset: () => {
-            clearObservers()
+        /**
+         * @param {bool} [eraseCookies]
+         */
+        reset: (eraseCookies) => {
+            for (const service of serviceNames) {
+                if (eraseCookies) {
+                    api.rejectService(service);
+                }
 
-            win = undefined
-            doc = undefined
-            config = undefined
-            services = undefined
-            onChangeCallback = undefined
-            allServiceProps = {}
-            serviceObservers = {}
-            stopServiceObserver = {}
-            currLang = ''
-            services = {}
-            serviceNames = undefined
-            servicesState = new Map()
-            currentEventSource = API_EVENT_SOURCE
-            onChangeCallback = undefined
+                for(const serviceDiv of allServiceProps[service]) {
+                    resetDiv(serviceDiv._div);
+                }
+            }
+
+            clearObservers();
+            win = undefined;
+            doc = undefined;
+            config = undefined;
+            onChangeCallback = undefined;
+            allServiceProps = {};
+            currLang = '';
+            services = {};
+            serviceNames = [];
+            servicesState = new Map();
+            currentEventSource = API_EVENT_SOURCE;
+            window['_imRun'] = false;
         },
 
         run: (_config) => {
+            /**
+             * Prevent running more than once
+             */
+            if (window['_imRun']) {
+                return;
+            }
 
             doc = document;
             win = window;
@@ -964,6 +1008,8 @@
 
                 lazyLoadThumbnails(serviceName, currService.thumbnailUrl);
             }
+
+            window['_imRun'] = true;
         }
     };
 
