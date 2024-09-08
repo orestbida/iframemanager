@@ -190,7 +190,7 @@
      * @param {Object.<string, string>} attrs
      */
     const setIframeAttributes = (iframe, attrs) => {
-        for(const key in attrs)
+        for (const key in attrs)
             setAttribute(iframe, key, attrs[key]);
     };
 
@@ -199,7 +199,6 @@
      * @returns {servicePropObj}
      */
     const getDivProps = (serviceDiv) => {
-
         const dataset = serviceDiv.dataset;
         const iframeAttrs = {};
         const iframeAttrSelector = 'data-iframe-';
@@ -216,7 +215,7 @@
         /**
          * Get all "data-iframe-* attributes
          */
-        for(const attrName of iframeAttrNames)
+        for (const attrName of iframeAttrNames)
             iframeAttrs[attrName] = serviceDiv.getAttribute(iframeAttrSelector + attrName);
 
         return {
@@ -243,14 +242,13 @@
      * @param {string} thumbnailUrl
      */
     const lazyLoadThumbnails = (serviceName, thumbnailUrl) => {
-
         const serviceProps = allServiceProps[serviceName];
 
         if ('IntersectionObserver' in win) {
             ((serviceName) => {
                 thumbnailObservers[serviceName] = new IntersectionObserver((entries) => {
-                    for(const entry of entries){
-                        if(entry.isIntersecting){
+                    for (const entry of entries) {
+                        if (entry.isIntersecting) {
                             // index relative to the current service array
                             loadThumbnail(thumbnailUrl, serviceProps[entry.target.dataset.index]);
                             thumbnailObservers[serviceName].unobserve(entry.target);
@@ -258,7 +256,7 @@
                     }
                 });
 
-                for(const serviceProp of serviceProps) {
+                for (const serviceProp of serviceProps) {
                     thumbnailObservers[serviceName].observe(serviceProp._div);
                 }
             })(serviceName);
@@ -271,7 +269,6 @@
      * @param {servicePropObj} serviceProp
      */
     const loadThumbnail = (url, serviceProp) => {
-
         const loadBackgroundImage = (src) => {
             serviceProp._backgroundDiv.style.backgroundImage = `url('${src}')`;
 
@@ -281,14 +278,12 @@
         };
 
         // Set custom thumbnail if provided
-        if(isString(serviceProp._thumbnail)){
+        if (isString(serviceProp._thumbnail)) {
             serviceProp._thumbnail !== '' && loadBackgroundImage(serviceProp._thumbnail);
-        }else{
-
-            if(isFunction(url)){
+        } else {
+            if (isFunction(url)) {
                 url(serviceProp._id, (src) => loadBackgroundImage(src));
-
-            }else if(isString(url)){
+            } else if (isString(url)) {
                 const src = url.replace(DATA_ID_PLACEHOLDER, serviceProp._id);
                 loadBackgroundImage(src);
             }
@@ -302,14 +297,13 @@
      * @param {ServiceConfig} serviceConfig
      */
     const createIframe = (serviceProp, serviceConfig) => {
-
         // Create iframe only if doesn't already have one
-        if(serviceProp._hasIframe)
+        if (serviceProp._hasIframe)
             return;
 
         serviceProp._hasIframe = true;
 
-        if(serviceProp._placeholderDiv){
+        if (serviceProp._placeholderDiv) {
             const newFreshPlaceholder = serviceProp._initialPlaceholderClone.cloneNode(true);
             serviceProp._placeholderDiv.replaceWith(newFreshPlaceholder);
             serviceProp._placeholderDiv = newFreshPlaceholder;
@@ -317,12 +311,10 @@
 
         const iframeProps = serviceConfig.iframe;
 
-        if(isFunction(serviceConfig.onAccept)){
-
+        if (isFunction(serviceConfig.onAccept)) {
             // Let the onAccept method create the iframe
             serviceConfig.onAccept(serviceProp._div, (iframe) => {
-
-                if(!(iframe instanceof HTMLIFrameElement))
+                if (!(iframe instanceof HTMLIFrameElement))
                     return false;
 
                 /**
@@ -368,7 +360,7 @@
         serviceProp._title && (serviceProp._iframe.title = serviceProp._title);
 
         // Add parameters to src
-        if(iframeParams && isString(iframeParams)){
+        if (iframeParams && isString(iframeParams)) {
             src += iframeParams.slice(0, 1) === '?'
                 ? iframeParams
                 : `?${iframeParams}`;
@@ -404,8 +396,9 @@
      * @param {string} attrValue
      */
     const setAttribute = (el, attrKey, attrValue) => {
-        if(!disallowedProps.includes(attrKey))
+        if (!disallowedProps.includes(attrKey)) {
             el.setAttribute(attrKey, attrValue);
+        }
     };
 
     /**
@@ -446,7 +439,6 @@
      */
     const getCookie = (a) => {
         a = doc.cookie.match(`(^|;)\\s*${a}\\s*=\\s*([^;]+)`);
-
         return a ? a.pop() : '';
     };
 
@@ -455,7 +447,6 @@
      * @param {CookieStructure} cookie
      */
     const setCookie = (cookie) => {
-
         const { hostname, protocol } = location;
         const name = cookie.name;
         const value = '1';
@@ -474,10 +465,10 @@
             + `; SameSite=${sameSite}`;
 
         // assures cookie works with localhost (=> don't specify domain if on localhost)
-        if(domain.indexOf('.') > -1)
+        if (domain.indexOf('.') > -1)
             cookieStr += `; Domain=${domain}`;
 
-        if(protocol === 'https:')
+        if (protocol === 'https:')
             cookieStr += '; Secure';
 
         doc.cookie = cookieStr;
@@ -503,14 +494,11 @@
      * @param {boolean} hidden
      */
     const createAllNotices = (serviceName, serviceConfig, hidden) => {
-
-        // get number of iframes of current service
         const serviceProps = allServiceProps[serviceName];
         const languages = serviceConfig.languages;
 
         serviceProps.forEach(serviceProp => {
-
-            if(!serviceProp._hasNotice && languages){
+            if (!serviceProp._hasNotice && languages) {
                 const lang = languages[currLang];
                 const loadBtnText = lang && lang.loadBtn;
                 const noticeText = lang && (lang.notice || '').replace(DATA_ID_PLACEHOLDER, serviceProp._id);
@@ -530,7 +518,7 @@
                     createIframe(serviceProp, serviceConfig);
                 };
 
-                if(loadBtnText){
+                if (loadBtnText) {
                     const load_button = createButton();
                     load_button.textContent = loadBtnText;
                     setClassName(load_button, 'c-l-b');
@@ -539,7 +527,7 @@
                     appendChild(buttons, load_button);
                 }
 
-                if(loadAllBtnText){
+                if (loadAllBtnText) {
                     const load_all_button = createButton();
                     load_all_button.textContent = loadAllBtnText;
                     setClassName(load_all_button, loadBtnText ? 'c-la-b' : 'c-l-b');
@@ -566,14 +554,14 @@
                 serviceProp._backgroundDiv = ytVideoBackgroundInner;
                 setClassName(loaderBg, 'c-ld');
 
-                if(!isString(serviceProp._thumbnail) || serviceProp._thumbnail !== ''){
+                if (!isString(serviceProp._thumbnail) || serviceProp._thumbnail !== '') {
                     setClassName(ytVideoBackground, 'c-bg');
                 }
 
                 const iframeTitle = serviceProp._title;
                 const fragment_2 = doc.createDocumentFragment();
 
-                if(iframeTitle) {
+                if (iframeTitle) {
                     const title_span = createNode('span');
                     setClassName(title_span, 'c-tl');
                     title_span.insertAdjacentHTML('beforeend', iframeTitle);
@@ -588,11 +576,11 @@
                 setClassName(span, 'c-n-t');
                 setClassName(innerDiv, 'c-n-c');
                 setClassName(notice, 'c-nt');
-                setClassName(buttons,  'c-n-a');
+                setClassName(buttons, 'c-n-a');
 
                 appendChild(notice_text_container, span);
 
-                if(loadBtnText || loadAllBtnText)
+                if (loadBtnText || loadAllBtnText)
                     appendChild(notice_text_container, buttons);
 
                 appendChild(innerDiv, notice_text_container);
@@ -609,7 +597,7 @@
                 serviceProp._div.prepend(fragment);
                 serviceProp._hasNotice = true;
 
-                setTimeout(()=> addClass(serviceProp._div, 'c-an'), 20);
+                setTimeout(() => addClass(serviceProp._div, 'c-an'), 20);
             }
         });
     };
@@ -622,22 +610,18 @@
      * @param {ServiceConfig} serviceConfig
      */
     const hideAllNotices = (serviceName, serviceConfig) => {
-
-        // get number of iframes of current service
         const serviceProps = allServiceProps[serviceName];
 
         const observeServiceDiv = (div, serviceName) => {
-
-            if(!serviceObservers[serviceName]) {
+            if (!serviceObservers[serviceName]) {
                 serviceObservers[serviceName] = new IntersectionObserver((entries) => {
-
-                    if(stopServiceObserver[serviceName]){
+                    if (stopServiceObserver[serviceName]) {
                         serviceObservers[serviceName].disconnect();
                         return;
                     }
 
-                    for(let i=0; i<entries.length; ++i){
-                        if(entries[i].isIntersecting){
+                    for (let i = 0; i < entries.length; ++i) {
+                        if (entries[i].isIntersecting) {
                             ((i) => {
                                 /**
                                  * @type {HTMLDivElement}
@@ -648,7 +632,7 @@
 
                                 setTimeout(() => {
                                     hideNotice(serviceProps[dataIndex]);
-                                }, i*50);
+                                }, i * 50);
 
                                 serviceObservers[serviceName].unobserve(target);
                             })(i);
@@ -662,8 +646,9 @@
         };
 
         serviceProps.forEach((serviceProp) => {
-            if(!serviceProp._hasIframe)
+            if (!serviceProp._hasIframe) {
                 observeServiceDiv(serviceProp._div, serviceName);
+            }
         });
     };
 
@@ -676,17 +661,15 @@
      * @param {ServiceConfig} serviceConfig
      */
     const showAllNotices = (serviceName, serviceConfig) => {
-
         const serviceProps = allServiceProps[serviceName];
 
-        for(let i=0; i<serviceProps.length; i++){
+        for (let i = 0; i < serviceProps.length; i++) {
             ((i) => {
-
                 /**
                  * Create iframe if it doesn't exist
                  */
-                if(serviceProps[i]._hasIframe){
-                    if(isFunction(serviceConfig.onReject)){
+                if (serviceProps[i]._hasIframe) {
+                    if (isFunction(serviceConfig.onReject)) {
                         serviceConfig.onReject(serviceProps[i]._iframe, serviceProps[i]._div, () => showNotice(serviceProps[i]));
                         serviceProps[i]._hasIframe = false;
                     } else {
@@ -707,9 +690,9 @@
      * @returns {string} language
      */
     const getValidatedLanguage = (lang, allLanguages) => {
-        if(lang in allLanguages){
+        if (lang in allLanguages) {
             return lang;
-        }else if(getKeys(allLanguages).length > 0){
+        } else if (getKeys(allLanguages).length > 0) {
             return currLang in allLanguages
                 ? currLang
                 : getKeys(allLanguages)[0];
@@ -723,8 +706,9 @@
     const acceptHelper = (serviceName, serviceConfig) => {
         const { cookie } = serviceConfig;
 
-        if(!getCookie(cookie.name))
+        if (!getCookie(cookie.name)) {
             setCookie(cookie);
+        }
 
         hideAllNotices(serviceName, serviceConfig);
     };
@@ -736,8 +720,9 @@
     const rejectHelper = (serviceName, serviceConfig) => {
         const { cookie } = serviceConfig;
 
-        if(getCookie(cookie.name))
+        if (getCookie(cookie.name)) {
             eraseCookie(cookie);
+        }
 
         showAllNotices(serviceName, serviceConfig);
     };
@@ -779,6 +764,7 @@
         if (!div.hasAttribute('data-service')) {
             return;
         }
+
         div.removeAttribute('class');
         div.removeAttribute('data-index');
 
@@ -790,19 +776,18 @@
     };
 
     const api = {
-
         /**
          * @param {string} serviceName
          */
         acceptService: (serviceName) => {
             const changedServices = [];
 
-            if(serviceName === 'all'){
+            if (serviceName === 'all') {
 
-                for(const name of serviceNames){
+                for (const name of serviceNames) {
                     stopServiceObserver[name] = false;
 
-                    if(!servicesState.get(name)){
+                    if (!servicesState.get(name)) {
                         servicesState.set(name, true);
                         acceptHelper(name, services[name]);
                         changedServices.push(name);
@@ -811,10 +796,10 @@
 
                 changedServices.length > 0 && fireOnChangeCallback(serviceName, ACCEPT_ACTION, changedServices);
 
-            }else if(serviceNames.includes(serviceName)){
+            } else if (serviceNames.includes(serviceName)) {
                 stopServiceObserver[serviceName] = false;
 
-                if(!servicesState.get(serviceName)){
+                if (!servicesState.get(serviceName)) {
                     servicesState.set(serviceName, true);
                     acceptHelper(serviceName, services[serviceName]);
                     changedServices.push(serviceName);
@@ -829,16 +814,14 @@
          * @param {string} serviceName
          */
         rejectService: (serviceName) => {
-
             const changedServices = [];
 
-            if(serviceName === 'all'){
-
-                for(const name of serviceNames){
+            if (serviceName === 'all') {
+                for (const name of serviceNames) {
                     stopServiceObserver[name] = true;
                     rejectHelper(name, services[name]);
 
-                    if(servicesState.get(name)){
+                    if (servicesState.get(name)) {
                         servicesState.set(name, false);
                         changedServices.push(name);
                     }
@@ -846,11 +829,11 @@
 
                 changedServices.length > 0 && fireOnChangeCallback(serviceName, REJECT_ACTION, changedServices);
 
-            }else if(serviceNames.includes(serviceName)){
+            } else if (serviceNames.includes(serviceName)) {
                 stopServiceObserver[serviceName] = true;
                 rejectHelper(serviceName, services[serviceName]);
 
-                if(servicesState.get(serviceName)){
+                if (servicesState.get(serviceName)) {
                     servicesState.set(serviceName, false);
                     changedServices.push(serviceName);
 
@@ -875,8 +858,7 @@
          * @param {number} [config.maxTimeout]
          * @returns {Promise<boolean>}
          */
-        childExists: async ({parent=win, childProperty, childSelector='iframe', timeout=1000, maxTimeout=15000}) => {
-
+        childExists: async ({ parent = win, childProperty, childSelector = 'iframe', timeout = 1000, maxTimeout = 15000 }) => {
             let nTimeouts = 1;
 
             const child = childProperty
@@ -913,7 +895,7 @@
                     api.rejectService(service);
                 }
 
-                for(const serviceDiv of allServiceProps[service]) {
+                for (const serviceDiv of allServiceProps[service]) {
                     resetDiv(serviceDiv._div);
                 }
             }
@@ -956,22 +938,21 @@
              */
             serviceNames = getKeys(services);
 
-            if(serviceNames.length === 0)
+            if (serviceNames.length === 0)
                 return;
 
             // Set curr lang
             currLang = config.currLang;
             const languages = services[serviceNames[0]].languages;
 
-            if(config.autoLang === true){
+            if (config.autoLang === true) {
                 currLang = getValidatedLanguage(getBrowserLang(), languages);
-            }else if(isString(config.currLang)){
+            } else if (isString(config.currLang)) {
                 currLang = getValidatedLanguage(config.currLang, languages);
             }
 
             // for each service
-            for(const serviceName of serviceNames){
-
+            for (const serviceName of serviceNames) {
                 const currService = services[serviceName];
 
                 /**
@@ -996,21 +977,21 @@
                 const nDivs = foundDivs.length;
 
                 // if no iframes found => go to next service
-                if(nDivs === 0){
+                if (nDivs === 0) {
                     continue;
                 }
 
                 // add each iframe to array of iframes of the current service
-                for(let j=0; j<nDivs; j++){
+                for (let j = 0; j < nDivs; j++) {
                     foundDivs[j].dataset.index = j;
                     allServiceProps[serviceName].push(getDivProps(foundDivs[j]));
                 }
 
                 // if cookie is not set => show notice
-                if(cookieExists){
+                if (cookieExists) {
                     createAllNotices(serviceName, currService, true);
                     hideAllNotices(serviceName, currService);
-                }else{
+                } else {
                     createAllNotices(serviceName, currService, false);
                 }
 
@@ -1023,8 +1004,7 @@
 
     const fnName = 'iframemanager';
 
-    if(typeof window !== 'undefined' && !isFunction(window[fnName])){
+    if (typeof window !== 'undefined' && !isFunction(window[fnName])) {
         window[fnName] = () => api;
     }
-
 })();
