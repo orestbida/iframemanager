@@ -887,16 +887,14 @@
         getConfig: () => config,
 
         /**
-         * @param {bool} [eraseCookies]
+         * @param {bool} [hardReset]
          */
-        reset: (eraseCookies) => {
-            for (const service of serviceNames) {
-                if (eraseCookies) {
-                    api.rejectService(service);
-                }
-
-                for (const serviceDiv of allServiceProps[service]) {
-                    resetDiv(serviceDiv._div);
+        reset: (hardReset) => {
+            if (hardReset) {
+                for (const service of serviceNames) {
+                    for (const serviceDiv of allServiceProps[service]) {
+                        resetDiv(serviceDiv._div);
+                    }
                 }
             }
 
