@@ -1,5 +1,5 @@
 /*!
- * iframemanager v1.2.5
+ * iframemanager v1.3.0
  * Author Orest Bida
  * Released under the MIT License
  */
