@@ -11,7 +11,7 @@ resetBtn.addEventListener('click', () => {
     resetBtn.disabled = true;
     acceptAllBtn.disabled = true;
     rejectAllBtn.disabled = true;
-    im.reset();
+    im.reset(true);
 })
 
 runBtn.addEventListener('click', () => {
