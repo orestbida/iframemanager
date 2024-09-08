@@ -54,15 +54,15 @@ The plugin was mainly developed to aid [**CookieConsent**](https://github.com/or
 1. #### Download the [latest release](https://github.com/orestbida/iframemanager/releases/latest) or use via CDN/NPM:
 
     ```bash
-    https://cdn.jsdelivr.net/gh/orestbida/iframemanager@1.2.5/dist/iframemanager.js
-    https://cdn.jsdelivr.net/gh/orestbida/iframemanager@1.2.5/dist/iframemanager.css
+    https://cdn.jsdelivr.net/gh/orestbida/iframemanager@1.3.0/dist/iframemanager.js
+    https://cdn.jsdelivr.net/gh/orestbida/iframemanager@1.3.0/dist/iframemanager.css
     ```
     using [`npm`](https://www.npmjs.com/package/@orestbida/iframemanager):
 
     ```bash
     npm i @orestbida/iframemanager
     ```
-    
+
 2. #### Import script + stylesheet:
 
     ```html
@@ -382,6 +382,7 @@ The plugin exposes the following methods:
 - `.rejectService(<service_name>)`
 - `.getState()` [v1.2.0+]
 - `.getConfig()` [v1.2.0+]
+- `.reset(<hard_reset>)` [v1.3.0+]
 
 Example usage:
 
@@ -406,6 +407,12 @@ const state = im.getState();
 
 // state.services: Map<string, boolean>
 // state.acceptedServices: string[]
+
+// soft reset, removes internal event listeners
+im.reset();
+
+// hard reset, same as above, but also resets each div to its original state (for react frameworks)
+im.reset(true);
 ```
 
 Both `acceptService` and `rejectService` work the same way:
