@@ -1,0 +1,66 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    max-width: 910px;
+    margin: 0 auto;
+    padding: 1em;
+    line-height: 1.2;
+    font-family: 'BasierSquare', sans-serif!important;
+}
+
+@font-face {
+    font-family: 'BasierSquare';
+    src: local('BasierSquare'),
+    url('./fonts/basier-square-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+000-5FF;
+}
+
+@font-face {
+    font-family: 'BasierSquare';
+    src: local('BasierSquare'),
+    url('./fonts/basier-square-semibold.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal;
+    unicode-range: U+000-5FF;
+    font-display: swap;
+}
+
+:root {
+    --im-font-family: 'BasierSquare', sans-serif!important;
+}
+
+.styled-btn {
+    font: inherit;
+    font-weight: 600;
+    font-size: .9rem;
+    padding: .65rem 1rem;
+    border-radius: .4rem;
+    background-color: rgb(238, 238, 238);
+    border: 1px solid rgb(218, 218, 218);
+    color: #000000;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease;
+}
+
+.styled-btn:hover {
+    background-color: rgb(218, 218, 218);
+}
+
+.styled-btn:focus,
+.styled-btn:active {
+    border-color: rgb(180, 180, 180);
+}
+
+.styled-btn:disabled {
+    cursor: not-allowed;
+    transition: none!important;
+    background-color: rgb(238, 238, 238)!important;
+    border: 1px solid rgb(228, 228, 228)!important;
+    color: rgb(158, 158, 158)!important;
+}

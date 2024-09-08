@@ -1,8 +1,7 @@
-const im = iframemanager();
-const MAPS_API_KEY = ''
+var im = iframemanager();
+const MAPS_API_KEY = '';
 
-im.run({
-
+var config = {
     onChange: ({changedServices, eventSource}) => {
         console.log(changedServices, eventSource)
     },
@@ -22,7 +21,7 @@ im.run({
 
             languages : {
                 en : {
-                    notice: 'This content is hosted by a third party. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of youtube.com.',
+                    notice: 'This content is available <a href="https://www.youtube-nocookie.com/embed/{data-id}">here</a>. By showing the external content you accept the <a rel="noreferrer noopener" href="https://www.youtube.com/t/terms" target="_blank">terms and conditions</a> of youtube.com.',
                     loadBtn: 'Load once',
                     loadAllBtn: "Don't ask again"
                 }
@@ -270,15 +269,9 @@ im.run({
         }
 
     }
-});
+};
 
-
-const acceptAll = document.getElementById('accept-all');
-const rejectAll = document.getElementById('reject-all');
-
-acceptAll.addEventListener('click', () => im.acceptService('all'));
-rejectAll.addEventListener('click', () => im.rejectService('all'));
-
+im.run(config);
 
 /**
  * Dynamically load script (append to head)

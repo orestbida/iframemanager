@@ -1,29 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Test youtube videos cookie blocker</title>
+        <title>IframeManager Demo Page</title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <meta name="description" content="A page's description, usually one or two sentences."/>
+        <script src="assets/demo.js" defer></script>
+        <link rel="stylesheet" href="assets/demo.css">
 
         <link rel="stylesheet" href="../src/iframemanager.css">
-        <link rel="stylesheet" href="./assets/fonts.css">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" media="print" onload="this.media='all'">
 
         <style>
-
-            * {
-                padding: 0;
-                margin: 0;
-            }
-
-            body{
-                max-width: 910px;
-                margin: 0 auto;
-                padding: 1em;
-                font-family: sans-serif;
-                line-height: 1.2;
-            }
-
             /* Customize twitter service colors */
             div[data-service="youtube"]{
                 --im-btn-bg: rgba(255, 45, 45, 0.85);
@@ -95,18 +82,23 @@
                 border-radius: 28px;
             }
         </style>
-
     </head>
  <body>
     <div id="app">
-        <h1>This is a test page</h1>
+        <h1>Demo page</h1>
         <br>
-        <p>Demo with youtube & dailymotion config.</p>
+        <p>Demo with various services.</p>
         <br>
         <br>
 
-        <button id="accept-all">Accept all</button>
-        <button id="reject-all">Reject all</button>
+        <div>
+            <button class="styled-btn" id="accept-all-btn">Accept all</button>
+            <button class="styled-btn" id="reject-all-btn">Reject all</button>
+
+            <button class="styled-btn" id="reset-btn">Reset</button>
+            <button class="styled-btn" id="run-btn" disabled>Run</button>
+        </div>
+        <br>
 
         <br>
         <br>
